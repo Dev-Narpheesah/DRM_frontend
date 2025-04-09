@@ -1,0 +1,281 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Cormorant+SC:wght@300;400;500;600;700&family=Italianno&display=swap");
+
+
+:root {
+  --main-bg: #fff;
+
+
+  --font-family: "Inter", "sans-serif";
+  --font-weight: 700;
+
+  --primary-btn-bg: #0b3b52;
+  --primary-btn-padding: 0 16px;
+  --secondary-btn-bg: #f0f2f5;
+  --text-fade: #637587;
+  --text-primary: #121417;
+
+  --full-width: 100%;
+
+  font-style: normal;
+  scroll-padding-top: 5rem;
+  scroll-behavior: smooth;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  border: none;
+  box-sizing: border-box;
+  text-decoration: none;
+  outline: none;
+}
+
+
+
+.container {
+  padding: 20px 160px;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+
+.btn-primary {
+  border-radius: 12px;
+  background: var(--primary-btn-bg);
+  padding: var(--primary-btn-padding);
+  color: var(--main-bg);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: var(--font-weight);
+  line-height: 21px;
+  letter-spacing: 0.21px;
+  width: 84px;
+  height: 40px;
+}
+
+.btn-secondary {
+  border-radius: 12px;
+  background-color: var(--secondary-btn-bg);
+  padding: var(--primary-btn-padding);
+  color: var(--main-bg);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: var(--font-weight);
+  line-height: 21px;
+  letter-spacing: 0.21px;
+  height: 40px;
+}
+
+.notification {
+  border-radius: 12px;
+  background: var(--secondary-btn-bg);
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+}
+
+/* Flex */
+.--flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.--flex-start {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.--flex-end {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.--flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.--flex-justify-center {
+  display: flex;
+  justify-content: center;
+}
+
+.--dir-column {
+  flex-direction: column;
+}
+
+.--flex-dir-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.--flex-justify-between {
+  display: flex;
+  justify-content: space-between;
+}
+
+.--align-center {
+  display: flex;
+  align-items: center;
+}
+
+.--100vh {
+  height: 100vh;
+}
+.--mh-100vh {
+  min-height: 100vh;
+}
+
+.--gap {
+  gap: 50px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.modal-title {
+  margin-top: 0;
+}
+
+.user-name {
+  margin-bottom: 10px;
+}
+
+.role-label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.role-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-button,
+.cancel-button {
+  padding: 8px 16px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  border-radius: 12px;
+  background: tomato;
+  padding: var(--primary-btn-padding);
+  color: var(--main-bg);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: var(--font-weight);
+  line-height: 21px;
+  letter-spacing: 0.21px;
+  /* width: 84px; */
+  height: 40px;
+}
+
+.save-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.modal-content input {
+  border: 1px solid grey;
+  width: 100%;
+  padding: 4px;
+  font-size: 12px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.--flex {
+ display: flex;
+
+}
+
+.--flex-1 {
+ flex: 1 1 0%;
+}
+
+.--overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-x-hidden {
+  overflow: hidden;
+}
+
+/* .overflow-x {
+  overflow-x: hidden;
+} */
+
+.--overflow-y-auto  {
+  overflow: hidden;
+}
+
+@media (min-width: 768px) and (max-width: 991px){
+  .container {
+    padding: 0;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .container {
+    padding:50px 70px;
+  }
+}
+
+@media (min-width: 290px) and (max-width: 480px) {
+  .container {
+    padding:0;
+  }
+}
+
+@media (max-width: 390px) {
+  img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50px;
+    cursor: pointer;
+  }
+}

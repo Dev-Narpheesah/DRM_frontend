@@ -1,0 +1,93 @@
+.signinContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #0b3b52, #96e1dc);
+  font-family: 'Poppins', sans-serif;
+}
+
+.form {
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 50px;
+  width: 100%;
+  max-width: 400px;
+  animation: slideIn 0.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.formTitle {
+  font-size: 24px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.inputContainer {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  height: 37px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  gap: 12px;
+  background: #f0f2f5;
+}
+input:focus {
+  border-color: #0b3b52;
+  box-shadow: 0 0 8px rgba(11, 140, 163, 0.3);
+}
+
+.submit {
+  width: 100%;
+  padding: 15px;
+  background: #96e1dc;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.submit:hover {
+  background: #3c8a85;
+}
+
+.signupLink {
+  text-align: center;
+  margin-top: 20px;
+  color: #0b3b52;
+  font-weight: bold;
+}
+
+.signupLink a {
+  color: #3c8a85;
+  text-decoration: none;
+  margin-left: 5px;
+  transition: color 0.3s ease-in-out;
+}
+
+.signupLink a:hover {
+  color: #96e1dc;
+}

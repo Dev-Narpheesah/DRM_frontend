@@ -1,0 +1,379 @@
+body {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  background-color: #f4f4f9;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(45deg, #073541, #0b3b52);
+  padding: 15px 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navLinks {
+  list-style-type: none;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.navLinks li {
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.navLinks li a {
+  color: #f7f7f7;
+  text-decoration: none;
+  font-size: 1.1em;
+}
+
+.navLinks li:hover {
+  transform: scale(1.1);
+}
+
+.headerBtn {
+  background-color: #96e1dc;
+  color: #141315 !important;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 25px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.headerBtn {
+  color: #141315;
+  text-decoration: none;
+}
+
+.headerBtn:hover {
+  background-color: #6fd5ce;
+  transform: translateY(-2px);
+}
+
+.logo {
+  color: #f7f7f7;
+}
+
+main {
+  padding: 40px 20px;
+}
+
+.CallToAction {
+  margin-top: 60px;
+  text-align: center;
+  background: linear-gradient(135deg, #073541, #073541);
+  padding: 60px 20px;
+  border-radius: 20px;
+  color: white;
+}
+
+.CallToAction h2 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.CallToAction p {
+  font-size: 1.3em;
+  margin-bottom: 40px;
+  color: #f0f0f0;
+}
+
+.CtaBtn {
+  background-color: #96E1DC;
+  color: #f7f7f7;
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.CtaBtn a {
+  color: #141315;
+  text-decoration: none;
+}
+
+.CtaBtn:hover {
+  background-color: #6fd5ce;
+  transform: translateY(-3px);
+}
+
+.testimonials {
+  margin-top: 80px;
+  text-align: center;
+  background-color: #073541;
+  padding: 60px 20px;
+  border-radius: 20px;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.testimonials h2 {
+  font-size: 2.2em;
+  color: #f7f7f7;
+  margin-bottom: 40px;
+}
+
+.testimonialItems {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.testimonialItem {
+  background-color: #f7f7f7;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  width: 45%;
+  min-width: 250px;
+  font-style: italic;
+  transition: transform 0.3s ease;
+}
+
+.testimonialItem:hover {
+  transform: scale(1.05);
+}
+
+.testimonialItem p {
+  margin-bottom: 15px;
+}
+
+.testimonialItem h4 {
+  text-align: right;
+  color: #333;
+  font-weight: bold;
+}
+
+.stats {
+  margin-top: 80px;
+  text-align: center;
+  background-color: #073541;
+}
+
+.stats h2 {
+  font-size: 2.2em;
+  color: #f7f7f7;
+  margin-bottom: 40px;
+}
+
+.statsItems {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.statItem {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 50%;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  width: 160px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.statItem:hover {
+  transform: scale(1.1);
+}
+
+.statItem h3 {
+  font-size: 2.5em;
+  margin: 0;
+  color: #6fd5ce;
+}
+
+.statItem p {
+  margin: 0;
+  font-size: 1.1em;
+  color: #141315;
+}
+
+@media (min-width: 1200px) {
+  .navLinks li a {
+    font-size: 1.3em;
+  }
+
+  .CallToAction h2 {
+    font-size: 3em;
+  }
+
+  .CallToAction p {
+    font-size: 1.5em;
+  }
+
+  .CtaBtn {
+    font-size: 1.3em;
+  }
+
+  .testimonials h2 {
+    font-size: 2.5em;
+  }
+
+  .stats h2 {
+    font-size: 2.5em;
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 992px) {
+  .header {
+    padding: 20px 40px;
+  }
+
+  .navLinks li a {
+    font-size: 1.2em;
+  }
+
+  .CallToAction h2 {
+    font-size: 2.8em;
+  }
+
+  .testimonialItems,
+  .statsItems {
+    gap: 25px;
+  }
+
+  .statItem {
+    width: 140px;
+    height: 140px;
+  }
+
+  .statItem h3 {
+    font-size: 2.2em;
+  }
+}
+
+@media (max-width: 991px) and (min-width: 768px) {
+  .header {
+    padding: 15px 30px;
+  }
+
+  .navLinks {
+    gap: 20px;
+  }
+
+  .CallToAction h2 {
+    font-size: 2.5em;
+  }
+
+  .CallToAction p {
+    font-size: 1.2em;
+  }
+
+  .testimonialItems,
+  .statsItems {
+    gap: 20px;
+  }
+
+  .statItem {
+    width: 120px;
+    height: 120px;
+  }
+
+  .statItem h3 {
+    font-size: 2em;
+  }
+}
+
+@media (max-width: 767px) and (min-width: 576px) {
+  .header {
+    flex-direction: column;
+    padding: 15px 20px;
+  }
+
+  .navLinks {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .navLinks li a {
+    font-size: 1em;
+  }
+
+  .CallToAction h2 {
+    font-size: 2.2em;
+  }
+
+  .CallToAction p {
+    font-size: 1.1em;
+  }
+
+  .CtaBtn {
+    font-size: 1.1em;
+    padding: 12px 35px;
+  }
+
+  .testimonialItem {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .statItem {
+    width: 100px;
+    height: 100px;
+  }
+
+  .statItem h3 {
+    font-size: 1.8em;
+  }
+}
+
+@media (max-width: 575px) {
+  body {
+    font-size: 0.9em;
+  }
+
+  .header {
+    padding: 10px 15px;
+  }
+
+  .navLinks {
+    gap: 5px;
+    font-size: 0.9em;
+  }
+
+  .CallToAction h2 {
+    font-size: 2em;
+  }
+
+  .CallToAction p {
+    font-size: 1em;
+  }
+
+  .CtaBtn {
+    font-size: 1em;
+    padding: 10px 30px;
+  }
+
+  .testimonialItems,
+  .statsItems {
+    gap: 10px;
+  }
+
+  .testimonialItem {
+    padding: 15px;
+  }
+
+  .statItem {
+    width: 80px;
+    height: 80px;
+  }
+
+  .statItem h3 {
+    font-size: 1.5em;
+  }
+}

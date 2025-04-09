@@ -1,0 +1,478 @@
+
+.dashboard {
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.topSection {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: rgba(11, 59, 82, 0.8);
+  color: white;
+  border-radius: 10px;
+}
+
+.topImage {
+  width: 180px;
+  height: auto;
+  border-radius: 10px;
+  margin-right: 20px;
+}
+
+.topText {
+  flex: 1;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 0;
+}
+
+p {
+  margin: 5px 0;
+}
+
+
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+.statistics {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.statCard {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  flex: 1;
+  margin: 0 10px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.statCard:hover {
+  transform: scale(1.02);
+}
+
+.statCard h3 {
+  margin-bottom: 10px;
+  color: #0b3b52;
+}
+
+
+.tableSection {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table thead {
+  background-color: #0b3b52;
+  color: white;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.userImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon,
+.iconD {
+  font-size: 24px;
+  margin-right: 15px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.icon:hover {
+  color: #0056b3;
+}
+
+.iconD:hover {
+  color: #c82333;
+}
+
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  animation: slideDown 0.5s;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalContent h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  color: #0b3b52;
+}
+
+.modalContent input,
+.modalContent textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modalContent button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.modalContent button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.cancelButton {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancelButton:hover {
+  background-color: #c82333;
+}
+
+
+.done {
+  color: green;
+}
+
+.pending {
+  color: orange;
+}
+
+.pageButton {
+  background-color: transparent;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #0077b5; 
+}
+
+.pageButton:disabled {
+  color: #ddd;
+  cursor: default;
+}
+
+.pageNumber {
+  font-size: 1em;
+  color: #333;
+  padding: 0 15px;
+}
+
+
+.disasterList {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+}
+
+.disasterItem {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.disasterItem:last-child {
+  border-bottom: none;
+}
+
+.disasterTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #0b3b52;
+  margin-bottom: 5px;
+}
+
+.disasterDetails {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #333;
+  gap: 1rem;
+}
+
+.disasterLocation,
+.disasterDate,
+.disasterStatus {
+  color: #555;
+}
+
+.iconPast {
+  color: #4caf50; 
+  margin-right: 0.5rem;
+}
+
+.iconOngoing {
+  color: #ff9800; 
+  margin-right: 0.5rem;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.pageButton,
+.pageButtonNext {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #0077b5;
+  cursor: pointer;
+}
+
+.pageButtonNext {
+  color: #0073e6;
+}
+
+.pageButton:disabled {
+  color: #ddd;
+  cursor: default;
+}
+
+.pageNumber {
+  font-size: 1em;
+  color: #333;
+  padding: 0 15px;
+}
+.disasterDetails p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+
+.iconPast {
+  color: #4caf50;
+}
+
+.iconOngoing {
+  color: #ff9800;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.pageButton,
+.pageButtonNext {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #0077b5;
+  cursor: pointer;
+}
+
+.pageButton:disabled {
+  color: #ddd;
+  cursor: default;
+}
+
+.pageNumber {
+  padding: 0 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+
+@media (max-width: 768px) {
+  .disasterItem {
+    padding: 0.5rem 0;
+  }
+
+  .disasterTitle {
+    font-size: 1.1rem;
+  }
+
+  .disasterDetails {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .disasterTitle {
+    font-size: 1rem;
+  }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  .topSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .topImage {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .statistics {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statCard {
+    margin: 10px 0;
+  }
+
+  .tableSection {
+    padding: 10px;
+  }
+
+  .table th,
+  .table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .icon, .iconD {
+    font-size: 20px;
+  }
+
+  .modalContent {
+    padding: 20px;
+  }
+
+  .modalContent button {
+    padding: 10px 15px;
+    font-size: 14px;
+  }
+}
+
+
+@media (max-width: 480px) {
+  .topSection {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .statistics {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statCard {
+    margin: 10px 0;
+  }
+
+  .table th,
+  .table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .userImage {
+    width: 40px;
+    height: 40px;
+  }
+
+  .modalContent h2 {
+    font-size: 20px;
+  }
+
+  .modalContent input,
+  .modalContent textarea {
+    padding: 8px;
+  }
+
+  .modalContent button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .deleteButtons {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
