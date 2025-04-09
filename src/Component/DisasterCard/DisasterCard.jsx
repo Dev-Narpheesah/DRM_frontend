@@ -10,7 +10,7 @@ const DisasterCard = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await axios.get('https://drm-backend.vercel.app/')
+        const response = await axios.get('https://drm-backend.vercel.app/api/user')
         // ("http://localhost:4000/api/user");
         setReports(response.data);
       } catch (error) {

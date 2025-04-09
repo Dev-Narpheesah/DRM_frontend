@@ -46,7 +46,7 @@ const DisasterForm = () => {
     formDataWithImage.append("file", file);
 
     try {
-      const response = await axios.post('https://drm-backend.vercel.app/',
+      const response = await axios.post('https://drm-backend.vercel.app/api/user/register',
         // "http://localhost:4000/api/user/register",
          formDataWithImage, {
         headers: {

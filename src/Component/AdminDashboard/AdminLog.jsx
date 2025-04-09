@@ -15,7 +15,7 @@ const AdminLog = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post('https://drm-backend.vercel.app/',
+            const { data } = await axios.post('https://drm-backend.vercel.app/admin/login',
                 // 'http://localhost:4000/api/admin/login',
                  formData);
             console.log('Login successful', data);

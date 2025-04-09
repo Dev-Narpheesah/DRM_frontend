@@ -21,7 +21,7 @@ const UpdateUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('https://drm-backend.vercel.app/')
+        const response = await axios.get(`https://drm-backend.vercel.app/api/user/${id}`)
         // (
         //   `http://localhost:4000/api/user/${id}`
         // );
