@@ -9,20 +9,20 @@ const Home = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // const handleDashboardClick = () => {
-  //   if (user && user.hasSubmittedReport) {
-  //     navigate(`/user/${user.id}`);
-  //   } else {
-  //     navigate("/disForm"); // Redirect to the disaster report form if the user hasn't submitted a report
-  //   }
-  // };
+  const handleDashboardClick = () => {
+    if (user && user.hasSubmittedReport) {
+      navigate(`/user/${user.id}`);
+    } else {
+      navigate("/signup"); // Redirect to the disaster report form if the user hasn't submitted a report
+    }
+  };
 
-  // useEffect(() => {
-  //   // Check if user has submitted a report and navigate to their dashboard if so
-  //   if (user && user.hasSubmittedReport) {
-  //     navigate(`/user/${user.id}`);
-  //   }
-  // }, [user, navigate]);
+  useEffect(() => {
+    // Check if user has submitted a report and navigate to their dashboard if so
+    if (user && user.hasSubmittedReport) {
+      navigate(`/user/${user.id}`);
+    }
+  }, [user, navigate]);
 
   return (
     <div className={styles.container}>
@@ -41,11 +41,11 @@ const Home = () => {
             <li>
               <Link to="/about">About</Link>
             </li>
-            {/* <li>
+            <li>
               <button className={styles.headerBtn} onClick={handleDashboardClick}>
                 Dashboard
               </button>
-            </li> */}
+            </li>
             <li>
               <button className={styles.headerBtn}>
                 <Link to="/disForm" style={{ color: "#141315" }}>

@@ -47,6 +47,8 @@ const SignIn = () => {
           // `http://localhost:4000/api/admin/login`,
           formData
         );
+        console.log({response})
+
         login(response.data); // Ensure response.data is in the correct format
         toast.success("Login Successful");
         navigate("/user");
