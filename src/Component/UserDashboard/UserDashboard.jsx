@@ -23,7 +23,7 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchUserReports = async () => {
       try {
-        const response = await axios.get('https://drm-backend.vercel.app/api/user')
+        const response = await fetch('https://drm-backend.vercel.app/api/user')
         // (`http://localhost:4000/api/user`);
         setUserReports(response.data);
       } catch (error) {
@@ -33,7 +33,7 @@ const UserDashboard = () => {
 
     const fetchApiDisasters = async () => {
       try {
-        const response = await axios.get('https://drm-backend.vercel.app/api/disaster')
+        const response = await fetch('https://drm-backend.vercel.app/api/disaster')
         // (`http://localhost:4000/api/disaster`); 
         console.log("Fetched all disasters:", response.data);
       
@@ -47,7 +47,7 @@ const UserDashboard = () => {
 
     const fetchUserDisasters = async () => {
       try {
-        const response = await axios.get(`https://drm-backend.vercel.app/api/user/${id}`)
+        const response = await fetch(`https://drm-backend.vercel.app/api/user/${id}`)
         // (`http://localhost:4000/api/user/${id}`,
         //    {
         //   params: { email: user?.email }, 

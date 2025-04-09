@@ -65,7 +65,7 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('https://drm-backend.vercel.app/api/admin/register',formData)
+      const response = await fetch('https://drm-backend.vercel.app/api/admin/register',formData)
       // ('http://localhost:4000/api/admin/register', formData);
       login(response.data.user, response.data.token);
       setIsSubmitting(false);
