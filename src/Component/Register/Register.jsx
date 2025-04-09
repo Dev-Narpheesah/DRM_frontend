@@ -65,7 +65,8 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/admin/register', formData);
+      const response = await axios.post('https://drm-backend.vercel.app/',formData)
+      // ('http://localhost:4000/api/admin/register', formData);
       login(response.data.user, response.data.token);
       setIsSubmitting(false);
       toast.success("Registration Successful");

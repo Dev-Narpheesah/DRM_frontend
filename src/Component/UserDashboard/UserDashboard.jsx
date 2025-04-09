@@ -23,7 +23,8 @@ const UserDashboard = () => {
   useEffect(() => {
     const fetchUserReports = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/user`);
+        const response = await axios.get('https://drm-backend.vercel.app/')
+        // (`http://localhost:4000/api/user`);
         setUserReports(response.data);
       } catch (error) {
         console.error("Error fetching user reports:", error);
@@ -32,7 +33,8 @@ const UserDashboard = () => {
 
     const fetchApiDisasters = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/disaster`); 
+        const response = await axios.get('https://drm-backend.vercel.app/')
+        // (`http://localhost:4000/api/disaster`); 
         console.log("Fetched all disasters:", response.data);
       
         setAllDisasters([...disasters, ...response.data]);
@@ -45,9 +47,11 @@ const UserDashboard = () => {
 
     const fetchUserDisasters = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/api/user/${id}`, {
-          params: { email: user?.email }, 
-        });
+        const response = await axios.get('https://drm-backend.vercel.app/')
+        // (`http://localhost:4000/api/user/${id}`,
+        //    {
+        //   params: { email: user?.email }, 
+        // });
         console.log("Fetched user-specific disasters:", response.data); 
         setUserDisasters(Array.isArray(response.data) ? response.data : []); 
       } catch (error) {

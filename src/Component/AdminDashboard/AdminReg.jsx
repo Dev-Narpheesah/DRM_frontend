@@ -14,7 +14,9 @@ const AdminReg = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post('http://localhost:4000/api/admin/register', formData);
+            const { data } = await axios.post('https://drm-backend.vercel.app/',
+                // 'http://localhost:4000/api/admin/register', 
+                formData);
             console.log('Registration successful', data);
         } catch (error) {
             console.error('Error registering', error);

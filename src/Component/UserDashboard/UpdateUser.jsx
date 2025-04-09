@@ -21,9 +21,10 @@ const UpdateUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:4000/api/user/${id}`
-        );
+        const response = await axios.get('https://drm-backend.vercel.app/')
+        // (
+        //   `http://localhost:4000/api/user/${id}`
+        // );
         setFormData(response.data);
       } catch (error) {
         console.error("Failed to fetch user data:", error);

@@ -23,7 +23,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/user");
+        const response = await axios.get('https://drm-backend.vercel.app/')
+        // ("http://localhost:4000/api/user");
         const users = response.data;
         setUsers(users);
         setTotalReports(users.length);
