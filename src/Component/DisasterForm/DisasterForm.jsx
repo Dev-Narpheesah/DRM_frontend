@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./DisasterForm.module.css";
-import axios from "axios";
 
 const initialState = {
   email: "",
@@ -16,7 +15,7 @@ const DisasterForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(initialState);
   const [imagePreview, setImagePreview] = useState(null);
-  const [file, setFile] = useState(null); 
+  const [file, setFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -27,41 +26,42 @@ const DisasterForm = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setFile(file); 
-    setImagePreview(URL.createObjectURL(file));
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    setImagePreview(URL.createObjectURL(selectedFile));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    
     const formDataWithImage = new FormData();
     formDataWithImage.append("email", formData.email);
     formDataWithImage.append("phone", formData.phone);
     formDataWithImage.append("disasterType", formData.disasterType);
     formDataWithImage.append("location", formData.location);
     formDataWithImage.append("report", formData.report);
-    formDataWithImage.append("file", file);
+    if (file) {
+      formDataWithImage.append("file", file);
+    }
 
     try {
-      const response = await fetch('https://drm-backend.vercel.app/api/user/register',
-        // "http://localhost:4000/api/user/register",
-         formDataWithImage, {
-        headers: {
-          "Content-Type": "multipart/form-data", 
-        },
-        withCredentials: true,
+      const response = await fetch('https://drm-backend.vercel.app/api/user/register', {
+        method: 'POST',
+        body: formDataWithImage,
+       
+        credentials: 'include', 
       });
 
-      if (response.status === 201) {
-        toast.success("User reported successfully!");
-        setFormData(initialState);
-        setFile(null);
-        setImagePreview(null);
-        navigate("/card");
+      if (!response.ok) {
+        throw new Error('Failed to submit disaster report');
       }
+
+      toast.success("User reported successfully!");
+      setFormData(initialState);
+      setFile(null);
+      setImagePreview(null);
+      navigate("/card");
     } catch (error) {
       console.error("Failed to submit disaster report", error);
       toast.error("Failed to submit disaster report");
@@ -73,18 +73,16 @@ const DisasterForm = () => {
   return (
     <div className={styles.wrapper}>
       <form className={styles.container} onSubmit={handleSubmit}>
-      
         <label htmlFor="email">Email Address</label>
         <input
           name="email"
           type="email"
-          placeholder=" example@gmail.com"
+          placeholder= " example@gmail.com"
           value={formData.email}
           onChange={handleChange}
           required
         />
 
-       
         <label htmlFor="phone">Phone Number</label>
         <input
           name="phone"
@@ -95,7 +93,6 @@ const DisasterForm = () => {
           required
         />
 
-      
         <label htmlFor="disasterType">Disaster Type</label>
         <select
           name="disasterType"
@@ -113,7 +110,6 @@ const DisasterForm = () => {
           <option value="Other">Other</option>
         </select>
 
-        
         <label htmlFor="location">Location</label>
         <input
           name="location"
@@ -124,7 +120,6 @@ const DisasterForm = () => {
           required
         />
 
-      
         <label htmlFor="report">Report</label>
         <textarea
           name="report"
@@ -134,7 +129,6 @@ const DisasterForm = () => {
           required
         ></textarea>
 
-        
         <label htmlFor="file" className={styles.imgLabel}>
           <input
             type="file"
@@ -156,7 +150,6 @@ const DisasterForm = () => {
           />
         )}
 
-       
         <button type="submit" className={styles.btn_disaster} disabled={isLoading}>
           {isLoading ? "Submitting..." : "Submit Report"}
         </button>

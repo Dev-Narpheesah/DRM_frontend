@@ -45,7 +45,13 @@ const SignIn = () => {
         const response = await fetch(
           'https://drm-backend.vercel.app/api/admin/login',
           // `http://localhost:4000/api/admin/login`,
-          formData
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
         );
         console.log({response})
 

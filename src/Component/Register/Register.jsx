@@ -1,7 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./Register.module.css";
-import axios from 'axios';
 import { toast } from "react-toastify";
 import { UserContext } from "../../../context/userContext";
 
@@ -53,6 +52,8 @@ const Register = () => {
       return false;
     }
 
+  
+
     setFormValidMessage('');
     return true;
   };
@@ -65,16 +66,32 @@ const Register = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('https://drm-backend.vercel.app/api/admin/register',formData)
-      // ('http://localhost:4000/api/admin/register', formData);
-      login(response.data.user, response.data.token);
+      const response = await fetch('https://drm-backend.vercel.app/api/admin/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          confirmPassword
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Registration failed');
+      }
+
+      const data = await response.json();
+      login(data.user, data.token);
       setIsSubmitting(false);
       toast.success("Registration Successful");
-      navigate('/signin', { state: { user: response.data.user } });
+      navigate('/signin', { state: { user: data.user } });
     } catch (error) {
       setIsSubmitting(false);
-      console.error('Failed to register user', error.response?.data || error.message);
-      toast.error(error.response?.data?.message || 'Failed to register user');
+      console.error('Failed to register user', error);
+      toast.error(error.message || 'Failed to register user');
     }
   };
 
