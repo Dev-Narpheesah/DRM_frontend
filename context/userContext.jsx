@@ -3,61 +3,87 @@ import { createContext, useState, useEffect } from "react";
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-   
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem("user");
-        const savedToken = localStorage.getItem("token");
-        return savedUser && savedToken ? { user: JSON.parse(savedUser), token: savedToken } : null;
-    });
+  const API_URL =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+      ? "http://localhost:4000"
+      : "https://drm-backend.vercel.app";
 
-   
+  // Save user data to localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
 
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user.user));
-            localStorage.setItem("token", user.token);
-        } else {
-            localStorage.removeItem("user");
-            localStorage.removeItem("token");
-        }
-    }, [user]);
+  // Check authentication status on mount
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const response = await fetch(`${API_URL}/api/user/me`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         credentials: "include",
+  //       });
 
-  
+  //       if (response.ok) {
+  //         const userData = await response.json();
+  //         // Validate userData
+  //         if (userData.email && typeof userData.isAdmin === "boolean") {
+  //           setUser(userData);
+  //         } else {
+  //           console.error("Invalid user data from /api/user/me:", userData);
+  //           setUser(null);
+  //         }
+  //       } else {
+  //         setUser(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking auth:", error);
+  //       setUser(null);
+  //     }
+  //   };
 
-    const login = (userData, token) => {
-        setUser({ user: userData, token });
-    };
+  //   checkAuth();
+  // }, []);
 
-   
+  // // Login function with validation
+  // const login = (userData) => {
+  //   if (!userData || !userData.email || typeof userData.isAdmin !== "boolean") {
+  //     console.error("Invalid user data for login:", userData);
+  //     return;
+  //   }
+  //   setUser(userData);
+  // };
 
-    const logout = () => {
-        setUser(null);
-    };
+  // Logout function
+  const logout = async () => {
+    try {
+      await fetch(`${API_URL}/api/user/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+      setUser(null);
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
 
-    
-
-    const isTokenExpired = (token) => {
-        if (!token) return true;
-        try {
-            const decodedToken = JSON.parse(atob(token.split('.')[1])); 
-            return decodedToken.exp * 1000 < Date.now(); 
-        } catch (error) {
-            return true;
-        }
-    };
-
-    
-    
-    useEffect(() => {
-        if (user && isTokenExpired(user.token)) {
-            logout();
-        }
-    }, [user]);
-
-    return (
-        <UserContext.Provider value={{ user, login, logout }}>
-            {children}
-        </UserContext.Provider>
-    );
+  return (
+    <UserContext.Provider value={{ user,  logout ,  setUser}}>
+      {children}
+    </UserContext.Provider>
+  );
 };

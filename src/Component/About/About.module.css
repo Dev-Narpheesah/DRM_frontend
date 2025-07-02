@@ -4,55 +4,60 @@
   align-items: center;
   padding: 50px 20px;
   background: linear-gradient(120deg, #f0f0f0, #ffffff);
+  flex-wrap: wrap;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  max-width: 900px;
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 960px;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
 }
 
 .imageWrapper {
   width: 100%;
   overflow: hidden;
-  border-bottom: 5px solid #5A9;
+  border-bottom: 4px solid rgb(69, 115, 201);
 }
 
 .image {
   width: 100%;
+  height: auto;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
 .card:hover .image {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .content {
-  padding: 30px;
+  padding: 40px;
 }
 
 .title {
   font-size: 2.5rem;
-  color: #2A2A2A;
+  color: #1a1a1a;
   margin-bottom: 20px;
   font-family: 'Poppins', sans-serif;
   text-align: center;
 }
 
-.description, .text {
+.description,
+.text {
   font-size: 1.125rem;
-  color: #555;
-  line-height: 1.8;
+  color: #444;
+  line-height: 1.75;
   margin-bottom: 20px;
   text-align: justify;
   font-family: 'Lato', sans-serif;
@@ -60,13 +65,13 @@
 
 .subtitle {
   font-size: 1.75rem;
-  color: #333;
-  margin-bottom: 10px;
+  color: #222;
+  margin-bottom: 15px;
   font-family: 'Poppins', sans-serif;
 }
 
 .valuesList {
-  list-style-type: none;
+  list-style: none;
   padding-left: 0;
   margin: 20px 0;
 }
@@ -74,10 +79,11 @@
 .valuesList li {
   font-size: 1.125rem;
   margin-bottom: 15px;
+  color: #444;
 }
 
 .valuesList li strong {
-  color: #5A9;
+  color: #2563eb;
 }
 
 .services {
@@ -87,24 +93,26 @@
 .ServiceItems {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  gap: 30px;
 }
 
 .ServiceItem {
-  width: 45%;
-  margin-bottom: 20px;
-  border-left: 3px solid #5A9;
-  padding-left: 15px;
+  flex: 1 1 45%;
+  min-width: 280px;
+  border-left: 4px solid #2563eb;
+  padding-left: 20px;
   transition: border-color 0.3s ease;
 }
 
 .ServiceItem:hover {
-  border-color: #2A2A2A;
+  border-color: #222;
 }
 
 .serviceTitle {
   font-size: 1.5rem;
   margin-bottom: 10px;
+  color: #2a2a2a;
+  font-weight: 600;
 }
 
 .featureList {
@@ -118,22 +126,21 @@
   font-family: 'Lato', sans-serif;
 }
 
-
 @media (max-width: 768px) {
   .ServiceItems {
     flex-direction: column;
   }
 
   .ServiceItem {
-    width: 100%;
+    flex: 1 1 100%;
   }
 
   .card {
-    flex-direction: column;
+    margin: 0 10px;
   }
 
   .content {
-    padding: 20px;
+    padding: 25px;
   }
 }
 
@@ -142,11 +149,18 @@
     font-size: 2rem;
   }
 
-  .subtitle, .serviceTitle {
-    font-size: 1.5rem;
+  .subtitle,
+  .serviceTitle {
+    font-size: 1.4rem;
   }
 
-  .description, .text {
+  .description,
+  .text,
+  .valuesList li {
     font-size: 1rem;
+  }
+
+  .content {
+    padding: 20px;
   }
 }

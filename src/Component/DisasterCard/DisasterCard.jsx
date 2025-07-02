@@ -1,26 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import styles from './DisasterCard.module.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import styles from './DisasterCard.module.css';
+import CommentSection from './CommentSection'; 
 
 const DisasterCard = () => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+ 
 
   useEffect(() => {
     const fetchReports = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        const response = await fetch('https://drm-backend.vercel.app/api/user', {
+        const response = await fetch(`https://drm-backend.vercel.app/api/user`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-           
           },
-          credentials: 'include' 
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -28,17 +31,16 @@ const DisasterCard = () => {
         }
 
         const data = await response.json();
-        
-        // Validate data structure
+
         if (!Array.isArray(data)) {
           throw new Error('Invalid data format received from server');
         }
 
         setReports(data);
       } catch (error) {
-        console.error("Error fetching reports:", error);
+        console.error('Error fetching reports:', error);
         setError(error.message);
-        toast.error(error.message || "Failed to load reports.");
+        toast.error(error.message || 'Failed to load reports.');
       } finally {
         setIsLoading(false);
       }
@@ -47,7 +49,11 @@ const DisasterCard = () => {
     fetchReports();
   }, []);
 
-  // Loading state
+  const handleDonationClick = (reportId) => {
+    navigate(`/donate/${reportId}`);
+    toast.info('Redirecting to donation page...');
+  };
+
   if (isLoading) {
     return (
       <div className={styles.cardContainer}>
@@ -56,7 +62,6 @@ const DisasterCard = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className={styles.cardContainer}>
@@ -65,7 +70,6 @@ const DisasterCard = () => {
     );
   }
 
-  // Empty state
   if (reports.length === 0) {
     return (
       <div className={styles.cardContainer}>
@@ -77,33 +81,59 @@ const DisasterCard = () => {
   return (
     <div className={styles.cardContainer}>
       {reports.map((report) => {
-        // Add basic validation for report properties
         if (!report?._id || !report?.disasterType || !report?.report) {
           console.warn('Invalid report data:', report);
           return null;
         }
 
+        const timestamp = report.createdAt
+          ? new Date(report.createdAt).toLocaleString()
+          : 'Unknown date';
+
         return (
-          <div className={styles.card} key={report._id}>
-            <img 
-              src={report.image?.url || '/default-disaster-image.jpg'} 
-              alt={report.disasterType || 'Disaster'} 
-              className={styles.cardImage}
-              onError={(e) => {
-                e.target.src = '/default-disaster-image.jpg'; // Fallback image
-              }}
-            />
-            <h1 className={styles.cardTitle}>
-              {report.disasterType || 'Unknown Disaster'}
-            </h1>
-            <p className={styles.cardDescription}>
-              {report.report?.length > 10 
-                ? `${report.report.substring(0, 10)}...` 
-                : report.report || 'No description available'}
-            </p>
-            <button className={styles.cardButton}>
-              <Link to={`/disReport/${report._id}`}>Learn More</Link>
-            </button>
+          <div className={styles.postCard} key={report._id}>
+            {/* Post Header */}
+            <div className={styles.postHeader}>
+              <div className={styles.postAvatar}></div>
+              <div>
+                <h3 className={styles.postTitle}>{report.disasterType}</h3>
+                <p className={styles.postTimestamp}>{timestamp}</p>
+              </div>
+            </div>
+
+            {/* Post Content */}
+            <div className={styles.postContent}>
+              <p>{report.report || 'No description available'}</p>
+              {report.image?.url && (
+                <img
+                  src={report.image.url}
+                  alt={report.disasterType}
+                  className={styles.postImage}
+                  onError={(e) => {
+                    e.target.src = '/default-disaster-image.jpg';
+                  }}
+                />
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className={styles.postActions}>
+              <button
+                className={styles.actionButton}
+                onClick={() => handleDonationClick(report._id)}
+              >
+                Donate
+              </button>
+              <Link
+                to={`/disReport/${report._id}`}
+                className={styles.actionButton}
+              >
+                Learn More
+              </Link>
+            </div>
+
+           
+            <CommentSection reportId={report._id} />
           </div>
         );
       })}

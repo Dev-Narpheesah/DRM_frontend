@@ -3,19 +3,63 @@ import { Link } from "react-router-dom";
 import styles from "./HeroSection.module.css";
 
 const heroImages = [
-  { url: 'flood.jpeg', title: 'Empower Hope', subtitle: 'Be the change in flood-stricken areas.' },
-  { url: 'res.jpeg', title: 'Rapid Action, Real Impact', subtitle: 'Mobilize resources for wildfire recovery.' },
-  { url: 'hurricane.jpeg', title: 'Resilience in the Storm', subtitle: 'Supporting communities through every hurricane.' },
-  { url: 'flames.jpeg', title: 'United for Relief', subtitle: 'Harness the power of volunteer efforts globally.' },
-  { url: 'art.jpeg', title: 'Every Report Counts', subtitle: 'Your voice matters in disaster response.' },
-  { url: 'erosion.jpeg', title: 'Preserve Our Lands', subtitle: 'Combating erosion with sustainable solutions.' },
-  { url: 'tsunamis.jpeg', title: 'Waves of Support', subtitle: 'Helping communities rebuild after tsunamis.' },
-  { url: 'earthquake.jpeg', title: 'Standing Strong', subtitle: 'Rebuilding lives after devastating earthquakes.' },
-  { url: 'drought.jpeg', title: 'Hope in Dry Times', subtitle: 'Providing resources in drought-stricken regions.' },
-  { url: 'blizzard.jpeg', title: 'Surviving the Cold', subtitle: 'Delivering aid during harsh winter storms.' },
-  { url: 'landslide.jpeg', title: 'Overcoming Landslides', subtitle: 'Restoring communities after landslides.' },
-  { url: 'volcano.jpeg', title: 'Volcanic Vigilance', subtitle: 'Responding swiftly to volcanic eruptions.' }
+  {
+    url: 'modern_flood_response.jpg',
+    title: 'Empower Resilience',
+    subtitle: 'Rebuilding communities in the wake of rising waters.'
+  },
+  {
+    url: 'ai_wildfire_detection.jpg',
+    title: 'AI for Wildfire Relief',
+    subtitle: 'Using technology to fight and recover from wildfires.'
+  },
+  {
+    url: 'urban_hurricane_aid.jpg',
+    title: 'Shelter from the Storm',
+    subtitle: 'Urban hubs united against hurricane havoc.'
+  },
+  {
+    url: 'real_time_disaster_reporting.jpg',
+    title: 'Report. React. Recover.',
+    subtitle: 'Real-time data driving faster relief.'
+  },
+  {
+    url: 'green_reforestation_project.jpg',
+    title: 'Green the Earth',
+    subtitle: 'Fighting erosion through sustainable reforestation.'
+  },
+  {
+    url: 'coastal_tsunami_rebuild.jpg',
+    title: 'Rising Again',
+    subtitle: 'Tsunami-struck towns finding strength in unity.'
+  },
+  {
+    url: 'earthquake_drone_aid.jpg',
+    title: 'Drones of Hope',
+    subtitle: 'Precision aid delivery after quakes.'
+  },
+  {
+    url: 'smart_irrigation_drought.jpg',
+    title: 'Innovate to Irrigate',
+    subtitle: 'Smart farming in drought zones.'
+  },
+  {
+    url: 'arctic_aid_delivery.jpg',
+    title: 'Warming the Coldest Hearts',
+    subtitle: 'Bringing warmth to blizzard-battered lives.'
+  },
+  {
+    url: 'landslide_sensor_monitoring.jpg',
+    title: 'Prevent the Fall',
+    subtitle: 'Predicting and preventing landslides with tech.'
+  },
+  {
+    url: 'volcano_drone_monitor.jpg',
+    title: 'Eyes on the Volcano',
+    subtitle: 'Saving lives with real-time eruption monitoring.'
+  }
 ];
+
 
 const HeroSection = () => {
   const handleJoinUsClick = () => {

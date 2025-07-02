@@ -1,97 +1,151 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import axios from "axios";
 import { UserContext } from "../../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import styles from "./AdminDashboard.module.css";
-import { FaCheck, FaHourglassHalf, FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import disasterData from "../../../api/disasters"; 
+import {
+  FaCheck,
+  FaHourglassHalf,
+  FaArrowLeft,
+  FaArrowRight,
+} from "react-icons/fa";
+import disasterData from "../../../api/disasters";
 import { toast } from "react-toastify";
-
-export const shortenText = (text = "", n) => {
-  return text?.length > n ? `${text.substring(0, n)}...` : text;
-};
 
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);
   const [users, setUsers] = useState([]);
-  const [disasters, setDisasters] = useState(disasterData);
+  const [disasters, setDisasters] = useState([]);
   const [totalReports, setTotalReports] = useState(0);
   const [totalRegions, setTotalRegions] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const itemsPerPage = 10;
+
+  // Encapsulated shortenText function
+  const shortenText = (text = "", n) => {
+    return text?.length > n ? `${text.substring(0, n)}...` : text;
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch('https://drm-backend.vercel.app/api/user')
-        // ("http://localhost:4000/api/user");
-        const users = response.data;
-        setUsers(users);
-        setTotalReports(users.length);
-        const uniqueRegions = new Set(users.map((user) => user.location));
+        const response = await fetch("https://drm-backend.vercel.app/api/user");
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setUsers(data);
+        setTotalReports(data.length);
+        const uniqueRegions = new Set(data.map((user) => user.location));
         setTotalRegions(uniqueRegions.size);
       } catch (error) {
-        toast.error("Error fetching users.");
         console.error("Error fetching users:", error);
+        toast.error("Failed to fetch user data.");
+        setError("Unable to load user data.");
       }
     };
 
     const fetchApiDisasters = async () => {
       try {
-        const response = await axios.get("https://api.reliefweb.int/v1/disasters", {
-          params: { offset: 0, limit: 100, profile: "full" },
-        });
+        const response = await axios.get(
+          "https://api.reliefweb.int/v1/disasters",
+          {
+            params: { offset: 0, limit: 100, profile: "full" },
+          }
+        );
 
         const apiDisasters = response.data.data.map((disaster) => ({
           id: disaster.id,
-          disasterType: disaster.fields.name,
+          disasterType: disaster.fields.name || "Unknown",
           country: disaster.fields.primary_country?.name || "Unknown",
-          date: disaster.fields.date.created,
-          status: new Date(disaster.fields.date.created) < new Date() ? "Resolved" : "Ongoing",
-          // Add dummy data for missing fields to match your structure
-          injured: Math.floor(Math.random() * 50000),
-          death: Math.floor(Math.random() * 10000),
-          casualties: Math.floor(Math.random() * 60000),
-          necessity: ["Shelter", "Food", "Medical Aid", "Clean Water"][Math.floor(Math.random() * 4)]
+          date: disaster.fields.date?.created || new Date().toISOString(),
+          status:
+            disaster.fields.status ||
+            (new Date(disaster.fields.date?.created) < new Date()
+              ? "Resolved"
+              : "Ongoing"),
+          injured: disaster.fields.injured || "N/A",
+          death: disaster.fields.death || "N/A",
+          casualties: disaster.fields.casualties || "N/A",
+          necessity: disaster.fields.necessity || "N/A",
         }));
 
-        // Combine dummy data with API data
         setDisasters([...disasterData, ...apiDisasters]);
       } catch (error) {
         console.error("Error fetching disasters:", error);
-        toast.error("Failed to fetch disaster data. Using local data only.");
-        setDisasters(disasterData); // Fallback to local data
+        toast.error("Failed to fetch disaster data. Using local data.");
+        setDisasters(disasterData);
       }
     };
 
-    fetchUsers();
-    fetchApiDisasters();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      await Promise.all([fetchUsers(), fetchApiDisasters()]);
+      setLoading(false);
+    };
 
-  const disastersToDisplay = disasters.slice(currentPage * 10, (currentPage + 1) * 10);
+    fetchData();
+  }, []);
 
   const formatDate = (dateString) => {
     try {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid date");
+      }
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
-    } catch {
-      return "Invalid Date";
+    } catch (error) {
+      console.warn("Invalid date format:", dateString);
+      return "N/A";
     }
   };
+
+  const disastersToDisplay = useMemo(() => {
+    return disasters.slice(
+      currentPage * itemsPerPage,
+      (currentPage + 1) * itemsPerPage
+    );
+  }, [disasters, currentPage]);
+
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <p>{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className={styles.retryButton}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.dashboard}>
       <div className={styles.topSection}>
-        <img src="adHead.jpeg" alt="Header" className={styles.topImage} />
         <div className={styles.topText}>
-          <h1>Dashboard</h1>
-          <p>Manage users, reports, and more efficiently!</p>
+          <h1>Admin Dashboard</h1>
+          <p>Manage users, reports, and disasters efficiently!</p>
         </div>
       </div>
-
       <div className={styles.statistics}>
         <div className={styles.statCard}>
           <h3>Total Users</h3>
@@ -110,53 +164,84 @@ const AdminDashboard = () => {
       <div className={styles.tableSection}>
         <h2>Disaster Data</h2>
         <div className={styles.tableContainer}>
-          <table className={styles.table}>
+          <table
+            className={styles.table}
+            role="grid"
+            aria-label="Disaster Data Table"
+          >
             <thead>
               <tr>
-                <th>Disaster Type</th>
-                <th>Country</th>
-                <th>Date</th>
-                <th>Injured</th>
-                <th>Deaths</th>
-                <th>Necessities</th>
-                <th>Status</th>
+                <th scope="col">Disaster Type</th>
+                <th scope="col">Country</th>
+                <th scope="col">Date</th>
+                <th scope="col">Injured</th>
+                <th scope="col">Deaths</th>
+                <th scope="col">Necessities</th>
+                <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>
-              {disastersToDisplay.map((disaster) => (
-                <tr key={disaster.id}>
-                  <td>{disaster.disasterType}</td>
-                  <td>{disaster.country}</td>
-                  <td>{formatDate(disaster.date)}</td>
-                  <td>{disaster.injured?.toLocaleString() || 'N/A'}</td>
-                  <td>{disaster.death?.toLocaleString() || 'N/A'}</td>
-                  <td>{shortenText(disaster.necessity, 25)}</td>
-                  <td>
-                    {disaster.status === "Resolved" ? (
-                      <FaCheck title="Resolved" className={styles.resolvedIcon} />
-                    ) : (
-                      <FaHourglassHalf title="Ongoing" className={styles.ongoingIcon} />
-                    )}
-                  </td>
+              {disastersToDisplay.length > 0 ? (
+                disastersToDisplay.map((disaster) => (
+                  <tr key={disaster.id}>
+                    <td>{shortenText(disaster.disasterType, 20)}</td>
+                    <td>{shortenText(disaster.country, 20)}</td>
+                    <td>{formatDate(disaster.date)}</td>
+                    <td>
+                      {typeof disaster.injured === "number"
+                        ? disaster.injured.toLocaleString()
+                        : disaster.injured}
+                    </td>
+                    <td>
+                      {typeof disaster.death === "number"
+                        ? disaster.death.toLocaleString()
+                        : disaster.death}
+                    </td>
+                    <td>{shortenText(disaster.necessity, 20)}</td>
+                    <td>
+                      {disaster.status === "Resolved" ? (
+                        <FaCheck
+                          aria-label="Resolved"
+                          className={styles.resolvedIcon}
+                        />
+                      ) : (
+                        <FaHourglassHalf
+                          aria-label="Ongoing"
+                          className={styles.ongoingIcon}
+                        />
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7">No disaster data available.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
         <div className={styles.pagination}>
           <button
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
             disabled={currentPage === 0}
             className={styles.pageButton}
             aria-label="Previous page"
           >
             <FaArrowLeft />
           </button>
-          <span>Page {currentPage + 1} of {Math.ceil(disasters.length / 10)}</span>
+          <span>
+            Page {currentPage + 1} of{" "}
+            {Math.ceil(disasters.length / itemsPerPage)}
+          </span>
           <button
-            onClick={() => setCurrentPage(prev => (prev + 1) * 10 < disasters.length ? prev + 1 : prev)}
-            disabled={(currentPage + 1) * 10 >= disasters.length}
+            onClick={() =>
+              setCurrentPage((prev) =>
+                (prev + 1) * itemsPerPage < disasters.length ? prev + 1 : prev
+              )
+            }
+            disabled={(currentPage + 1) * itemsPerPage >= disasters.length}
             className={styles.pageButton}
             aria-label="Next page"
           >

@@ -1,7 +1,6 @@
 import React, { useState, useContext, useCallback } from "react";
 import styles from "./SignIn.module.css";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { toast } from "react-toastify";
 import PasswordInput from "../passwordInput/passwordInput";
 import { UserContext } from "../../../context/userContext";
@@ -43,8 +42,8 @@ const SignIn = () => {
       try {
         console.log("Sending formData:", formData);
         const response = await fetch(
-          'https://drm-backend.vercel.app/api/admin/login',
-          // `http://localhost:4000/api/admin/login`,
+          // "http://localhost:4000/api/admin/login",
+          "https://drm-backend.vercel.app/api/admin/login",
           {
             method: "POST",
             headers: {
@@ -53,25 +52,24 @@ const SignIn = () => {
             body: JSON.stringify(formData),
           }
         );
-        console.log({response})
 
-        login(response.data); // Ensure response.data is in the correct format
-        toast.success("Login Successful");
-        navigate("/user");
-      } catch (error) {
-        setIsSubmitting(false);
-        console.error("Error:", error);
-
-        if (!error.response) {
-          setFormValidMessage("Network error. Please check your connection.");
-          toast.error("Network error. Please check your connection.");
-          return;
+        if (!response.ok) {
+          throw new Error(
+            response.status === 400
+              ? "Invalid Login Credentials"
+              : "An error occurred. Please try again later."
+          );
         }
 
-        const message =
-          error.response.status === 400
-            ? "Invalid Login Credentials"
-            : "An error occurred. Please try again later.";
+        const data = await response.json();
+        console.log("Login response data:", data);
+        login(data); 
+        toast.success("Login Successful");
+        navigate("/user"); 
+      } catch (error) {
+        setIsSubmitting(false);
+        console.error("Login error:", error);
+        const message = error.message || "Network error. Please check your connection.";
         setFormValidMessage(message);
         toast.error(message);
       }
@@ -92,6 +90,7 @@ const SignIn = () => {
             onChange={handleInputChange}
             required
             aria-label="Email"
+            aria-describedby={formValidMessage ? "error-message" : undefined}
           />
         </div>
         <div className={styles.inputContainer}>
@@ -102,6 +101,7 @@ const SignIn = () => {
             onChange={handleInputChange}
             required
             aria-label="Password"
+            aria-describedby={formValidMessage ? "error-message" : undefined}
           />
         </div>
         <button
@@ -116,7 +116,9 @@ const SignIn = () => {
           <Link to="/signup">Sign up</Link>
         </p>
         {formValidMessage && (
-          <p className={styles.errorMessage}>{formValidMessage}</p>
+          <p id="error-message" className={styles.errorMessage}>
+            {formValidMessage}
+          </p>
         )}
       </form>
     </div>
@@ -124,3 +126,11 @@ const SignIn = () => {
 };
 
 export default SignIn;
+
+
+
+
+
+
+
+

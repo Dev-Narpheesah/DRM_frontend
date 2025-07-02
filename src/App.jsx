@@ -21,6 +21,7 @@ import HelpForm from "./Component/Help/HelpForm";
 import DisasterReport from "./Component/DisasterCard/DisasterReport";
 import UpdateUser from "./Component/UserDashboard/UpdateUser";
 import Emergency from "./Component/Emergency/Emergency";
+import CommentSection from "./Component/DisasterCard/CommentSection";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
       <Route path="/service" element={<Service />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      {/* <Route path="/dashboard" element={<UserDashboard />} /> */}
       <Route path="/user" element={<UserDashboard />} />
       <Route path="/update/:id" element={<UpdateUser />} />
       <Route path="/admin" element={<AdminDashboard />} />
@@ -44,6 +46,7 @@ function App() {
       <Route path="/disForm" element={<DisasterForm />} />
       <Route path="/help" element={<HelpForm />} />
       <Route path="/emergency" element={<Emergency />} />
+      <Route path="/comment" element={<CommentSection />} />
     </Routes>
   );
 }

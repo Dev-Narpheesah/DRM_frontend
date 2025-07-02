@@ -47,7 +47,7 @@ const UpdateUser = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:4000/api/user/${id}`,
+        `https://drm-backend.vercel.app/api/user/${id}`,
         formData
       );
 

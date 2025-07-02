@@ -1,4 +1,5 @@
-import React, { useContext, useEffect } from "react";
+
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../../../context/userContext";
 import HeroSection from "../Home/HeroSection";
@@ -6,23 +7,46 @@ import Footer from "./Footer";
 import styles from "./Home.module.css";
 
 const Home = () => {
-  const { user } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef(null);
 
   const handleDashboardClick = () => {
+    setIsMenuOpen(false);
     if (user && user.hasSubmittedReport) {
       navigate(`/user/${user.id}`);
     } else {
-      navigate("/signup"); // Redirect to the disaster report form if the user hasn't submitted a report
+      navigate("/signup");
     }
   };
 
+  const handleSignOut = () => {
+    setIsMenuOpen(false);
+    logout();
+    navigate("/");
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen((prev) => !prev);
+  };
+
   useEffect(() => {
-    // Check if user has submitted a report and navigate to their dashboard if so
     if (user && user.hasSubmittedReport) {
+      setIsMenuOpen(false);
       navigate(`/user/${user.id}`);
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   return (
     <div className={styles.container}>
@@ -30,48 +54,87 @@ const Home = () => {
         <div className={styles.headerLogo}>
           <h1 className={styles.logo}>Relief</h1>
         </div>
-        <nav>
-          <ul className={styles.navLinks}>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/emergency">Help</Link>
-            </li>
-            <li>
-              <Link to="/about">About</Link>
-            </li>
-            <li>
-              <button className={styles.headerBtn} onClick={handleDashboardClick}>
-                Dashboard
-              </button>
-            </li>
-            <li>
-              <button className={styles.headerBtn}>
-                <Link to="/disForm" style={{ color: "#141315" }}>
+        <nav className={styles.nav} ref={navRef}>
+          <button
+            className={styles.menuButton}
+            onClick={toggleMenu}
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            aria-controls="dropdown-menu"
+          >
+            {isMenuOpen ? "✕" : "☰"}
+          </button>
+          <div
+            id="dropdown-menu"
+            className={`${styles.dropdown} ${isMenuOpen ? styles.open : ""}`}
+          >
+            <ul className={styles.dropdownLinks}>
+              <li>
+                <Link to="/" onClick={toggleMenu}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/emergency" onClick={toggleMenu}>
+                  Help
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" onClick={toggleMenu}>
+                  About
+                </Link>
+              </li>
+              {user ? (
+                <>
+                  <li>
+                    <Link
+                      to={user.hasSubmittedReport ? `/user/${user.id}` : "/signup"}
+                      className={styles.dropdownLink}
+                      onClick={() => {
+                        handleDashboardClick();
+                      }}
+                    >
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li>
+                    <button
+                      className={styles.dropdownBtn}
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <li>
+                  <Link to="/signin" onClick={toggleMenu}>
+                    Sign In
+                  </Link>
+                </li>
+              )}
+              <li>
+                <Link to="/disForm" onClick={toggleMenu}>
                   Report Disaster
                 </Link>
-              </button>
-            </li>
-            <li>
-              <button className={styles.headerBtn}>
-                <Link to="/card" style={{ color: "#141315" }}>
+              </li>
+              <li>
+                <Link to="/card" onClick={toggleMenu}>
                   View Reports
                 </Link>
-              </button>
-            </li>
-          </ul>
+                </li>
+              </ul>
+          </div>
         </nav>
       </header>
 
       <main>
         <HeroSection />
-
         <section className={styles.CallToAction}>
           <h2>Join Us in Making a Difference</h2>
           <p>
-            Become a part of our mission to provide effective disaster relief
-            and support to those in need.
+            Become a part of our mission to provide effective disaster relief and
+            support to those in need.
           </p>
           <button className={styles.CtaBtn}>
             <Link to="/about">Learn More</Link>

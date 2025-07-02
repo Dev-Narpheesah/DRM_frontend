@@ -1,58 +1,873 @@
+/* Modern color palette */
+:root {
+  --primary-bg: #F8FAFC;
+  --card-bg: #FFFFFF;
+  --primary-color: #1E3A8A;
+  --accent-color: #06B6D4;
+  --text-color: #1F2937;
+  --secondary-text: #6B7280;
+  --border-color: #E5E7EB;
+  --hover-bg: #F1F5F9;
+  --button-bg: #06B6D4;
+  --button-hover: #0284C7;
+  --tag-bg: #E0F2FE;
+  --tag-text: #1E3A8A;
+  --success-color: #22C55E;
+  --error-color: #F43F5E;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Base styles for the container */
 .cardContainer {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 24px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 20px;
-  gap: 15px;
-  margin-top: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  background: linear-gradient(180deg, #E0F2FE, #F8FAFC);
+  border-radius: 16px;
+  position: relative;
+  animation: fadeIn 0.6s ease-in;
 }
 
-.card {
-  background-color: #fff;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 300px;
-  
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Page header */
+.pageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  text-align: center;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: #FFFFFF;
+  border-radius: 12px;
+  margin-bottom: 32px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.6s ease-in;
 }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-}
-
-.cardImage {
+.pageHeader::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  height: 300px;
+  height: 20px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48V0H1200V120Z" fill="rgba(255,255,255,0.9)"/></svg>') no-repeat center bottom;
+  background-size: cover;
+}
+
+.pageHeader h1 {
+  font-size: 2.25rem;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 800;
+}
+
+.pageHeader p {
+  font-size: 1.125rem;
+  margin: 8px 0 0;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* Sidebar */
+.sidebar {
+  display: none;
+  background: linear-gradient(145deg, var(--card-bg), #F1F5F9);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+.sidebar h3 {
+  font-size: 1.25rem;
+  color: var(--text-color);
+  margin: 0 0 16px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 12px;
+}
+
+.sidebar a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar a:hover {
+  color: var(--accent-color);
+  transform: translateX(4px);
+}
+
+/* Sidebar toggle for mobile */
+.sidebarToggle {
+  display: none;
+  background: var(--button-bg);
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  margin-bottom: 16px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebarToggle:hover {
+  background: var(--button-hover);
+  transform: translateY(-2px);
+}
+
+/* Post card (merged with .card styles) */
+.postCard {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(6, 182, 212, 0.05));
+  /* backdrop-filter: blur(10px); */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: slideUp 0.5s ease-out;
+}
+
+.postCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  animation: pulse 1.5s infinite;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.postAvatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+  border-radius: 50%;
+  margin-right: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.postAvatar::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>') no-repeat center;
+  transform: translate(-50%, -50%);
+  opacity: 0.8;
+}
+
+.postTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.postTimestamp {
+  font-size: 0.8125rem;
+  color: var(--secondary-text);
+  margin: 4px 0 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.postContent {
+  padding: 16px;
+}
+
+.postContent p {
+  font-size: 1rem;
+  color: var(--text-color);
+  margin: 0 0 12px;
+  line-height: 1.6;
+  font-family: 'Inter', sans-serif;
+}
+
+.postImage, .cardImage {
+  width: 100%;
+  max-height: 240px;
   object-fit: cover;
-  border-bottom: 2px solid #ddd;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.postImage:hover, .cardImage:hover {
+  transform: scale(1.03);
 }
 
 .cardTitle {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin: 15px 0 10px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 12px 0 8px;
   text-align: center;
+  font-family: 'Inter', sans-serif;
 }
 
 .cardDescription {
-  font-size: 16px;
-  color: #555;
-  padding: 0 15px;
+  font-size: 0.9375rem;
+  color: var(--secondary-text);
+  padding: 0 16px;
+  margin: 0 0 12px;
   text-align: center;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
 }
 
-.cardButton {
-  background-color: #0b3b52;
-  color: white;
+.postActions {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  background: var(--card-bg);
+}
+
+.actionButton, .cardButton {
+  background: var(--button-bg);
+  color: #FFFFFF;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 10px;
   cursor: pointer;
-  display: block;
-  margin: 15px auto 20px;
-  font-size: 16px;
- 
+  font-size: 0.9375rem;
+  text-decoration: none;
+  text-align: center;
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
+.actionButton:hover, .cardButton:hover {
+  background: var(--button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  animation: pulse 1.5s infinite;
+}
+
+.postTags {
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag {
+  background: var(--tag-bg);
+  color: var(--tag-text);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8125rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.commentSection {
+  padding: 16px;
+  background: var(--primary-bg);
+}
+
+.commentSection h4 {
+  font-size: 1rem;
+  color: var(--secondary-text);
+  margin: 0 0 12px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+.comment {
+  background: var(--hover-bg);
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 0.9375rem;
+  color: var(--text-color);
+  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+}
+
+.comment strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.commentInput {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.commentInput input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  font-size: 0.9375rem;
+  outline: none;
+  background: var(--card-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.commentInput input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.commentButton {
+  background: var(--accent-color);
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.commentButton:hover {
+  background: var(--button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  animation: pulse 1.5s infinite;
+}
+
+.error {
+  color: var(--error-color);
+  text-align: center;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  margin: 16px 0;
+}
+
+/* Media Queries */
+@media (min-width: 1201px) {
+  .cardContainer {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 32px;
+  }
+
+  .sidebar {
+    display: block;
+  }
+
+  .sidebarToggle {
+    display: none;
+  }
+
+  .pageHeader h1 {
+    font-size: 2.5rem;
+  }
+
+  .pageHeader p {
+    font-size: 1.25rem;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1.75rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 280px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .cardContainer {
+    max-width: 900px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .sidebarToggle {
+    display: block;
+  }
+
+  .sidebar.active {
+    display: block;
+    margin-top: 16px;
+  }
+
+  .pageHeader h1 {
+    font-size: 2rem;
+  }
+
+  .pageHeader p {
+    font-size: 1.125rem;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1.5rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 240px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 10px 20px;
+    font-size: 0.9375rem;
+  }
+}
+
+@media (max-width: 991px) {
+  .cardContainer {
+    max-width: 95%;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .pageHeader {
+    padding: 20px 12px;
+  }
+
+  .pageHeader h1 {
+    font-size: 1.75rem;
+  }
+
+  .pageHeader p {
+    font-size: 1rem;
+  }
+
+  .postCard {
+    border-radius: 12px;
+  }
+
+  .postHeader {
+    padding: 12px;
+  }
+
+  .postAvatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1.375rem;
+  }
+
+  .postTimestamp {
+    font-size: 0.75rem;
+  }
+
+  .postContent {
+    padding: 12px;
+  }
+
+  .postContent p, .cardDescription {
+    font-size: 0.9375rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 200px;
+  }
+
+  .postActions {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 10px;
+    font-size: 0.875rem;
+  }
+
+  .postTags {
+    padding: 10px 12px;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+  }
+
+  .commentSection {
+    padding: 12px;
+  }
+
+  .commentSection h4 {
+    font-size: 0.9375rem;
+  }
+
+  .comment {
+    font-size: 0.875rem;
+    padding: 8px 12px;
+  }
+
+  .commentInput input {
+    padding: 8px 14px;
+    font-size: 0.875rem;
+  }
+
+  .commentButton {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .cardContainer {
+    max-width: 95%;
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .pageHeader {
+    padding: 16px 10px;
+  }
+
+  .pageHeader h1 {
+    font-size: 1.5rem;
+  }
+
+  .pageHeader p {
+    font-size: 0.875rem;
+  }
+
+  .postCard {
+    border-radius: 10px;
+  }
+
+  .postHeader {
+    padding: 10px;
+  }
+
+  .postAvatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1.25rem;
+  }
+
+  .postTimestamp {
+    font-size: 0.6875rem;
+  }
+
+  .postContent {
+    padding: 10px;
+  }
+
+  .postContent p, .cardDescription {
+    font-size: 0.875rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 180px;
+  }
+
+  .postActions {
+    padding: 8px 10px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 8px;
+    font-size: 0.8125rem;
+  }
+
+  .postTags {
+    padding: 8px 10px;
+  }
+
+  .tag {
+    font-size: 0.6875rem;
+    padding: 4px 8px;
+  }
+
+  .commentSection {
+    padding: 10px;
+  }
+
+  .commentSection h4 {
+    font-size: 0.875rem;
+  }
+
+  .comment {
+    font-size: 0.8125rem;
+    padding: 6px 10px;
+  }
+
+  .commentInput {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .commentInput input {
+    padding: 8px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .commentButton {
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .error {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .cardContainer {
+    max-width: 95%;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .pageHeader {
+    padding: 12px 8px;
+  }
+
+  .pageHeader h1 {
+    font-size: 1.25rem;
+  }
+
+  .pageHeader p {
+    font-size: 0.8125rem;
+  }
+
+  .postCard {
+    border-radius: 8px;
+  }
+
+  .postHeader {
+    padding: 8px;
+  }
+
+  .postAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1.125rem;
+  }
+
+  .postTimestamp {
+    font-size: 0.625rem;
+  }
+
+  .postContent {
+    padding: 8px;
+  }
+
+  .postContent p, .cardDescription {
+    font-size: 0.8125rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 160px;
+  }
+
+  .postActions {
+    padding: 6px 8px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 6px;
+    font-size: 0.75rem;
+  }
+
+  .postTags {
+    padding: 6px 8px;
+  }
+
+  .tag {
+    font-size: 0.625rem;
+    padding: 4px 6px;
+  }
+
+  .commentSection {
+    padding: 8px;
+  }
+
+  .commentSection h4 {
+    font-size: 0.8125rem;
+  }
+
+  .comment {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+  }
+
+  .commentInput input {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+  }
+
+  .commentButton {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+
+  .error {
+    font-size: 0.8125rem;
+  }
+
+  .sidebarToggle {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 319px) {
+  .cardContainer {
+    max-width: 95%;
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .pageHeader {
+    padding: 10px 6px;
+  }
+
+  .pageHeader h1 {
+    font-size: 1.125rem;
+  }
+
+  .pageHeader p {
+    font-size: 0.75rem;
+  }
+
+  .postCard {
+    border-radius: 6px;
+  }
+
+  .postHeader {
+    padding: 6px;
+  }
+
+  .postAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .postTitle, .cardTitle {
+    font-size: 1rem;
+  }
+
+  .postTimestamp {
+    font-size: 0.5625rem;
+  }
+
+  .postContent {
+    padding: 6px;
+  }
+
+  .postContent p, .cardDescription {
+    font-size: 0.75rem;
+  }
+
+  .postImage, .cardImage {
+    max-height: 140px;
+  }
+
+  .postActions {
+    padding: 4px 6px;
+  }
+
+  .actionButton, .cardButton {
+    padding: 4px;
+    font-size: 0.6875rem;
+  }
+
+  .postTags {
+    padding: 4px 6px;
+  }
+
+  .tag {
+    font-size: 0.5625rem;
+    padding: 3px 5px;
+  }
+
+  .commentSection {
+    padding: 6px;
+  }
+
+  .commentSection h4 {
+    font-size: 0.75rem;
+  }
+
+  .comment {
+    font-size: 0.6875rem;
+    padding: 4px 6px;
+  }
+
+  .commentInput input {
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+  }
+
+  .commentButton {
+    padding: 4px 10px;
+    font-size: 0.6875rem;
+  }
+
+  .error {
+    font-size: 0.75rem;
+  }
+
+  .sidebarToggle {
+    padding: 6px 10px;
+    font-size: 0.8125rem;
+  }
+}

@@ -6,7 +6,7 @@ const About = () => {
     <div className={styles.container}>
       <div className={styles.card}>
         <div className={styles.imageWrapper}>
-          <img src="Eruption.jpeg" alt="About Us" className={styles.image} />
+          <img src="about.jpg" alt="About Us" className={styles.image} />
         </div>
         <div className={styles.content}>
           <h1 className={styles.title}>About Us</h1>

@@ -1,25 +1,25 @@
-
-
 .container_reg {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #0b3b52, #11648a);
-  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(145deg, #1e3a8a, #60a5fa);
+  font-family: Inter, sans-serif;
+  overflow: hidden;
 }
 
 .container {
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(255, 255, 255, 0.1);
+  padding: 32px;
   width: 100%;
   max-width: 400px;
-  animation: fadeInUp 0.5s ease-in-out;
+  animation: fadeIn 0.5s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-@keyframes fadeInUp {
+@keyframes fadeIn {
   0% {
     opacity: 0;
     transform: translateY(20px);
@@ -31,56 +31,172 @@
 }
 
 p {
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
 }
 
 input {
   width: 100%;
-  display: flex;
-  align-items: center;
-  height: 37px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  margin-top: 10px;
-  font-size: 12px;
-  gap: 12px;
-  background: #f0f2f5;
+  height: 44px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  outline: none;
 }
 
 input:focus {
-  border-color: #49bcb5;
-  box-shadow: 0 0 8px rgba(255, 126, 95, 0.3);
+  border-color: #2563eb;
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.2);
+  transform: scale(1.01);
+}
+
+input::placeholder {
+  color: #64748b;
+  opacity: 0.9;
 }
 
 .btn {
   width: 100%;
-  padding: 15px;
-  background: #96e1dc;
-  color: #fff;
-  font-weight: bold;
+  padding: 12px;
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease-in-out;
+  transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn:hover {
-  background: #79efe7;
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
 .link {
-  color: #96e1dc;
+  color: #2563eb;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
   display: block;
   text-align: center;
-  margin-top: 20px;
-  transition: color 0.3s ease-in-out;
+  margin-top: 1.25rem;
+  transition: color 0.3s ease;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background: #2563eb;
+  transition: width 0.3s ease;
 }
 
 .link:hover {
-  color: #79efe7;
+  color: #3b82f6;
+}
+
+.link:hover::after {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container,
+  .btn,
+  input {
+    animation: none;
+    transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 20px;
+    max-width: 92%;
+    border-radius: 12px;
+  }
+
+  p {
+    font-size: 0.85rem;
+  }
+
+  input {
+    height: 40px;
+    font-size: 0.9rem;
+  }
+
+  .btn {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .link {
+    font-size: 0.85rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    max-width: 480px;
+    padding: 28px;
+  }
+
+  p {
+    font-size: 0.95rem;
+  }
+
+  input {
+    height: 46px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .link {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 440px;
+    padding: 40px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  p {
+    font-size: 1rem;
+  }
+
+  input {
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 14px;
+    font-size: 1rem;
+  }
+
+  .link {
+    font-size: 0.95rem;
+  }
 }
