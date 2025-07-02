@@ -50,7 +50,7 @@ const DisasterCard = () => {
   }, []);
 
   const handleDonationClick = (reportId) => {
-    navigate(`/donate/${reportId}`);
+    navigate(`/help`);
     toast.info('Redirecting to donation page...');
   };
 
