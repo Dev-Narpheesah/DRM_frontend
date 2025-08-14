@@ -59,49 +59,46 @@ const Register = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    try {
-      const response = await fetch('https://drm-backend.vercel.app/api/admin/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-          confirmPassword
-        }),
-      });
+  try {
+    const response = await fetch('https://drm-backend.vercel.app/api/admin/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, email, password, confirmPassword }),
+    });
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
+    const data = await response.json().catch(() => ({}));
 
-      const data = await response.json();
-      login(data.user, data.token);
-      setIsSubmitting(false);
-      toast.success("Registration Successful");
-      navigate('/signin', { state: { user: data.user } });
-    } catch (error) {
-      setIsSubmitting(false);
-      console.error('Failed to register user', error);
-      toast.error(error.message || 'Failed to register user');
+    if (!response.ok) {
+      throw new Error(data.message || 'Registration failed');
     }
-  };
+
+    // login(data.user, data.token);
+    toast.success("Registration Successful");
+    navigate('/signin', { state: { user: data.user } });
+  } catch (error) {
+    console.error('Failed to register user', error);
+    toast.error(error.message || 'Failed to register user');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div className={styles.container_reg}>
       <form className={styles.container} onSubmit={handleSubmit}>
-        <p>User Name</p>
+        <p>Full Name</p>
         <input
           value={username}
-          placeholder="eg: username"
+          placeholder="eg: full name"
           id='username'
           onChange={handleInputChange}
           required
@@ -158,4 +155,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Register;

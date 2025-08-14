@@ -1,21 +1,20 @@
-
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../../../context/userContext";
+import React, { useState, useEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import styles from "./Home.module.css";
+import { toast } from "react-toastify";
 import HeroSection from "../Home/HeroSection";
 import Footer from "./Footer";
-import styles from "./Home.module.css";
 
 const Home = () => {
-  const { user, logout } = useContext(UserContext);
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navRef = useRef(null);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const handleDashboardClick = () => {
     setIsMenuOpen(false);
-    if (user && user.hasSubmittedReport) {
-      navigate(`/user/${user.id}`);
+    if (user && user.email) {
+      navigate(`/user`);
     } else {
       navigate("/signup");
     }
@@ -23,20 +22,14 @@ const Home = () => {
 
   const handleSignOut = () => {
     setIsMenuOpen(false);
-    logout();
-    navigate("/");
+    localStorage.removeItem("user");
+    toast.success("Signed out successfully");
+    navigate("/signin");
   };
 
   const toggleMenu = () => {
     setIsMenuOpen((prev) => !prev);
   };
-
-  useEffect(() => {
-    if (user && user.hasSubmittedReport) {
-      setIsMenuOpen(false);
-      navigate(`/user/${user.id}`);
-    }
-  }, [user, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -70,32 +63,54 @@ const Home = () => {
           >
             <ul className={styles.dropdownLinks}>
               <li>
-                <Link to="/" onClick={toggleMenu}>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                  }
+                  onClick={toggleMenu}
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
                   Home
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link to="/emergency" onClick={toggleMenu}>
+                <NavLink
+                  to="/emergency"
+                  className={({ isActive }) =>
+                    `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                  }
+                  onClick={toggleMenu}
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
                   Help
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link to="/about" onClick={toggleMenu}>
+                <NavLink
+                  to="/about"
+                  className={({ isActive }) =>
+                    `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                  }
+                  onClick={toggleMenu}
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
                   About
-                </Link>
+                </NavLink>
               </li>
-              {user ? (
+              {user && user.email ? (
                 <>
                   <li>
-                    <Link
-                      to={user.hasSubmittedReport ? `/user/${user.id}` : "/signup"}
-                      className={styles.dropdownLink}
-                      onClick={() => {
-                        handleDashboardClick();
-                      }}
+                    <NavLink
+                      to="/user"
+                      className={({ isActive }) =>
+                        `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                      }
+                      onClick={handleDashboardClick}
+                      aria-current={({ isActive }) => (isActive ? "page" : undefined)}
                     >
                       Dashboard
-                    </Link>
+                    </NavLink>
                   </li>
                   <li>
                     <button
@@ -108,23 +123,137 @@ const Home = () => {
                 </>
               ) : (
                 <li>
-                  <Link to="/signin" onClick={toggleMenu}>
+                  <NavLink
+                    to="/signin"
+                    className={({ isActive }) =>
+                      `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                    }
+                    onClick={toggleMenu}
+                    aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                  >
                     Sign In
-                  </Link>
+                  </NavLink>
                 </li>
               )}
               <li>
-                <Link to="/disForm" onClick={toggleMenu}>
+                <NavLink
+                  to="/disForm"
+                  className={({ isActive }) =>
+                    `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                  }
+                  onClick={toggleMenu}
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
                   Report Disaster
-                </Link>
+                </NavLink>
               </li>
               <li>
-                <Link to="/card" onClick={toggleMenu}>
+                <NavLink
+                  to="/card"
+                  className={({ isActive }) =>
+                    `${styles.dropdownLink} ${isActive ? styles.active : ""}`
+                  }
+                  onClick={toggleMenu}
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
                   View Reports
-                </Link>
-                </li>
-              </ul>
+                </NavLink>
+              </li>
+            </ul>
           </div>
+          <ul className={styles.navLinks}>
+            <li>
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  `${styles.navLink} ${isActive ? styles.active : ""}`
+                }
+                aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              >
+                Home
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/emergency"
+                className={({ isActive }) =>
+                  `${styles.navLink} ${isActive ? styles.active : ""}`
+                }
+                aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              >
+                Help
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/about"
+                className={({ isActive }) =>
+                  `${styles.navLink} ${isActive ? styles.active : ""}`
+                }
+                aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              >
+                About
+              </NavLink>
+            </li>
+            {user && user.email ? (
+              <>
+                <li>
+                  <NavLink
+                    to="/user"
+                    className={({ isActive }) =>
+                      `${styles.navLink} ${isActive ? styles.active : ""}`
+                    }
+                    onClick={handleDashboardClick}
+                    aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                  >
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li>
+                  <button
+                    className={styles.navBtn}
+                    onClick={handleSignOut}
+                  >
+                    Sign Out
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li>
+                <NavLink
+                  to="/signin"
+                  className={({ isActive }) =>
+                    `${styles.navLink} ${isActive ? styles.active : ""}`
+                  }
+                  aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+                >
+                  Sign In
+                </NavLink>
+              </li>
+            )}
+            <li>
+              <NavLink
+                to="/disForm"
+                className={({ isActive }) =>
+                  `${styles.navLink} ${isActive ? styles.active : ""}`
+                }
+                aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              >
+                Report Disaster
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/card"
+                className={({ isActive }) =>
+                  `${styles.navLink} ${isActive ? styles.active : ""}`
+                }
+                aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              >
+                View Reports
+              </NavLink>
+            </li>
+          </ul>
         </nav>
       </header>
 
@@ -137,7 +266,7 @@ const Home = () => {
             support to those in need.
           </p>
           <button className={styles.CtaBtn}>
-            <Link to="/about">Learn More</Link>
+            <NavLink to="/about">Learn More</NavLink>
           </button>
         </section>
 

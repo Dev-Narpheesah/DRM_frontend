@@ -5,6 +5,7 @@ import './CommentSection.css';
 
 const CommentSection = ({ comment, reportId }) => {
   const API_URL = 'https://drm-backend.vercel.app/api';
+  console.log('CommentSection rendered for comment:',comment);
 
   const handleNewComment = async (inputElement, isReply = false) => {
     const text = inputElement.value.trim();
@@ -17,12 +18,12 @@ const CommentSection = ({ comment, reportId }) => {
         credentials: 'include',
         body: JSON.stringify({
           reportId,
-          parentId: isReply ? comment.id : comment.id,
+          parentId: isReply ? comment._id : comment.id,
           name: text,
         }),
       });
-
-      if (!response.ok) throw new Error('Failed to add comment');
+      console.log(response)
+            if (!response.ok) throw new Error('Failed to add comment');
 
       // Clear input and refetch comments
       inputElement.value = '';
@@ -181,7 +182,7 @@ const CommentSection = ({ comment, reportId }) => {
       </div>
 
       <div className="nested-comments">
-        {comment.id !== 1 && (
+        {comment.id < 0 && (
           <div className="input-container" id={`reply-input-${comment.id}`} style={{ display: 'none' }}>
             <input
               type="text"
@@ -193,7 +194,7 @@ const CommentSection = ({ comment, reportId }) => {
             <Action
               className="action action--reply"
               type="REPLY"
-              handleClick={() => handleNewComment(document.querySelector(`#reply-input-${comment.id} .input-container__input`), true)}
+              handleClick={() => handleNewComment(document.querySelector(`#reply-input-${comment.id}.input-container__input`), true)}
               aria-label="Submit reply"
             />
             <Action
@@ -209,11 +210,13 @@ const CommentSection = ({ comment, reportId }) => {
         )}
 
         {comment?.items?.map((cmnt) => (
-          <CommentSection
+        <div
             key={cmnt.id}
             comment={cmnt}
-            reportId={reportId}
-          />
+            reportId={reportId} > 
+            {comment}
+          
+        </div>
         ))}
       </div>
     </div>

@@ -130,10 +130,10 @@ const DisasterCard = () => {
               >
                 Learn More
               </Link>
+            <CommentSection reportId={report.id} />
             </div>
 
            
-            <CommentSection reportId={report._id} />
           </div>
         );
       })}

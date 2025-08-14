@@ -1,9 +1,8 @@
-import React, { useState, useContext, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import styles from "./SignIn.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import PasswordInput from "../passwordInput/passwordInput";
-import { UserContext } from "../../../context/userContext";
 
 const initialState = {
   email: "",
@@ -11,9 +10,7 @@ const initialState = {
 };
 
 const SignIn = () => {
-  const { login } = useContext(UserContext);
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState(initialState);
   const [formValidMessage, setFormValidMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,32 +37,36 @@ const SignIn = () => {
       setIsSubmitting(true);
 
       try {
-        console.log("Sending formData:", formData);
-        const response = await fetch(
-          // "http://localhost:4000/api/admin/login",
-          "https://drm-backend.vercel.app/api/admin/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          }
-        );
+        const response = await fetch("https://drm-backend.vercel.app/api/admin/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
 
         if (!response.ok) {
           throw new Error(
             response.status === 400
-              ? "Invalid Login Credentials"
+              ? "Invalid  Credentials"
               : "An error occurred. Please try again later."
           );
         }
 
         const data = await response.json();
         console.log("Login response data:", data);
-        login(data); 
+        
+     
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            email: data.email || email,
+            isAdmin: data.isAdmin || false,
+          })
+        );
+        
         toast.success("Login Successful");
-        navigate("/user"); 
+        navigate("/user");
       } catch (error) {
         setIsSubmitting(false);
         console.error("Login error:", error);
@@ -74,7 +75,7 @@ const SignIn = () => {
         toast.error(message);
       }
     },
-    [formData, navigate, login]
+    [formData, navigate]
   );
 
   return (
@@ -126,11 +127,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
-
-
-
-
-
-
-

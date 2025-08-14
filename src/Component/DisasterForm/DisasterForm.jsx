@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -6,6 +8,7 @@ import styles from "./DisasterForm.module.css";
 const initialState = {
   email: "",
   phone: "",
+  password: "",
   disasterType: "",
   location: "",
   report: "",
@@ -38,26 +41,29 @@ const DisasterForm = () => {
     const formDataWithImage = new FormData();
     formDataWithImage.append("email", formData.email);
     formDataWithImage.append("phone", formData.phone);
+    formDataWithImage.append("password", formData.password); // backend requires this
     formDataWithImage.append("disasterType", formData.disasterType);
     formDataWithImage.append("location", formData.location);
     formDataWithImage.append("report", formData.report);
     if (file) {
-      formDataWithImage.append("file", file);
+      formDataWithImage.append("file", file); // must match multer field name in backend
     }
 
     try {
-      const response = await fetch('https://drm-backend.vercel.app/api/user/register', {
-        method: 'POST',
-        body: formDataWithImage,
-       
-        credentials: 'include', 
-      });
+      const response = await fetch(
+        "https://drm-backend.vercel.app/api/user", // backend register route
+        {
+          method: "POST",
+          body: formDataWithImage,
+          credentials: "include",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to submit disaster report');
+        throw new Error("Failed to submit disaster report");
       }
 
-      toast.success("User reported successfully!");
+      toast.success("Disaster report submitted successfully!");
       setFormData(initialState);
       setFile(null);
       setImagePreview(null);
@@ -77,7 +83,7 @@ const DisasterForm = () => {
         <input
           name="email"
           type="email"
-          placeholder= " example@gmail.com"
+          placeholder="example@gmail.com"
           value={formData.email}
           onChange={handleChange}
           required
@@ -87,8 +93,18 @@ const DisasterForm = () => {
         <input
           name="phone"
           type="tel"
-          placeholder=" +234 567890"
+          placeholder="+234 567890"
           value={formData.phone}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="password">Password</label>
+        <input
+          name="password"
+          type="password"
+          placeholder="Enter password"
+          value={formData.password}
           onChange={handleChange}
           required
         />
@@ -114,7 +130,7 @@ const DisasterForm = () => {
         <input
           name="location"
           type="text"
-          placeholder=" Main St, Springfield"
+          placeholder="Main St, Springfield"
           value={formData.location}
           onChange={handleChange}
           required
@@ -150,7 +166,11 @@ const DisasterForm = () => {
           />
         )}
 
-        <button type="submit" className={styles.btn_disaster} disabled={isLoading}>
+        <button
+          type="submit"
+          className={styles.btn_disaster}
+          disabled={isLoading}
+        >
           {isLoading ? "Submitting..." : "Submit Report"}
         </button>
       </form>

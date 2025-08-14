@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
-import { UserContext } from "../../../context/userContext";
+import React, { useEffect, useState } from "react";
 import { FaCheck, FaHourglassHalf, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import styles from "./UserDashboard.module.css";
@@ -11,62 +10,38 @@ export const shortenText = (text = "", n) => {
 };
 
 const UserDashboard = () => {
- 
-  const [ setUser] = useState(null); // Initialize user state to null
-  const { user } = useContext(UserContext);
+  const [user, setUser] = useState(null);
   const [userReports, setUserReports] = useState([]);
-  const [allDisasters, setAllDisasters] = useState(disasters);
+  const [allDisasters, setAllDisasters] = useState([]);
   const [userDisasters, setUserDisasters] = useState([]);
   const [isLoadingDisasters, setIsLoadingDisasters] = useState(false);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
 
-  // const API_URL =
-  //   window.location.hostname === "localhost" ||
-  //   window.location.hostname === "127.0.0.1"
-  //     ? "http://localhost:4000"
-  //     : "https://drm-backend.vercel.app";
+  const API_URL = "https://drm-backend.vercel.app";
 
   useEffect(() => {
-    
-    if (!user) {
+    // Retrieve user from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (!storedUser) {
       toast.error("Please log in to view your dashboard");
       navigate("/signin");
       return;
     }
 
-   
-    if (!user.email || typeof user.isAdmin !== "boolean") {
-      console.error("Invalid user object:", user);
+    const parsedUser = JSON.parse(storedUser);
+    if (!parsedUser.email || typeof parsedUser.isAdmin !== "boolean") {
+      console.error("Invalid user object:", parsedUser);
       toast.error("Invalid user data. Please log in again.");
+      localStorage.removeItem("user");
       navigate("/signin");
       return;
     }
-    const fetchUser = async () => {
-      try {
-        const response = await fetch(`https://drm-backend.vercel.app/api/user/:id`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch user data: ${response.statusText}`);
-        }
-        const data = await response.json();
-        console.log("Fetched user data:", data);
-        setUser(data);
-    }
-    catch (error) {
-      console.error("Error fetching user data:", error);
-      toast.error("Failed to fetch user data.");
-    }
-    };
+    setUser(parsedUser);
 
     const fetchUserReports = async () => {
       try {
-        const response = await fetch(`https://drm-backend.vercel.app/api/user`, {
+        const response = await fetch(`${API_URL}/api/user/reports`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -86,7 +61,7 @@ const UserDashboard = () => {
 
     const fetchApiDisasters = async () => {
       try {
-        const response = await fetch(`https://drm-backend.vercel.app/api/disaster`, {
+        const response = await fetch(`${API_URL}/api/disaster`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -98,7 +73,17 @@ const UserDashboard = () => {
         }
         const data = await response.json();
         console.log("Fetched all disasters:", data);
-        setAllDisasters([...disasters, ...(Array.isArray(data) ? data : [])]);
+        // Normalize local disasters to match API structure
+        const normalizedLocalDisasters = disasters.map((d) => ({
+          country: d.country || "N/A",
+          disasterType: d.disasterType || "N/A",
+          date: d.date || new Date().toISOString(),
+          injured: d.injured || 0,
+          death: d.death || 0,
+          necessity: d.necessity || "N/A",
+          status: d.status || "Ongoing",
+        }));
+        setAllDisasters([...normalizedLocalDisasters, ...(Array.isArray(data) ? data : [])]);
       } catch (error) {
         console.error("Error fetching all disasters:", error);
         toast.error("Failed to fetch all disaster data. Using local data only.");
@@ -109,9 +94,9 @@ const UserDashboard = () => {
     const fetchUserDisasters = async () => {
       setIsLoadingDisasters(true);
       try {
-        const endpoint = user.isAdmin
-          ? `https://drm-backend.vercel.app/api/user`
-          : `https://drm-backend.vercel.app/api/user?email=${encodeURIComponent(user.email)}`;
+        const endpoint = parsedUser.isAdmin
+          ? `${API_URL}/api/disaster`
+          : `${API_URL}/api/disaster?email=${encodeURIComponent(parsedUser.email)}`;
         const response = await fetch(endpoint, {
           method: "GET",
           headers: {
@@ -124,17 +109,17 @@ const UserDashboard = () => {
         }
         const data = await response.json();
         console.log("Fetched user-specific disasters:", data);
-        const disasters = Array.isArray(data)
+        const userDisasters = Array.isArray(data)
           ? data.map((report) => ({
               id: report._id,
-              disasterType: report.disasterType,
-              country: report.location,
-              date: report.createdAt,
+              disasterType: report.disasterType || "N/A",
+              country: report.location || "N/A",
+              date: report.createdAt || new Date().toISOString(),
               isDone: false,
-              submittedBy: report.email,
+              submittedBy: report.email || "N/A",
             }))
           : [];
-        setUserDisasters(disasters);
+        setUserDisasters(userDisasters);
       } catch (error) {
         console.error("Error fetching user-specific disasters:", error);
         toast.error("Failed to fetch your disaster data.");
@@ -145,10 +130,9 @@ const UserDashboard = () => {
     };
 
     fetchUserReports();
-    fetchUser();
     fetchApiDisasters();
     fetchUserDisasters();
-  }, [user, navigate]);
+  }, [navigate]);
 
   const handleMarkAsDone = async (disasterId) => {
     try {
@@ -204,10 +188,10 @@ const UserDashboard = () => {
               <tbody>
                 {userDisasters.map((disaster) => (
                   <tr key={disaster.id}>
-                    <td>{disaster.disasterType || "N/A"}</td>
-                    <td>{disaster.country || "N/A"}</td>
+                    <td>{disaster.disasterType}</td>
+                    <td>{disaster.country}</td>
                     <td>{formatDate(disaster.date)}</td>
-                    {user?.isAdmin && <td>{disaster.submittedBy || "N/A"}</td>}
+                    {user?.isAdmin && <td>{disaster.submittedBy}</td>}
                     <td>{disaster.isDone ? "Past Event" : "Ongoing"}</td>
                     <td>
                       <input
@@ -246,8 +230,8 @@ const UserDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {disastersToDisplay.map((disaster,i) => (
-                  <tr key={i+ 1}>
+                {disastersToDisplay.map((disaster, i) => (
+                  <tr key={i + 1}>
                     <td>{disaster.country || "N/A"}</td>
                     <td>{disaster.disasterType || "N/A"}</td>
                     <td>{formatDate(disaster.date)}</td>

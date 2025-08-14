@@ -42,8 +42,13 @@ body {
   color: #ffffff;
   font-size: 1.25rem;
   cursor: pointer;
-  padding: 8px;
-  transition: transform 0.2s ease;
+  padding: 12px;
+  min-width: 48px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .menuButton:hover {
@@ -86,9 +91,8 @@ body {
   width: 100%;
 }
 
-.dropdownLinks li a,
-.dropdownLinks li button,
-.dropdownLink {
+.dropdownLink,
+.dropdownBtn {
   display: block;
   color: #1e293b;
   text-decoration: none;
@@ -103,15 +107,62 @@ body {
   cursor: pointer;
 }
 
-.dropdownLinks li a:hover,
-.dropdownLinks li button:hover,
-.dropdownLink:hover {
+.dropdownLink:hover,
+.dropdownBtn:hover {
   background-color: #2563eb;
   color: #ffffff;
   transform: translateX(4px);
 }
 
+.dropdownLink.active {
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+}
+
 .dropdownBtn {
+  font-weight: 600;
+}
+
+.navLinks {
+  display: none;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 24px;
+}
+
+.navLinks li {
+  display: inline-flex;
+}
+
+.navLink,
+.navBtn {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.navLink:hover,
+.navBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.navLink.active {
+  background-color: #ffffff;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.navBtn {
   font-weight: 600;
 }
 
@@ -197,6 +248,24 @@ main {
   min-width: 200px;
   font-style: italic;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.5s ease forwards;
+}
+
+.testimonialItem:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.testimonialItem:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .testimonialItem:hover {
@@ -313,16 +382,20 @@ h3 {
   padding: 0;
 }
 
-a {
+.footerLinks {
+  position: relative;
+  padding: 8px 0;
+  font-size: 0.875rem;
+}
+
+.footerLinks a {
   color: #e0e7ff;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-.footerLinks {
-  position: relative;
-  padding: 8px 0;
-  font-size: 0.875rem;
+.footerLinks:hover a {
+  color: #2563eb;
 }
 
 .footerLinks::before {
@@ -339,10 +412,6 @@ a {
 
 .footerLinks:hover::before {
   width: 60px;
-}
-
-.footerLinks:hover a {
-  color: #2563eb;
 }
 
 .socialIcons {
@@ -379,6 +448,17 @@ a {
   font-size: 0.875rem;
 }
 
+@media (min-width: 768px) {
+  .menuButton,
+  .dropdown {
+    display: none;
+  }
+
+  .navLinks {
+    display: flex;
+  }
+}
+
 @media (min-width: 1920px) {
   body {
     font-size: 1.125rem;
@@ -392,19 +472,9 @@ a {
     font-size: 1.75rem;
   }
 
-  .menuButton {
-    font-size: 1.5rem;
-  }
-
-  .dropdown {
-    width: 200px;
-    padding: 16px;
-  }
-
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
-    font-size: 1rem;
+  .navLink,
+  .navBtn {
+    font-size: 1.125rem;
     padding: 10px 16px;
   }
 
@@ -529,10 +599,15 @@ a {
     padding: 10px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.85rem;
+    padding: 7px 10px;
+  }
+
+  .navLink,
+  .navBtn {
+    font-size: 0.95rem;
     padding: 7px 10px;
   }
 
@@ -635,10 +710,15 @@ a {
     padding: 8px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.8rem;
+    padding: 6px 8px;
+  }
+
+  .navLink,
+  .navBtn {
+    font-size: 0.9rem;
     padding: 6px 8px;
   }
 
@@ -715,10 +795,6 @@ a {
     padding: 7px 0;
   }
 
-  .footerLinks::before {
-    height: 1px;
-  }
-
   .footerLinks:hover::before {
     width: 50px;
   }
@@ -750,10 +826,15 @@ a {
     padding: 7px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.7813rem;
+    padding: 5.5px 7px;
+  }
+
+  .navLink,
+  .navBtn {
+    font-size: 0.875rem;
     padding: 5.5px 7px;
   }
 
@@ -835,10 +916,6 @@ a {
     padding: 6.5px 0;
   }
 
-  .footerLinks::before {
-    height: 1px;
-  }
-
   .footerLinks:hover::before {
     width: 45px;
   }
@@ -879,10 +956,15 @@ a {
     padding: 6px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.75rem;
+    padding: 5px 6px;
+  }
+
+  .navLink,
+  .navBtn {
+    font-size: 0.85rem;
     padding: 5px 6px;
   }
 
@@ -995,7 +1077,10 @@ a {
   }
 
   .menuButton {
-    font-size: 0.75rem;
+    font-size: 1rem;
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .dropdown {
@@ -1005,11 +1090,14 @@ a {
     padding: 8px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.75rem;
     padding: 6px 8px;
+  }
+
+  .navLinks {
+    display: none;
   }
 
   main {
@@ -1128,19 +1216,20 @@ a {
   }
 
   .menuButton {
-    font-size: 0.7188rem;
+    font-size: 0.875rem;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .dropdown {
     width: 100%;
-    right: 0;
     border-radius: 0 0 5px 5px;
     padding: 7px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.7188rem;
     padding: 5px 7px;
   }
@@ -1266,7 +1355,10 @@ a {
   }
 
   .menuButton {
-    font-size: 0.6875rem;
+    font-size: 0.875rem;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .dropdown {
@@ -1275,9 +1367,8 @@ a {
     padding: 6px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.6875rem;
     padding: 4px 6px;
   }
@@ -1403,7 +1494,10 @@ a {
   }
 
   .menuButton {
-    font-size: 0.6563rem;
+    font-size: 0.75rem;
+    padding: 7px;
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .dropdown {
@@ -1412,9 +1506,8 @@ a {
     padding: 5px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.6563rem;
     padding: 3.5px 5px;
   }
@@ -1540,7 +1633,10 @@ a {
   }
 
   .menuButton {
-    font-size: 0.625rem;
+    font-size: 0.7rem;
+    padding: 6px;
+    min-width: 36px;
+    min-height: 36px;
   }
 
   .dropdown {
@@ -1549,9 +1645,8 @@ a {
     padding: 4px;
   }
 
-  .dropdownLinks li a,
-  .dropdownLinks li button,
-  .dropdownLink {
+  .dropdownLink,
+  .dropdownBtn {
     font-size: 0.625rem;
     padding: 3px 4px;
   }
@@ -1665,100 +1760,19 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .menuButton,
   .dropdown,
-  .dropdownLinks li a,
-  .dropdownLinks li button,
   .dropdownLink,
+  .dropdownBtn,
+  .navLink,
+  .navBtn,
   .CtaBtn,
   .testimonialItem,
   .statItem,
-  a,
   .footerLinks::before,
   .socialIcons i {
     transition: none;
   }
-}
 
-
-.menuButton {
-  background: none;
-  border: none;
-  color: #ffffff;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 12px; /* Increased padding for better tap target */
-  min-width: 48px; /* Minimum touch target size */
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, color 0.2s ease;
-  position: relative;
-}
-
-
-@media (max-width: 767px) {
-  .menuButton {
-    font-size: 1rem;
-    padding: 10px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  .menuButton::before {
-    font-size: 1.25rem;
+  .testimonialItem {
+    animation: none;
   }
 }
-
-@media (max-width: 479px) {
-  .menuButton {
-    font-size: 0.875rem;
-    padding: 8px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-  .menuButton::before {
-    font-size: 1rem;
-  }
-}
-
-
-
-.testimonialItem {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideIn 0.5s ease forwards;
-}
-
-.testimonialItem:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.testimonialItem:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes slideIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #0f172a;
-    color: #f1f5f9;
-  }
-
-  .header {
-    background: linear-gradient(90deg, #1e40af, #60a5fa);
-  }
-
-  .CallToAction {
-    background: linear-gradient(90deg, #1e40af, #60a5fa);
-  }
-
-  .testimonialItem, .statItem {
-    background: #1e293b;
-    color: #f1f5f9;
-  }
-} */
