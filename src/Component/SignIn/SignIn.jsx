@@ -66,7 +66,7 @@ const SignIn = () => {
         );
         
         toast.success("Login Successful");
-        navigate("/user");
+        navigate("/dashboard");
       } catch (error) {
         setIsSubmitting(false);
         console.error("Login error:", error);

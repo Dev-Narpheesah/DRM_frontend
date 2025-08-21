@@ -1,4 +1,3 @@
-/* Modern color palette */
 :root {
   --primary-bg: #F8FAFC;
   --card-bg: #FFFFFF;
@@ -16,7 +15,6 @@
   --error-color: #F43F5E;
 }
 
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -32,7 +30,26 @@
   50% { transform: scale(1.02); }
 }
 
-/* Base styles for the container */
+.appContainer {
+  display: flex;
+  min-height: 100vh;
+  background: var(--primary-bg);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 16px;
+  transition: margin-left 0.3s ease;
+}
+
+.mainContent.sidebarOpen {
+  margin-left: 256px;
+}
+
+.mainContent.sidebarCollapsed {
+  margin-left: 64px;
+}
+
 .cardContainer {
   max-width: 1200px;
   margin: 24px auto;
@@ -40,13 +57,11 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
-  background: linear-gradient(180deg, #E0F2FE, #F8FAFC);
+  background: var(--primary-bg);
   border-radius: 16px;
-  position: relative;
   animation: fadeIn 0.6s ease-in;
 }
 
-/* Page header */
 .pageHeader {
   position: sticky;
   top: 0;
@@ -68,7 +83,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48V0H1200V120Z" fill="rgba(255,255,255,0.9)"/></svg>') no-repeat center bottom;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48V0H1200V120Z" fill="var(--card-bg)"/></svg>') no-repeat center bottom;
   background-size: cover;
 }
 
@@ -87,51 +102,7 @@
   opacity: 0.9;
 }
 
-/* Sidebar */
-.sidebar {
-  display: none;
-  background: linear-gradient(145deg, var(--card-bg), #F1F5F9);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  animation: slideUp 0.5s ease-out;
-}
-
-.sidebar h3 {
-  font-size: 1.25rem;
-  color: var(--text-color);
-  margin: 0 0 16px;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.sidebar li {
-  margin-bottom: 12px;
-}
-
-.sidebar a {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-size: 0.9375rem;
-  font-family: 'Inter', sans-serif;
-  font-weight: 500;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.sidebar a:hover {
-  color: var(--accent-color);
-  transform: translateX(4px);
-}
-
-/* Sidebar toggle for mobile */
 .sidebarToggle {
-  display: none;
   background: var(--button-bg);
   color: #FFFFFF;
   border: none;
@@ -150,16 +121,17 @@
   transform: translateY(-2px);
 }
 
-/* Post card (merged with .card styles) */
 .postCard {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(6, 182, 212, 0.05));
-  /* backdrop-filter: blur(10px); */
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   animation: slideUp 0.5s ease-out;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
 }
 
 .postCard:hover {
@@ -193,7 +165,7 @@
   left: 50%;
   width: 24px;
   height: 24px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>') no-repeat center;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="var(--card-bg)" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>') no-repeat center;
   transform: translate(-50%, -50%);
   opacity: 0.8;
 }
@@ -215,6 +187,9 @@
 
 .postContent {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .postContent p {
@@ -223,11 +198,16 @@
   margin: 0 0 12px;
   line-height: 1.6;
   font-family: 'Inter', sans-serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .postImage, .cardImage {
   width: 100%;
-  max-height: 240px;
+  max-height: 200px;
   object-fit: cover;
   border-radius: 10px;
   transition: transform 0.3s ease;
@@ -387,16 +367,10 @@
   margin: 16px 0;
 }
 
-/* Media Queries */
 @media (min-width: 1201px) {
   .cardContainer {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 32px;
-  }
-
-  .sidebar {
-    display: block;
   }
 
   .sidebarToggle {
@@ -416,7 +390,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 280px;
+    max-height: 220px;
   }
 
   .actionButton, .cardButton {
@@ -432,17 +406,8 @@
     gap: 20px;
   }
 
-  .sidebar {
-    display: none;
-  }
-
   .sidebarToggle {
     display: block;
-  }
-
-  .sidebar.active {
-    display: block;
-    margin-top: 16px;
   }
 
   .pageHeader h1 {
@@ -458,7 +423,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 240px;
+    max-height: 200px;
   }
 
   .actionButton, .cardButton {
@@ -488,6 +453,7 @@
 
   .postCard {
     border-radius: 12px;
+    min-height: 360px;
   }
 
   .postHeader {
@@ -516,7 +482,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 200px;
+    max-height: 180px;
   }
 
   .postActions {
@@ -584,6 +550,7 @@
 
   .postCard {
     border-radius: 10px;
+    min-height: 340px;
   }
 
   .postHeader {
@@ -612,7 +579,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 180px;
+    max-height: 160px;
   }
 
   .postActions {
@@ -687,6 +654,7 @@
 
   .postCard {
     border-radius: 8px;
+    min-height: 320px;
   }
 
   .postHeader {
@@ -715,7 +683,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 160px;
+    max-height: 140px;
   }
 
   .postActions {
@@ -790,6 +758,7 @@
 
   .postCard {
     border-radius: 6px;
+    min-height: 300px;
   }
 
   .postHeader {
@@ -818,7 +787,7 @@
   }
 
   .postImage, .cardImage {
-    max-height: 140px;
+    max-height: 120px;
   }
 
   .postActions {

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import Sidebar from '../SideBar/SideBar';
+import CommentSection from './CommentSection';
 import styles from './DisasterCard.module.css';
-import CommentSection from './CommentSection'; 
 
 const DisasterCard = () => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const navigate = useNavigate();
-
- 
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -50,93 +50,114 @@ const DisasterCard = () => {
   }, []);
 
   const handleDonationClick = (reportId) => {
-    navigate(`/help`);
+    navigate(`/help/${reportId}`);
     toast.info('Redirecting to donation page...');
+  };
+
+  const handleSidebarToggle = (isOpen) => {
+    setIsSidebarOpen(isOpen);
   };
 
   if (isLoading) {
     return (
-      <div className={styles.cardContainer}>
-        <p>Loading reports...</p>
+      <div className={styles.appContainer}>
+        <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+          <div className={styles.cardContainer}>
+            <p>Loading reports...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={styles.cardContainer}>
-        <p className={styles.error}>Error: {error}</p>
+      <div className={styles.appContainer}>
+        <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+          <div className={styles.cardContainer}>
+            <p className={styles.error}>Error: {error}</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (reports.length === 0) {
     return (
-      <div className={styles.cardContainer}>
-        <p>No disaster reports available at this time.</p>
+      <div className={styles.appContainer}>
+        <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+          <div className={styles.cardContainer}>
+            <p>No disaster reports available at this time.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.cardContainer}>
-      {reports.map((report) => {
-        if (!report?._id || !report?.disasterType || !report?.report) {
-          console.warn('Invalid report data:', report);
-          return null;
-        }
+    <div className={styles.appContainer}>
+      <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+      <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+        <header className={styles.pageHeader}>
+          <h1>Disaster Reports</h1>
+          <p>Stay informed about recent disaster events</p>
+        </header>
+        <div className={styles.cardContainer}>
+          {reports.map((report) => {
+            if (!report?._id || !report?.disasterType || !report?.report) {
+              console.warn('Invalid report data:', report);
+              return null;
+            }
 
-        const timestamp = report.createdAt
-          ? new Date(report.createdAt).toLocaleString()
-          : 'Unknown date';
+            const timestamp = report.createdAt
+              ? new Date(report.createdAt).toLocaleString()
+              : 'Unknown date';
 
-        return (
-          <div className={styles.postCard} key={report._id}>
-            {/* Post Header */}
-            <div className={styles.postHeader}>
-              <div className={styles.postAvatar}></div>
-              <div>
-                <h3 className={styles.postTitle}>{report.disasterType}</h3>
-                <p className={styles.postTimestamp}>{timestamp}</p>
+            return (
+              <div className={styles.postCard} key={report._id}>
+                <div className={styles.postHeader}>
+                  <div className={styles.postAvatar}></div>
+                  <div>
+                    <h3 className={styles.postTitle}>{report.disasterType}</h3>
+                    <p className={styles.postTimestamp}>{timestamp}</p>
+                  </div>
+                </div>
+                <div className={styles.postContent}>
+                  <p>{report.report || 'No description available'}</p>
+                  {report.image?.url && (
+                    <img
+                      src={report.image.url}
+                      alt={report.disasterType}
+                      className={styles.postImage}
+                      onError={(e) => {
+                        e.target.src = '/default-disaster-image.jpg';
+                      }}
+                    />
+                  )}
+                </div>
+                <div className={styles.postActions}>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleDonationClick(report._id)}
+                  >
+                    Donate
+                  </button>
+                  <Link
+                    to={`/disReport/${report._id}`}
+                    className={styles.actionButton}
+                  >
+                    Learn More
+                  </Link>
+                </div>
+                <CommentSection reportId={report._id} />
               </div>
-            </div>
-
-            {/* Post Content */}
-            <div className={styles.postContent}>
-              <p>{report.report || 'No description available'}</p>
-              {report.image?.url && (
-                <img
-                  src={report.image.url}
-                  alt={report.disasterType}
-                  className={styles.postImage}
-                  onError={(e) => {
-                    e.target.src = '/default-disaster-image.jpg';
-                  }}
-                />
-              )}
-            </div>
-
-            {/* Action Buttons */}
-            <div className={styles.postActions}>
-              <button
-                className={styles.actionButton}
-                onClick={() => handleDonationClick(report._id)}
-              >
-                Donate
-              </button>
-              <Link
-                to={`/disReport/${report._id}`}
-                className={styles.actionButton}
-              >
-                Learn More
-              </Link>
-            <CommentSection reportId={report.id} />
-            </div>
-
-           
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

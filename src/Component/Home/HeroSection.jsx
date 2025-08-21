@@ -28,75 +28,40 @@ const heroImages = [
     title: 'Green the Earth',
     subtitle: 'Fighting erosion through sustainable reforestation.'
   },
-  {
-    url: 'coastal_tsunami_rebuild.jpg',
-    title: 'Rising Again',
-    subtitle: 'Tsunami-struck towns finding strength in unity.'
-  },
-  {
-    url: 'earthquake_drone_aid.jpg',
-    title: 'Drones of Hope',
-    subtitle: 'Precision aid delivery after quakes.'
-  },
-  {
-    url: 'smart_irrigation_drought.jpg',
-    title: 'Innovate to Irrigate',
-    subtitle: 'Smart farming in drought zones.'
-  },
-  {
-    url: 'arctic_aid_delivery.jpg',
-    title: 'Warming the Coldest Hearts',
-    subtitle: 'Bringing warmth to blizzard-battered lives.'
-  },
-  {
-    url: 'landslide_sensor_monitoring.jpg',
-    title: 'Prevent the Fall',
-    subtitle: 'Predicting and preventing landslides with tech.'
-  },
-  {
-    url: 'volcano_drone_monitor.jpg',
-    title: 'Eyes on the Volcano',
-    subtitle: 'Saving lives with real-time eruption monitoring.'
-  }
 ];
 
-
 const HeroSection = () => {
-  const handleJoinUsClick = () => {
-    // alert('Thank you for donating! ');
-  };
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % heroImages.length);
-    }, 2000); 
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // 5s for smoother transition
     return () => clearInterval(slideInterval);
   }, []);
 
   return (
-    <div 
-      className={styles.hero} 
+    <section 
+      className={styles.hero}
       style={{ backgroundImage: `url(${heroImages[currentSlide].url})` }}
     >
-      <div className={styles.heroOverlay}></div>
       <div className={styles.heroContent}>
         <h1 className={styles.heroTitle}>{heroImages[currentSlide].title}</h1>
         <p className={styles.heroSubtitle}>{heroImages[currentSlide].subtitle}</p>
-        <button className={styles.joinUsButton} onClick={handleJoinUsClick}>
-            <Link to="/help">Donate</Link>
-          </button>
+        <Link to="/donate" className={styles.joinUsButton}>Donate</Link>
       </div>
+
+      {/* Navigation dots */}
       <div className={styles.navigationDots}>
         {heroImages.map((_, index) => (
           <span 
-            key={index} 
-            className={`${styles.dot} ${index === currentSlide ? styles.active : ''}`} 
+            key={index}
+            className={`${styles.dot} ${index === currentSlide ? styles.active : ""}`}
             onClick={() => setCurrentSlide(index)}
           ></span>
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 

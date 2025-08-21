@@ -1,393 +1,132 @@
-/* Modern color palette */
-:root {
-  --primary-bg: #F8FAFC;
-  --card-bg: #FFFFFF;
-  --primary-color: #1E3A8A;
-  --accent-color: #06B6D4;
-  --text-color: #1F2937;
-  --secondary-text: #6B7280;
-  --border-color: #E5E7EB;
-  --hover-bg: #F1F5F9;
-  --button-bg: #06B6D4;
-  --button-hover: #0284C7;
-  --success-color: #22C55E;
-  --error-color: #F43F5E;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-
-/* Global reset */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body, html {
-  height: 100%;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #E0F2FE, #F8FAFC);
-}
-
-/* Dashboard container */
-.dashboard {
+/* Container */
+.dashboardContainer {
+  padding: 20px;
+  margin-left: 250px; /* space for fixed sidebar */
   min-height: 100vh;
-  padding: 24px;
-  background: linear-gradient(180deg, #E0F2FE, #F8FAFC);
-  animation: fadeIn 0.6s ease-in;
+  background: #f4f6f9;
+  transition: margin-left 0.3s ease;
 }
 
-/* Header section */
-.headerSection {
-  text-align: center;
-  padding: 32px 16px;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+/* Greeting */
+.greeting {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #0b3b52;
+  margin-bottom: 10px;
+}
+
+.subHeading {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+/* Error message */
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+/* Table Wrapper */
+.tableWrapper {
+  background: #fff;
+  padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  margin-bottom: 40px;
-  position: relative;
-  overflow: hidden;
-  animation: fadeIn 0.6s ease-in;
-}
-
-.headerSection::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 20px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48V0H1200V120Z" fill="rgba(255,255,255,0.9)"/></svg>') no-repeat center bottom;
-  background-size: cover;
-}
-
-.headerSection h1 {
-  font-size: 2.5rem;
-  color: #FFFFFF;
-  margin: 0;
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-
-.headerSection p {
-  font-size: 1.25rem;
-  color: #FFFFFF;
-  margin: 12px 0 0;
-  font-weight: 400;
-  opacity: 0.9;
-}
-
-/* Content section */
-.content {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(6, 182, 212, 0.05));
-  /* backdrop-filter: blur(10px); */
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 32px;
-  border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  animation: slideUp 0.7s ease-out;
-}
-
-.content:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-}
-
-/* Welcome message */
-.welcomeMessage {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.welcomeMessage h1 {
-  font-size: 2.25rem;
-  color: var(--text-color);
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
-.welcomeMessage p {
-  font-size: 1.125rem;
-  color: var(--secondary-text);
-  font-weight: 400;
-}
-
-/* Table section */
-.tableSection {
-  margin-top: 40px;
-  animation: slideUp 0.7s ease-out 0.2s both;
-}
-
-.tableContainer {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow-x: auto;
 }
 
-.table {
+/* Modern Table */
+.reportTable {
   width: 100%;
   border-collapse: collapse;
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  font-size: 0.95rem;
 }
 
-.table th {
-  background: var(--hover-bg);
-  color: var(--primary-color);
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  padding: 16px;
-  border-bottom: 2px solid var(--border-color);
+.reportTable thead {
+  background: #0b3b52;
+  color: #fff;
 }
 
-.table td {
-  background: var(--card-bg);
-  color: var(--text-color);
-  padding: 16px;
-  border-bottom: 1px solid var(--border-color);
-  word-break: break-word;
-  transition: background 0.2s ease;
-}
-
-.table tr:hover td {
-  background: #E0F2FE;
-}
-
-.table th, .table td {
-  font-size: 1rem;
+.reportTable th,
+.reportTable td {
+  padding: 14px 16px;
   text-align: left;
 }
 
-/* Report image */
-.reportImage {
-  width: 140px;
-  height: auto;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+.reportTable tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s ease;
 }
 
-.reportImage:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.3);
-  animation: pulse 1.5s infinite;
+.reportTable tbody tr:hover {
+  background: #f1f8ff;
 }
 
-/* Media Queries */
-@media (max-width: 1200px) {
-  .dashboard {
-    padding: 20px;
+/* No data */
+.noReports {
+  margin-top: 20px;
+  font-style: italic;
+  color: #777;
+}
+
+/* ✅ Responsive Design */
+@media (max-width: 1024px) {
+  .dashboardContainer {
+    margin-left: 200px; /* adjust for smaller sidebar */
   }
 
-  .content {
-    max-width: 900px;
-    padding: 24px;
-  }
-
-  .headerSection {
-    padding: 28px 14px;
-  }
-
-  .headerSection h1 {
-    font-size: 2.25rem;
-  }
-
-  .headerSection p {
-    font-size: 1.125rem;
-  }
-
-  .welcomeMessage h1 {
-    font-size: 2rem;
-  }
-
-  .welcomeMessage p {
-    font-size: 1rem;
-  }
-
-  .table th, .table td {
-    padding: 14px;
-    font-size: 0.9375rem;
-  }
-
-  .reportImage {
-    width: 120px;
+  .reportTable th,
+  .reportTable td {
+    padding: 12px 14px;
+    font-size: 0.9rem;
   }
 }
 
-@media (max-width: 991px) {
-  .dashboard {
-    padding: 16px;
+@media (max-width: 768px) {
+  .dashboardContainer {
+    margin-left: 0; /* sidebar collapses */
+    padding: 15px;
   }
 
-  .content {
-    max-width: 95%;
-    padding: 20px;
-  }
-
-  .headerSection {
-    padding: 24px 12px;
-  }
-
-  .headerSection h1 {
-    font-size: 2rem;
-  }
-
-  .headerSection p {
-    font-size: 1rem;
-  }
-
-  .welcomeMessage h1 {
-    font-size: 1.75rem;
-  }
-
-  .welcomeMessage p {
-    font-size: 0.9375rem;
-  }
-
-  .table th, .table td {
-    padding: 12px;
-    font-size: 0.875rem;
-  }
-
-  .reportImage {
-    width: 100px;
-  }
-}
-
-@media (max-width: 767px) {
-  .dashboard {
-    padding: 12px;
-  }
-
-  .content {
-    padding: 16px;
-  }
-
-  .headerSection {
-    padding: 20px 10px;
-  }
-
-  .headerSection h1 {
-    font-size: 1.75rem;
-  }
-
-  .headerSection p {
-    font-size: 0.9375rem;
-  }
-
-  .welcomeMessage h1 {
+  .greeting {
     font-size: 1.5rem;
   }
 
-  .welcomeMessage p {
-    font-size: 0.875rem;
+  .subHeading {
+    font-size: 1rem;
   }
 
-  .table th, .table td {
+  .tableWrapper {
+    padding: 15px;
+  }
+
+  .reportTable th,
+  .reportTable td {
     padding: 10px;
-    font-size: 0.8125rem;
-  }
-
-  .reportImage {
-    width: 80px;
+    font-size: 0.85rem;
   }
 }
 
-@media (max-width: 479px) {
-  .dashboard {
+@media (max-width: 480px) {
+  .dashboardContainer {
     padding: 10px;
   }
 
-  .content {
-    padding: 12px;
+  .greeting {
+    font-size: 1.3rem;
   }
 
-  .headerSection {
-    padding: 16px 8px;
+  .subHeading {
+    font-size: 0.9rem;
   }
 
-  .headerSection h1 {
-    font-size: 1.5rem;
+  .reportTable {
+    font-size: 0.8rem;
   }
 
-  .headerSection p {
-    font-size: 0.875rem;
-  }
-
-  .welcomeMessage h1 {
-    font-size: 1.375rem;
-  }
-
-  .welcomeMessage p {
-    font-size: 0.8125rem;
-  }
-
-  .table th, .table td {
+  .reportTable th,
+  .reportTable td {
     padding: 8px;
-    font-size: 0.75rem;
-  }
-
-  .reportImage {
-    width: 60px;
-  }
-}
-
-@media (max-width: 319px) {
-  .dashboard {
-    padding: 8px;
-  }
-
-  .content {
-    padding: 10px;
-  }
-
-  .headerSection {
-    padding: 12px 6px;
-  }
-
-  .headerSection h1 {
-    font-size: 1.25rem;
-  }
-
-  .headerSection p {
-    font-size: 0.8125rem;
-  }
-
-  .welcomeMessage h1 {
-    font-size: 1.25rem;
-  }
-
-  .welcomeMessage p {
-    font-size: 0.75rem;
-  }
-
-  .table th, .table td {
-    padding: 6px;
-    font-size: 0.6875rem;
-  }
-
-  .reportImage {
-    width: 50px;
   }
 }

@@ -3,6 +3,9 @@
 
 :root {
   --main-bg: #fff;
+ 
+  --text-color: #000000;
+
 
 
   --font-family: "Inter", "sans-serif";
@@ -28,6 +31,19 @@
   box-sizing: border-box;
   text-decoration: none;
   outline: none;
+}
+
+
+
+[data-theme="dark"] {
+  --bg-color: #0b3b52;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease-in-out;
 }
 
 
