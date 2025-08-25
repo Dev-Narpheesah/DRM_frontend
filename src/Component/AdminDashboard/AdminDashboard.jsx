@@ -11,6 +11,9 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { io } from "socket.io-client";
+
+const SOCKET_URL = "https://drm-backend.vercel.app";
 
 const AdminDashboard = () => {
   const { user } = useContext(UserContext);
@@ -40,7 +43,6 @@ const AdminDashboard = () => {
       }
     };
 
-  
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -49,6 +51,33 @@ const AdminDashboard = () => {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL, { transports: ["websocket"], withCredentials: true });
+
+    const onUserRegistered = (payload) => {
+      if (payload?.user) {
+        setUsers((prev) => [
+          { _id: payload.user._id, username: payload.user.username, email: payload.user.email, createdAt: payload.user.createdAt },
+          ...prev,
+        ]);
+        toast.success(`New user registered: ${payload.user.email}`);
+      }
+    };
+
+    const onReportCreated = (report) => {
+      toast.info("New disaster report submitted");
+    };
+
+    socket.on("user:registered", onUserRegistered);
+    socket.on("report:created", onReportCreated);
+
+    return () => {
+      socket.off("user:registered", onUserRegistered);
+      socket.off("report:created", onReportCreated);
+      socket.close();
+    };
   }, []);
 
   const formatDate = (dateString) => {
@@ -212,8 +241,7 @@ const AdminDashboard = () => {
               <FaArrowLeft />
             </button>
             <span>
-              Page {currentPage + 1} of{" "}
-              {Math.ceil(disasters.length / itemsPerPage)}
+              Page {currentPage + 1} of {Math.ceil(disasters.length / itemsPerPage)}
             </span>
             <button
               onClick={() =>

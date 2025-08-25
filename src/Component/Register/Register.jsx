@@ -1,158 +1,176 @@
-import { useState, useContext } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./Register.module.css";
 import { toast } from "react-toastify";
-import { UserContext } from "../../../context/userContext";
+import PasswordInput from "../passwordInput/passwordInput";
 
 const initialState = {
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: ''
+  username: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  role: "user",
 };
 
 const Register = () => {
-  const { login } = useContext(UserContext);
-  const [formData, setFormData] = useState(initialState);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formValidMessage, setFormValidMessage] = useState("");
-
-  const { username, email, password, confirmPassword } = formData;
   const navigate = useNavigate();
+  const [formData, setFormData] = useState(initialState);
+  const [formValidMessage, setFormValidMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
-  };
+  // Detect mobile
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-  const validateForm = () => {
-    const trimmedUsername = username.trim();
-    const trimmedEmail = email.trim();
-    const trimmedPassword = password.trim();
-    const trimmedConfirmPassword = confirmPassword.trim();
+  // Handle input change
+  const handleInputChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormValidMessage("");
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-    if (!trimmedUsername || !trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
-      setFormValidMessage('All fields are required');
-      return false;
-    }
+  // Handle form submit
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const { username, email, password, confirmPassword, role } = formData;
 
-    if (trimmedPassword !== trimmedConfirmPassword) {
-      setFormValidMessage('Passwords do not match');
-      return false;
-    }
+      if (!username || !email || !password || !confirmPassword) {
+        setFormValidMessage("All fields are required");
+        return;
+      }
 
-    if (trimmedPassword.length < 6) {
-      setFormValidMessage('Password must be at least 6 characters long');
-      return false;
-    }
+      if (password !== confirmPassword) {
+        setFormValidMessage("Passwords do not match");
+        return;
+      }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      setFormValidMessage('Invalid email address');
-      return false;
-    }
+      if (password.length < 6) {
+        setFormValidMessage("Password must be at least 6 characters long");
+        return;
+      }
 
-  
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setFormValidMessage("Invalid email address");
+        return;
+      }
 
-    setFormValidMessage('');
-    return true;
-  };
+      setIsSubmitting(true);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
+      try {
+        const endpoint = "https://drm-backend.vercel.app/api/auth/register";
 
-  if (!validateForm()) return;
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password, role }),
+          credentials: "include",
+        });
 
-  setIsSubmitting(true);
+        const data = await response.json();
 
-  try {
-    const response = await fetch('https://drm-backend.vercel.app/api/admin/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, email, password, confirmPassword }),
-    });
+        if (!response.ok) {
+          throw new Error(data.message || "Registration failed");
+        }
 
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Registration failed');
-    }
-
-    // login(data.user, data.token);
-    toast.success("Registration Successful");
-    navigate('/signin', { state: { user: data.user } });
-  } catch (error) {
-    console.error('Failed to register user', error);
-    toast.error(error.message || 'Failed to register user');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+        toast.success("Registration successful");
+        navigate("/signin", { state: { user: data.user } });
+      } catch (error) {
+        console.error("Registration error:", error);
+        setFormValidMessage(error.message || "Network error. Please try again.");
+        toast.error(error.message || "Network error. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [formData, navigate]
+  );
 
   return (
     <div className={styles.container_reg}>
       <form className={styles.container} onSubmit={handleSubmit}>
-        <p>Full Name</p>
-        <input
-          value={username}
-          placeholder="eg: full name"
-          id='username'
-          onChange={handleInputChange}
-          required
-        />
+        <p className={styles.formTitle}>Register</p>
 
-        <p>Email Address</p>
-        <input
-          value={email}
-          placeholder="example@gmail.com"
-          id='email'
-          onChange={handleInputChange}
-          required
-        />
+        <div className={styles.inputContainer}>
+          <label htmlFor="role">Register as</label>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleInputChange}
+            required
+            className={styles.dropdown}
+          >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
 
-        <div>
-          <label className={styles.password}>Password</label>
+        <div className={styles.inputContainer}>
           <input
-            type="password"
-            className={styles.input}
-            value={password}
+            type="text"
+            name="username"
+            placeholder="Full Name"
+            value={formData.username}
+            onChange={handleInputChange}
+            required
+            aria-label="Full Name"
+          />
+        </div>
+
+        <div className={styles.inputContainer}>
+          <input
+            type="email"
+            name="email"
+            placeholder="example@gmail.com"
+            value={formData.email}
+            onChange={handleInputChange}
+            required
+            aria-label="Email"
+          />
+        </div>
+
+        <div className={styles.inputContainer}>
+          <PasswordInput
+            name="password"
             placeholder="Enter your password"
-            required
-            id='password'
+            value={formData.password}
             onChange={handleInputChange}
+            required
+            aria-label="Password"
           />
         </div>
 
-        <div>
-          <label className={styles.password}>Confirm Password</label>
-          <input
-            type="password"
-            className={styles.input}
-            value={confirmPassword}
+        <div className={styles.inputContainer}>
+          <PasswordInput
+            name="confirmPassword"
             placeholder="Re-enter your password"
-            required
-            id='confirmPassword'
+            value={formData.confirmPassword}
             onChange={handleInputChange}
+            required
+            aria-label="Confirm Password"
           />
         </div>
 
-        <button type="submit" className={styles.btn} disabled={isSubmitting}>
+        <button className={styles.btn} type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Signing you up..." : "Create Account"}
         </button>
 
-        <div>
-          <p style={{ textAlign: "center" }}>Already registered?{' '}
-            <Link to='/signin' style={{ color: "#11648a" }}>Sign In</Link>
-          </p>
-        </div>
+        <p className={styles.signupLink}>
+          Already registered? <Link to="/signin">Sign In</Link>
+        </p>
 
-        {formValidMessage && <p className="error-message">{formValidMessage}</p>}
+        {formValidMessage && (
+          <p className={styles.errorMessage}>{formValidMessage}</p>
+        )}
       </form>
     </div>
   );
 };
 
-export default Register;
+export default Register;

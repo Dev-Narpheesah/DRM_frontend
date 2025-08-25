@@ -1,75 +1,174 @@
+:root {
+  --bg-primary: #F9FAFB;
+  --bg-secondary: #DBEAFE;
+  --bg-tertiary: #E5E7EB;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6B7280;
+  --accent-primary: #2563EB;
+  --accent-secondary: #3B82F6;
+  --accent-success: #10B981;
+  --accent-danger: #EF4444;
+  --accent-caution: #F59E0B;
+  --border-color: #DBEAFE;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --gradient-primary: linear-gradient(135deg, #1E3A8A, #60A5FA);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1E3A8A;
+  --bg-secondary: #2563EB;
+  --bg-tertiary: #374151;
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1D5DB;
+  --text-muted: #9CA3AF;
+  --accent-primary: #2563EB;
+  --accent-secondary: #3B82F6;
+  --accent-success: #10B981;
+  --accent-danger: #EF4444;
+  --accent-caution: #F59E0B;
+  --border-color: #374151;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --gradient-primary: linear-gradient(135deg, #1E3A8A, #60A5FA);
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
-  background-color: #f8fafc;
-  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(31, 58, 138, 0.3);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header.scrolled {
+  background: rgba(31, 58, 138, 0.5);
+  box-shadow: var(--shadow-lg);
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #1e3a8a, #3b82f6);
-  padding: 12px 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  height: 60px;
 }
 
 .headerLogo {
   display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .logo {
-  color: #ffffff;
   font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-primary);
   margin: 0;
-  font-weight: 700;
+}
+
+.tagline {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .nav {
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .menuButton {
   background: none;
   border: none;
-  color: #ffffff;
-  font-size: 1.25rem;
   cursor: pointer;
-  padding: 12px;
-  min-width: 48px;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, color 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .menuButton:hover {
-  transform: scale(1.1);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 20px;
+  height: 16px;
+}
+
+.hamburger span {
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+  border-radius: 1px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
 }
 
 .dropdown {
   position: absolute;
   top: 100%;
-  right: 0;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-  padding: 12px;
-  width: 160px;
+  right: 1rem;
+  background: rgba(31, 58, 138, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  padding: 0.5rem;
+  min-width: 180px;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-8px);
-  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-  transform-origin: top right;
-  z-index: 1000;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
 }
 
 .dropdown.open {
@@ -84,44 +183,33 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.dropdownLinks li {
-  width: 100%;
+  gap: 0.25rem;
 }
 
 .dropdownLink,
 .dropdownBtn {
-  display: block;
-  color: #1e293b;
+  color: var(--text-primary);
   text-decoration: none;
   font-size: 0.875rem;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   background: none;
   border: none;
   text-align: left;
   width: 100%;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
 .dropdownLink:hover,
 .dropdownBtn:hover {
-  background-color: #2563eb;
-  color: #ffffff;
-  transform: translateX(4px);
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-secondary);
 }
 
 .dropdownLink.active {
-  background-color: #2563eb;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.dropdownBtn {
-  font-weight: 600;
+  background: var(--accent-primary);
+  color: #FFFFFF;
 }
 
 .navLinks {
@@ -129,323 +217,319 @@ body {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  gap: 24px;
-}
-
-.navLinks li {
-  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .navLink,
 .navBtn {
-  color: #ffffff;
+  color: var(--text-primary);
   text-decoration: none;
-  font-size: 0.95rem;
-  padding: 8px 12px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
   background: none;
   border: none;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
 }
 
 .navLink:hover,
 .navBtn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-secondary);
 }
 
 .navLink.active {
-  background-color: #ffffff;
-  color: #2563eb;
-  font-weight: 600;
+  background: var(--accent-primary);
+  color: #FFFFFF;
 }
 
-.navBtn {
-  font-weight: 600;
-}
-
-main {
-  padding: 24px 12px;
+.main {
+  margin-top: 60px;
   flex: 1;
 }
 
-.CallToAction {
-  margin-top: 32px;
+.features {
+  padding: 3rem 0;
+  background: var(--gradient-primary);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.featureCard {
+  background: rgba(31, 58, 138, 0.3);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-md);
   text-align: center;
-  background: linear-gradient(90deg, #2563eb, #3b82f6);
-  padding: 32px 12px;
-  border-radius: 12px;
-  color: #ffffff;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.featureCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+}
+
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--accent-primary);
+  color: #FFFFFF;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.featureCard h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--accent-secondary);
+}
+
+.featureCard p {
+  color: var(--text-secondary);
+}
+
+.CallToAction {
+  padding: 3rem 0;
+  background: var(--gradient-primary);
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.ctaContent {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .CallToAction h2 {
-  font-size: 1.75rem;
-  margin-bottom: 12px;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--accent-secondary);
 }
 
 .CallToAction p {
-  font-size: 1rem;
-  margin-bottom: 16px;
-  color: #e0e7ff;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .CtaBtn {
-  background-color: #ffffff;
-  color: #2563eb;
-  padding: 12px 32px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.75rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
 }
 
-.CtaBtn a {
-  color: #2563eb;
-  text-decoration: none;
+.CtaBtn.primary {
+  background: var(--accent-primary);
+  color: #FFFFFF;
 }
 
-.CtaBtn:hover {
-  background-color: #e0e7ff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+.CtaBtn.primary:hover {
+  background: var(--accent-secondary);
+  transform: scale(1.05);
+}
+
+.CtaBtn.action {
+  background: transparent;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+}
+
+.CtaBtn.action:hover {
+  background: var(--accent-secondary);
+  color: #FFFFFF;
+  border-color: var(--accent-secondary);
+  transform: scale(1.05);
 }
 
 .testimonials {
-  margin-top: 40px;
-  text-align: center;
-  background-color: #2563eb;
-  padding: 32px 12px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-.testimonials h2 {
-  font-size: 1.75rem;
-  color: #ffffff;
-  margin-bottom: 12px;
-  font-weight: 700;
+  padding: 3rem 0;
+  background: var(--bg-secondary);
 }
 
 .testimonialItems {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .testimonialItem {
-  background-color: #ffffff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  width: 30%;
-  min-width: 200px;
-  font-style: italic;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: slideIn 0.5s ease forwards;
-}
-
-.testimonialItem:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.testimonialItem:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes slideIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  background: rgba(31, 58, 138, 0.3);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .testimonialItem:hover {
-  transform: scale(1.03);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
 }
 
-.testimonialItem p {
-  margin-bottom: 12px;
-  color: #1e293b;
-  font-size: 0.875rem;
+.testimonialAvatar {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--accent-primary);
 }
 
-.testimonialItem h4 {
-  text-align: right;
-  color: #1e293b;
-  font-weight: 600;
+.testimonialQuote {
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.testimonialAuthor h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: var(--accent-secondary);
+}
+
+.testimonialAuthor span {
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
 .stats {
-  margin-top: 40px;
-  text-align: center;
-  background-color: #2563eb;
-  padding: 32px 12px;
-  border-radius: 12px;
-}
-
-.stats h2 {
-  font-size: 1.75rem;
-  color: #ffffff;
-  margin-bottom: 12px;
-  font-weight: 700;
+  padding: 3rem 0;
+  background: var(--bg-primary);
 }
 
 .statsItems {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
 }
 
 .statItem {
-  background-color: #ffffff;
-  padding: 16px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  width: 120px;
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  font-weight: 600;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: rgba(31, 58, 138, 0.3);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .statItem:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+}
+
+.statIcon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--accent-primary);
 }
 
 .statItem h3 {
-  font-size: 1.5rem;
-  margin: 0;
-  color: #2563eb;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--accent-secondary);
 }
 
 .statItem p {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #1e293b;
+  color: var(--text-secondary);
 }
 
-footer {
-  background: #2563eb;
-  padding-top: 48px;
-  padding-bottom: 24px;
+.emergency {
+  padding: 2rem 0;
+  background: var(--accent-danger);
+  color: #FFFFFF;
+  text-align: center;
 }
 
-.contain {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  color: #ffffff;
-}
-
-.footerSection {
-  width: 33.33%;
-  padding: 16px;
-}
-
-h3 {
+.emergencyContent h2 {
   font-size: 1.75rem;
-  margin-bottom: 16px;
-  text-align: center;
-  color: #ffffff;
-  font-weight: 700;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #FFFFFF;
 }
 
-.footerSection p {
-  max-width: 240px;
-  margin: 0 auto;
-  padding: 8px 0;
+.emergencyContent p {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.emergencyNumbers {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.emergencyNumber {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.number {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.label {
   font-size: 0.875rem;
-  color: #e0e7ff;
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 800;
   text-align: center;
+  margin-bottom: 2rem;
+  color: var(--accent-secondary);
+  animation: fadeIn 1s ease-in-out;
 }
 
-.footerSection ul {
-  text-align: center;
-  list-style: none;
-  padding: 0;
+.successToast {
+  background: var(--accent-success) !important;
+  color: #FFFFFF !important;
 }
 
-.footerLinks {
-  position: relative;
-  padding: 8px 0;
-  font-size: 0.875rem;
+.errorToast {
+  background: var(--accent-danger) !important;
+  color: #FFFFFF !important;
 }
 
-.footerLinks a {
-  color: #e0e7ff;
-  text-decoration: none;
-  transition: color 0.2s ease;
+.warnToast {
+  background: var(--accent-caution) !important;
+  color: #FFFFFF !important;
 }
 
-.footerLinks:hover a {
-  color: #2563eb;
-}
-
-.footerLinks::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translateX(-50%);
-  width: 0;
-  height: 1px;
-  background: #2563eb;
-  transition: width 0.3s ease;
-}
-
-.footerLinks:hover::before {
-  width: 60px;
-}
-
-.socialIcons {
-  text-align: center;
-  padding: 0;
-}
-
-.socialIcons li {
-  display: inline-block;
-  padding: 8px;
-}
-
-.socialIcons i {
-  color: #e0e7ff;
-  font-size: 1.5rem;
-  transition: color 0.2s ease, transform 0.2s ease;
-}
-
-.socialIcons i:hover {
-  color: #2563eb;
-  transform: scale(1.1);
-}
-
-.bottomBar {
-  text-align: center;
-  padding: 16px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 32px;
-}
-
-.bottomBar p {
-  margin: 0;
-  color: #e0e7ff;
-  font-size: 0.875rem;
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @media (min-width: 768px) {
@@ -453,1326 +537,116 @@ h3 {
   .dropdown {
     display: none;
   }
-
   .navLinks {
     display: flex;
   }
 }
 
-@media (min-width: 1920px) {
-  body {
-    font-size: 1.125rem;
-  }
-
-  .header {
-    padding: 16px 32px;
-  }
-
-  .logo {
-    font-size: 1.75rem;
-  }
-
-  .navLink,
-  .navBtn {
-    font-size: 1.125rem;
-    padding: 10px 16px;
-  }
-
-  main {
-    padding: 32px 16px;
-  }
-
-  .CallToAction {
-    padding: 40px 16px;
-    margin-top: 40px;
-    border-radius: 16px;
-  }
-
-  .CallToAction h2 {
-    font-size: 2rem;
-  }
-
-  .CallToAction p {
-    font-size: 1.125rem;
-  }
-
-  .CtaBtn {
-    padding: 16px 40px;
-    font-size: 1.125rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 40px 16px;
-    margin-top: 48px;
-    border-radius: 16px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 2rem;
-  }
-
-  .testimonialItems {
-    gap: 24px;
-  }
-
-  .testimonialItem {
-    width: 28%;
-    padding: 20px;
-  }
-
-  .statItem {
-    width: 140px;
-    height: 140px;
-  }
-
-  .statItem h3 {
-    font-size: 1.75rem;
-  }
-
-  .statItem p {
-    font-size: 0.875rem;
-  }
-
-  footer {
-    padding-top: 56px;
-    padding-bottom: 32px;
-  }
-
-  .contain {
-    max-width: 1400px;
-  }
-
-  .footerSection {
-    padding: 20px;
-  }
-
-  h3 {
-    font-size: 2rem;
-  }
-
-  .footerSection p {
-    max-width: 280px;
-    font-size: 1rem;
-    padding: 10px 0;
-  }
-
-  .footerLinks {
-    font-size: 1rem;
-    padding: 10px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 80px;
-  }
-
-  .socialIcons i {
-    font-size: 1.75rem;
-  }
-
-  .bottomBar {
-    margin-top: 40px;
-    padding: 20px 0;
-  }
-
-  .bottomBar p {
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 1300px) {
-  .header {
-    padding: 10px 20px;
-  }
-
-  .logo {
-    font-size: 1.375rem;
-  }
-
-  .menuButton {
-    font-size: 1.125rem;
-  }
-
-  .dropdown {
-    width: 150px;
-    padding: 10px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.85rem;
-    padding: 7px 10px;
-  }
-
-  .navLink,
-  .navBtn {
-    font-size: 0.95rem;
-    padding: 7px 10px;
-  }
-
-  main {
-    padding: 20px 10px;
-  }
-
-  .CallToAction {
-    padding: 28px 10px;
-    margin-top: 28px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.625rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.95rem;
-  }
-
-  .CtaBtn {
-    padding: 10px 28px;
-    font-size: 0.95rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 28px 10px;
-    margin-top: 36px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.625rem;
-  }
-
-  .testimonialItem {
-    width: 32%;
-    padding: 14px;
-  }
-
-  .statItem {
-    width: 110px;
-    height: 110px;
-  }
-
-  .statItem h3 {
-    font-size: 1.375rem;
-  }
-
-  .statItem p {
-    font-size: 0.7rem;
-  }
-
-  .contain {
-    max-width: 1000px;
-  }
-
-  .footerSection {
-    padding: 12px;
-  }
-
-  h3 {
-    font-size: 1.625rem;
-  }
-
-  .footerSection p {
-    max-width: 220px;
-    font-size: 0.85rem;
-  }
-
-  .footerLinks {
-    font-size: 0.85rem;
-  }
-
-  .socialIcons i {
-    font-size: 1.375rem;
-  }
-
-  .bottomBar p {
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 1199px) {
-  .header {
-    padding: 8px 16px;
-  }
-
-  .logo {
-    font-size: 1.25rem;
-  }
-
-  .menuButton {
-    font-size: 1rem;
-  }
-
-  .dropdown {
-    width: 140px;
-    padding: 8px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.8rem;
-    padding: 6px 8px;
-  }
-
-  .navLink,
-  .navBtn {
-    font-size: 0.9rem;
-    padding: 6px 8px;
-  }
-
-  main {
-    padding: 16px 8px;
-  }
-
-  .CallToAction {
-    padding: 24px 8px;
-    margin-top: 24px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.5rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.9rem;
-  }
-
-  .CtaBtn {
-    padding: 8px 24px;
-    font-size: 0.9rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 24px 8px;
-    margin-top: 32px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.5rem;
-  }
-
-  .testimonialItems {
-    gap: 12px;
-  }
-
-  .testimonialItem {
-    width: 48%;
-    padding: 12px;
-  }
-
-  .statItem {
-    width: 100px;
-    height: 100px;
-  }
-
-  .statItem h3 {
-    font-size: 1.25rem;
-  }
-
-  .statItem p {
-    font-size: 0.65rem;
-  }
-
-  .contain {
-    max-width: 900px;
-  }
-
-  h3 {
-    font-size: 1.5rem;
-  }
-
-  .footerSection p {
-    max-width: 200px;
-    font-size: 0.8125rem;
-  }
-
-  .footerLinks {
-    font-size: 0.8125rem;
-    padding: 7px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 50px;
-  }
-
-  .socialIcons i {
-    font-size: 1.25rem;
-  }
-
-  .bottomBar p {
-    font-size: 0.8125rem;
-  }
-}
-
 @media (max-width: 1024px) {
-  .header {
-    padding: 7px 14px;
+  .sectionTitle {
+    font-size: 1.75rem;
   }
-
-  .logo {
-    font-size: 1.1875rem;
-  }
-
-  .menuButton {
-    font-size: 0.9375rem;
-  }
-
-  .dropdown {
-    width: 135px;
-    padding: 7px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.7813rem;
-    padding: 5.5px 7px;
-  }
-
-  .navLink,
-  .navBtn {
-    font-size: 0.875rem;
-    padding: 5.5px 7px;
-  }
-
-  main {
-    padding: 14px 7px;
-  }
-
-  .CallToAction {
-    padding: 22px 7px;
-    margin-top: 22px;
-  }
-
   .CallToAction h2 {
-    font-size: 1.4375rem;
+    font-size: 1.75rem;
   }
-
-  .CallToAction p {
-    font-size: 0.875rem;
+  .featuresGrid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   }
-
-  .CtaBtn {
-    padding: 7px 22px;
-    font-size: 0.875rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 22px 7px;
-    margin-top: 30px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.4375rem;
-  }
-
   .testimonialItems {
-    gap: 11px;
-  }
-
-  .testimonialItem {
-    width: 48%;
-    padding: 11px;
-  }
-
-  .statItem {
-    width: 95px;
-    height: 95px;
-  }
-
-  .statItem h3 {
-    font-size: 1.1875rem;
-  }
-
-  .statItem p {
-    font-size: 0.625rem;
-  }
-
-  .contain {
-    max-width: 800px;
-  }
-
-  .footerSection {
-    padding: 14px 6px;
-  }
-
-  h3 {
-    font-size: 1.4375rem;
-  }
-
-  .footerSection p {
-    max-width: 190px;
-    font-size: 0.7813rem;
-    padding: 7px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.7813rem;
-    padding: 6.5px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 45px;
-  }
-
-  .socialIcons li {
-    padding: 7px;
-  }
-
-  .socialIcons i {
-    font-size: 1.1875rem;
-  }
-
-  .bottomBar {
-    margin-top: 28px;
-    padding: 14px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.7813rem;
-  }
-}
-
-@media (max-width: 991px) {
-  .header {
-    padding: 6px 12px;
-  }
-
-  .logo {
-    font-size: 1.125rem;
-  }
-
-  .menuButton {
-    font-size: 0.875rem;
-  }
-
-  .dropdown {
-    width: 130px;
-    padding: 6px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.75rem;
-    padding: 5px 6px;
-  }
-
-  .navLink,
-  .navBtn {
-    font-size: 0.85rem;
-    padding: 5px 6px;
-  }
-
-  main {
-    padding: 12px 6px;
-  }
-
-  .CallToAction {
-    padding: 20px 6px;
-    margin-top: 20px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.375rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.85rem;
-  }
-
-  .CtaBtn {
-    padding: 6px 20px;
-    font-size: 0.85rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 20px 6px;
-    margin-top: 28px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.375rem;
-  }
-
-  .testimonialItems {
-    gap: 10px;
-  }
-
-  .testimonialItem {
-    width: 100%;
-    min-width: unset;
-    padding: 10px;
-  }
-
-  .statItem {
-    width: 90px;
-    height: 90px;
-  }
-
-  .statItem h3 {
-    font-size: 1.125rem;
-  }
-
-  .statItem p {
-    font-size: 0.6rem;
-  }
-
-  .contain {
-    max-width: 700px;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .footerSection {
-    width: 100%;
-    padding: 16px 8px;
-  }
-
-  h3 {
-    font-size: 1.375rem;
-  }
-
-  .footerSection p {
-    max-width: 100%;
-    font-size: 0.8125rem;
-  }
-
-  .footerLinks {
-    font-size: 0.8125rem;
-    padding: 6px 0;
-  }
-
-  .socialIcons i {
-    font-size: 1.125rem;
-  }
-
-  .bottomBar {
-    margin-top: 24px;
-    padding: 12px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.8125rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
 
 @media (max-width: 767px) {
-  body {
-    font-size: 0.875rem;
+  .headerContent {
+    padding: 0 0.75rem;
+    height: 50px;
   }
-
-  .header {
-    padding: 4px 8px;
-  }
-
   .logo {
-    font-size: 1rem;
-  }
-
-  .menuButton {
-    font-size: 1rem;
-    padding: 10px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .dropdown {
-    width: 100%;
-    right: 0;
-    border-radius: 0 0 6px 6px;
-    padding: 8px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.75rem;
-    padding: 6px 8px;
-  }
-
-  .navLinks {
-    display: none;
-  }
-
-  main {
-    padding: 8px 4px;
-  }
-
-  .CallToAction {
-    padding: 16px 4px;
-    margin-top: 16px;
-    border-radius: 8px;
-  }
-
-  .CallToAction h2 {
     font-size: 1.25rem;
   }
-
-  .CallToAction p {
-    font-size: 0.8rem;
+  .tagline {
+    font-size: 0.65rem;
   }
-
-  .CtaBtn {
-    padding: 5px 16px;
-    font-size: 0.8rem;
+  .main {
+    margin-top: 50px;
   }
-
+  .sectionTitle {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .features,
   .testimonials,
   .stats {
-    padding: 16px 4px;
-    margin-top: 24px;
-    border-radius: 8px;
+    padding: 2rem 0;
   }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.25rem;
+  .CallToAction {
+    padding: 2rem 0;
   }
-
-  .testimonialItems {
-    gap: 8px;
+  .CallToAction h2 {
+    font-size: 1.5rem;
   }
-
-  .testimonialItem {
+  .CallToAction p {
+    font-size: 0.875rem;
+  }
+  .ctaButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+  .CtaBtn {
     width: 100%;
-    padding: 8px;
+    max-width: 250px;
   }
-
-  .statItem {
-    width: 80px;
-    height: 80px;
+  .featuresGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
-
-  .statItem h3 {
-    font-size: 1rem;
+  .testimonialItems {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
-
-  .statItem p {
-    font-size: 0.55rem;
+  .statsItems {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
-
-  .contain {
-    max-width: 500px;
-    padding: 0 16px;
-  }
-
-  .footerSection {
-    padding: 12px 4px;
-  }
-
-  h3 {
-    font-size: 1.25rem;
-  }
-
-  .footerSection p {
-    font-size: 0.75rem;
-    padding: 6px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.75rem;
-    padding: 5px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 40px;
-  }
-
-  .socialIcons li {
-    padding: 6px;
-  }
-
-  .socialIcons i {
-    font-size: 1rem;
-  }
-
-  .bottomBar {
-    margin-top: 20px;
-    padding: 10px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.75rem;
+  .emergencyNumbers {
+    flex-direction: column;
+    gap: 1rem;
   }
 }
 
 @media (max-width: 500px) {
-  body {
-    font-size: 0.825rem;
+  .headerContent {
+    padding: 0 0.5rem;
   }
-
-  .header {
-    padding: 3.5px 7px;
-  }
-
   .logo {
-    font-size: 0.9375rem;
-  }
-
-  .menuButton {
-    font-size: 0.875rem;
-    padding: 8px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .dropdown {
-    width: 100%;
-    border-radius: 0 0 5px 5px;
-    padding: 7px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.7188rem;
-    padding: 5px 7px;
-  }
-
-  main {
-    padding: 7px 3.5px;
-  }
-
-  .CallToAction {
-    padding: 14px 3.5px;
-    margin-top: 14px;
-    border-radius: 7px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.1875rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.775rem;
-  }
-
-  .CtaBtn {
-    padding: 4.5px 14px;
-    font-size: 0.775rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 14px 3.5px;
-    margin-top: 22px;
-    border-radius: 7px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.1875rem;
-  }
-
-  .testimonialItems {
-    gap: 7px;
-  }
-
-  .testimonialItem {
-    width: 100%;
-    padding: 7px;
-  }
-
-  .statItem {
-    width: 70px;
-    height: 70px;
-  }
-
-  .statItem h3 {
-    font-size: 0.9375rem;
-  }
-
-  .statItem p {
-    font-size: 0.525rem;
-  }
-
-  footer {
-    padding-top: 36px;
-    padding-bottom: 20px;
-  }
-
-  .contain {
-    max-width: 100%;
-    padding: 0 14px;
-  }
-
-  .footerSection {
-    padding: 10px 3px;
-  }
-
-  h3 {
-    font-size: 1.1875rem;
-  }
-
-  .footerSection p {
-    font-size: 0.7188rem;
-    padding: 5px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.7188rem;
-    padding: 4.5px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 35px;
-  }
-
-  .socialIcons li {
-    padding: 5px;
-  }
-
-  .socialIcons i {
-    font-size: 0.9375rem;
-  }
-
-  .bottomBar {
-    margin-top: 18px;
-    padding: 9px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.7188rem;
-  }
-}
-
-@media (max-width: 479px) {
-  body {
-    font-size: 0.8125rem;
-  }
-
-  .header {
-    padding: 3px 6px;
-  }
-
-  .logo {
-    font-size: 0.875rem;
-  }
-
-  .menuButton {
-    font-size: 0.875rem;
-    padding: 8px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .dropdown {
-    width: 100%;
-    border-radius: 0 0 4px 4px;
-    padding: 6px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.6875rem;
-    padding: 4px 6px;
-  }
-
-  main {
-    padding: 6px 3px;
-  }
-
-  .CallToAction {
-    padding: 12px 3px;
-    margin-top: 12px;
-    border-radius: 6px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.125rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.75rem;
-  }
-
-  .CtaBtn {
-    padding: 4px 12px;
-    font-size: 0.75rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 12px 3px;
-    margin-top: 20px;
-    border-radius: 6px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.125rem;
-  }
-
-  .testimonialItems {
-    gap: 6px;
-  }
-
-  .testimonialItem {
-    width: 100%;
-    padding: 6px;
-  }
-
-  .statItem {
-    width: 60px;
-    height: 60px;
-  }
-
-  .statItem h3 {
-    font-size: 0.875rem;
-  }
-
-  .statItem p {
-    font-size: 0.5rem;
-  }
-
-  footer {
-    padding-top: 32px;
-    padding-bottom: 16px;
-  }
-
-  .contain {
-    max-width: 100%;
-    padding: 0 12px;
-  }
-
-  .footerSection {
-    padding: 8px 4px;
-  }
-
-  h3 {
-    font-size: 1.125rem;
-  }
-
-  .footerSection p {
-    font-size: 0.6875rem;
-    padding: 4px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.6875rem;
-    padding: 4px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 30px;
-  }
-
-  .socialIcons li {
-    padding: 4px;
-  }
-
-  .socialIcons i {
-    font-size: 0.875rem;
-  }
-
-  .bottomBar {
-    margin-top: 16px;
-    padding: 8px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.6875rem;
-  }
-}
-
-@media (max-width: 360px) {
-  body {
-    font-size: 0.7813rem;
-  }
-
-  .header {
-    padding: 2.5px 5px;
-  }
-
-  .logo {
-    font-size: 0.8125rem;
-  }
-
-  .menuButton {
-    font-size: 0.75rem;
-    padding: 7px;
-    min-width: 40px;
-    min-height: 40px;
-  }
-
-  .dropdown {
-    width: 100%;
-    border-radius: 0 0 3.5px 3.5px;
-    padding: 5px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.6563rem;
-    padding: 3.5px 5px;
-  }
-
-  main {
-    padding: 5px 2.5px;
-  }
-
-  .CallToAction {
-    padding: 10px 2.5px;
-    margin-top: 10px;
-    border-radius: 5px;
-  }
-
-  .CallToAction h2 {
-    font-size: 1.0625rem;
-  }
-
-  .CallToAction p {
-    font-size: 0.7188rem;
-  }
-
-  .CtaBtn {
-    padding: 3.5px 10px;
-    font-size: 0.7188rem;
-  }
-
-  .testimonials,
-  .stats {
-    padding: 10px 2.5px;
-    margin-top: 18px;
-    border-radius: 5px;
-  }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1.0625rem;
-  }
-
-  .testimonialItems {
-    gap: 5px;
-  }
-
-  .testimonialItem {
-    width: 100%;
-    padding: 5px;
-  }
-
-  .statItem {
-    width: 55px;
-    height: 55px;
-  }
-
-  .statItem h3 {
-    font-size: 0.8125rem;
-  }
-
-  .statItem p {
-    font-size: 0.4688rem;
-  }
-
-  footer {
-    padding-top: 28px;
-    padding-bottom: 14px;
-  }
-
-  .contain {
-    max-width: 100%;
-    padding: 0 10px;
-  }
-
-  .footerSection {
-    padding: 7px 3px;
-  }
-
-  h3 {
-    font-size: 1.0625rem;
-  }
-
-  .footerSection p {
-    font-size: 0.6563rem;
-    padding: 3.5px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.6563rem;
-    padding: 3.5px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 25px;
-  }
-
-  .socialIcons li {
-    padding: 3.5px;
-  }
-
-  .socialIcons i {
-    font-size: 0.8125rem;
-  }
-
-  .bottomBar {
-    margin-top: 14px;
-    padding: 7px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.6563rem;
-  }
-}
-
-@media (max-width: 319px) {
-  body {
-    font-size: 0.75rem;
-  }
-
-  .header {
-    padding: 2px 4px;
-  }
-
-  .logo {
-    font-size: 0.75rem;
-  }
-
-  .menuButton {
-    font-size: 0.7rem;
-    padding: 6px;
-    min-width: 36px;
-    min-height: 36px;
-  }
-
-  .dropdown {
-    width: 100%;
-    border-radius: 0 0 3px 3px;
-    padding: 4px;
-  }
-
-  .dropdownLink,
-  .dropdownBtn {
-    font-size: 0.625rem;
-    padding: 3px 4px;
-  }
-
-  main {
-    padding: 4px 2px;
-  }
-
-  .CallToAction {
-    padding: 8px 2px;
-    margin-top: 8px;
-    border-radius: 4px;
-  }
-
-  .CallToAction h2 {
     font-size: 1rem;
   }
-
-  .CallToAction p {
-    font-size: 0.6875rem;
+  .tagline {
+    font-size: 0.6rem;
   }
-
-  .CtaBtn {
-    padding: 3px 8px;
-    font-size: 0.6875rem;
+  .sectionTitle {
+    font-size: 1.25rem;
   }
-
-  .testimonials,
-  .stats {
-    padding: 8px 2px;
-    margin-top: 16px;
-    border-radius: 4px;
+  .CallToAction h2 {
+    font-size: 1.25rem;
   }
-
-  .testimonials h2,
-  .stats h2 {
-    font-size: 1rem;
-  }
-
-  .testimonialItems {
-    gap: 4px;
-  }
-
-  .testimonialItem {
-    width: 100%;
-    padding: 4px;
-  }
-
+  .featureCard,
+  .testimonialItem,
   .statItem {
-    width: 50px;
-    height: 50px;
+    padding: 1rem;
   }
-
-  .statItem h3 {
-    font-size: 0.75rem;
+  .statsItems {
+    grid-template-columns: 1fr;
   }
-
-  .statItem p {
-    font-size: 0.4375rem;
-  }
-
-  footer {
-    padding-top: 24px;
-    padding-bottom: 12px;
-  }
-
-  .contain {
-    padding: 0 8px;
-  }
-
-  .footerSection {
-    padding: 6px 2px;
-  }
-
-  h3 {
-    font-size: 1rem;
-  }
-
-  .footerSection p {
-    font-size: 0.625rem;
-    padding: 3px 0;
-  }
-
-  .footerLinks {
-    font-size: 0.625rem;
-    padding: 3px 0;
-  }
-
-  .footerLinks:hover::before {
-    width: 20px;
-  }
-
-  .socialIcons li {
-    padding: 3px;
-  }
-
-  .socialIcons i {
-    font-size: 0.75rem;
-  }
-
-  .bottomBar {
-    margin-top: 12px;
-    padding: 6px 0;
-  }
-
-  .bottomBar p {
-    font-size: 0.625rem;
+  .emergencyContent h2 {
+    font-size: 1.25rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .menuButton,
-  .dropdown,
-  .dropdownLink,
-  .dropdownBtn,
-  .navLink,
-  .navBtn,
-  .CtaBtn,
-  .testimonialItem,
-  .statItem,
-  .footerLinks::before,
-  .socialIcons i {
-    transition: none;
-  }
-
-  .testimonialItem {
-    animation: none;
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

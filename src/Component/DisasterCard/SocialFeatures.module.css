@@ -1,0 +1,287 @@
+.socialFeatures {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+/* Likes Section */
+.likesSection {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.likeButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 2px solid #e1e5e9;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.likeButton:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+}
+
+.likeButton.liked {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+}
+
+.likeButton.liked:hover {
+  background: #ff5252;
+  border-color: #ff5252;
+}
+
+.likeButton svg {
+  font-size: 1.2rem;
+}
+
+/* Ratings Section */
+.ratingsSection {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e1e5e9;
+}
+
+.ratingDisplay {
+  margin-bottom: 1rem;
+}
+
+.averageRating {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ratingNumber {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #495057;
+}
+
+.stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star {
+  color: #ffc107;
+  font-size: 1.5rem;
+  cursor: default;
+}
+
+.star.interactive {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.star.interactive:hover {
+  transform: scale(1.1);
+  color: #ffb300;
+}
+
+.totalRatings {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.userRating {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.userStars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.userStars .star {
+  font-size: 1.2rem;
+}
+
+.removeRating {
+  padding: 0.5rem 1rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.removeRating:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Rating Distribution */
+.ratingDistribution {
+  margin-top: 1rem;
+}
+
+.distributionRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.distributionRow span:first-child {
+  min-width: 30px;
+  color: #495057;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffc107, #ffb300);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.distributionRow span:last-child {
+  min-width: 30px;
+  text-align: right;
+  color: #6c757d;
+}
+
+/* Comments Section */
+.commentsSection {
+  margin-top: 1rem;
+}
+
+.commentsToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.commentsToggle:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.commentsToggle svg {
+  font-size: 1.1rem;
+}
+
+.commentBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #22c55e;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.35);
+}
+
+.commentsContainer {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e1e5e9;
+}
+
+/* Loading and Error States */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.error {
+  text-align: center;
+  padding: 1rem;
+  color: #dc3545;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .socialFeatures {
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .averageRating {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .userRating {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .distributionRow {
+    font-size: 0.8rem;
+  }
+
+  .likeButton,
+  .commentsToggle {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .ratingNumber {
+    font-size: 1.5rem;
+  }
+
+  .stars .star {
+    font-size: 1.2rem;
+  }
+
+  .userStars .star {
+    font-size: 1rem;
+  }
+}

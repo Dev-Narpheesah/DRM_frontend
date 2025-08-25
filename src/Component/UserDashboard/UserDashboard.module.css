@@ -1,38 +1,39 @@
 /* Container */
 .dashboardContainer {
-  padding: 20px;
+  padding: 24px;
   margin-left: 250px; /* space for fixed sidebar */
   min-height: 100vh;
-  background: #f4f6f9;
+  background: var(--bg-color);
   transition: margin-left 0.3s ease;
 }
 
 /* Greeting */
 .greeting {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #0b3b52;
-  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-color);
+  margin-bottom: 4px;
 }
 
 .subHeading {
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin-bottom: 20px;
-  color: #444;
+  color: var(--muted-text);
 }
 
 /* Error message */
 .error {
-  color: red;
+  color: var(--danger);
   margin-top: 10px;
 }
 
 /* Table Wrapper */
 .tableWrapper {
-  background: #fff;
+  background: var(--surface);
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.2);
   overflow-x: auto;
 }
 
@@ -44,7 +45,7 @@
 }
 
 .reportTable thead {
-  background: #0b3b52;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
   color: #fff;
 }
 
@@ -55,19 +56,21 @@
 }
 
 .reportTable tbody tr {
-  border-bottom: 1px solid #eee;
-  transition: background 0.2s ease;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .reportTable tbody tr:hover {
-  background: #f1f8ff;
+  background: var(--surface-2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 /* No data */
 .noReports {
   margin-top: 20px;
   font-style: italic;
-  color: #777;
+  color: var(--muted-text);
 }
 
 /* ✅ Responsive Design */
@@ -90,11 +93,11 @@
   }
 
   .greeting {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   .subHeading {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .tableWrapper {
@@ -114,7 +117,7 @@
   }
 
   .greeting {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
   .subHeading {

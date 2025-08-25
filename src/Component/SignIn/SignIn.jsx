@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import styles from "./SignIn.module.css";
-import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import PasswordInput from "../passwordInput/passwordInput";
 
@@ -18,10 +18,7 @@ const SignIn = () => {
   const handleInputChange = useCallback((e) => {
     setFormValidMessage("");
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   }, []);
 
   const handleSubmit = useCallback(
@@ -30,49 +27,52 @@ const SignIn = () => {
       const { email, password } = formData;
 
       if (!email || !password) {
-        setFormValidMessage("Please fill in all fields");
+        setFormValidMessage("All fields are required");
         return;
       }
 
       setIsSubmitting(true);
 
       try {
-        const response = await fetch("https://drm-backend.vercel.app/api/admin/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            response.status === 400
-              ? "Invalid  Credentials"
-              : "An error occurred. Please try again later."
-          );
-        }
+        const response = await fetch(
+          "https://drm-backend.vercel.app/api/auth/login",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+            credentials: "include",
+          }
+        );
 
         const data = await response.json();
-        console.log("Login response data:", data);
-        
-     
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            email: data.email || email,
-            isAdmin: data.isAdmin || false,
-          })
-        );
-        
-        toast.success("Login Successful");
-        navigate("/dashboard");
+
+        if (!response.ok) {
+          throw new Error(data.message || "Sign in failed");
+        }
+
+        // Backend sends user fields at top level
+        const user = {
+          _id: data._id,
+          username: data.username,
+          email: data.email,
+          role: data.role,
+          token: data.token,
+        };
+
+        toast.success("Welcome back " + user.username);
+
+        // Redirect based on role
+        if (user.role === "admin") {
+          navigate("/admin", { state: { user } });
+        } else {
+          navigate("/dashboard", { state: { user } });
+        }
       } catch (error) {
+        console.error("Sign in error:", error);
+        setFormValidMessage(error.message || "Network error. Please try again.");
+        toast.error(error.message || "Network error. Please try again.");
+      } finally {
         setIsSubmitting(false);
-        console.error("Login error:", error);
-        const message = error.message || "Network error. Please check your connection.";
-        setFormValidMessage(message);
-        toast.error(message);
       }
     },
     [formData, navigate]
@@ -81,45 +81,38 @@ const SignIn = () => {
   return (
     <div className={styles.signinContainer}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <p className={styles.formTitle}>Sign In</p>
+        <h2 className={styles.formTitle}>Sign In</h2>
+
         <div className={styles.inputContainer}>
           <input
             type="email"
-            placeholder="example@123.com"
             name="email"
+            placeholder="Enter your email"
             value={formData.email}
             onChange={handleInputChange}
             required
-            aria-label="Email"
-            aria-describedby={formValidMessage ? "error-message" : undefined}
           />
         </div>
+
         <div className={styles.inputContainer}>
           <PasswordInput
-            placeholder="Password"
             name="password"
+            placeholder="Enter your password"
             value={formData.password}
             onChange={handleInputChange}
-            required
-            aria-label="Password"
-            aria-describedby={formValidMessage ? "error-message" : undefined}
           />
         </div>
-        <button
-          className={styles.submit}
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Signing In..." : "Sign In"}
+
+        <button type="submit" className={styles.submit} disabled={isSubmitting}>
+          {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
+
         <p className={styles.signupLink}>
-          No account?
-          <Link to="/signup">Sign up</Link>
+          Don’t have an account? <Link to="/signup">Sign Up</Link>
         </p>
+
         {formValidMessage && (
-          <p id="error-message" className={styles.errorMessage}>
-            {formValidMessage}
-          </p>
+          <p className={styles.errorMessage}>{formValidMessage}</p>
         )}
       </form>
     </div>

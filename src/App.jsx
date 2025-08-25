@@ -40,8 +40,6 @@ function App() {
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin-log" element={<AdminLog />} />
       <Route path="/adminReg" element={<AdminReg />} />
-     
-    
       <Route path="/reports" element={<DisasterCard />} />
       <Route path="/disReport/:id" element={<DisasterReport />} />
       <Route path="/disForm" element={<DisasterForm />} />

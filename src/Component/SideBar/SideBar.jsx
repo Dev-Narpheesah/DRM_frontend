@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
   Home as HomeIcon,
   LogOut,
@@ -15,11 +15,12 @@ import {
   CogIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  BellAlertIcon,
 } from "@heroicons/react/24/outline";
 
 import styles from "./SideBar.module.css";
 
-const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
+const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount = 0 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isOpen);
 
   const toggleSidebar = () => {
@@ -28,8 +29,8 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    window.location.href = "/login";
+    localStorage.removeItem("user");
+    window.location.href = "/signin";
   };
 
   // Menu for regular users
@@ -60,6 +61,8 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
           isSidebarOpen ? styles.active : ""
         }`}
         aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        aria-expanded={isSidebarOpen}
+        aria-controls="app-sidebar"
       >
         {isSidebarOpen ? (
           <ChevronLeftIcon className={styles.icon} />
@@ -68,29 +71,62 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
         )}
       </button>
 
+      {/* Optional backdrop for mobile when open */}
+      <div
+        className={`${styles.backdrop} ${isSidebarOpen ? styles.backdropVisible : ""}`}
+        onClick={toggleSidebar}
+        aria-hidden="true"
+      />
+
       {/* Sidebar */}
       <aside
+        id="app-sidebar"
         className={`${styles.sidebar} ${
           isSidebarOpen ? styles.open : styles.collapsed
         }`}
+        role="navigation"
+        aria-label="Main"
       >
-        <div className={styles.logo}>🌍 DRM</div>
+        <div className={styles.logoRow}>
+          <div className={styles.logo}>🌍 DRM</div>
+          {/* Live status pulse */}
+          <div className={styles.liveStatus} title="Live updates active">
+            <span className={styles.pulseDot} />
+            {isSidebarOpen && <span className={styles.pulseText}>Live</span>}
+          </div>
+        </div>
 
         <div className={styles.userBox}>
           <Shield size={20} />
           <span>{isAdmin ? `Admin: ${username}` : username}</span>
+          {/* Notification bell */}
+          <button
+            className={styles.bellBtn}
+            aria-label={`Notifications${notificationCount > 0 ? `: ${notificationCount} new` : ""}`}
+            title={notificationCount > 0 ? `${notificationCount} new notifications` : "Notifications"}
+          >
+            <BellAlertIcon className={styles.icon} />
+            {notificationCount > 0 && (
+              <span className={styles.badge} aria-hidden="true">{notificationCount}</span>
+            )}
+          </button>
         </div>
 
         <nav className={styles.nav}>
           <ul>
             {menuItems.map((item) => (
               <li key={item.name}>
-                <Link to={item.path} className={styles.navItem}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `${styles.navItem} ${isActive ? styles.active : ""}`
+                  }
+                >
                   <item.icon className={styles.icon} />
                   {isSidebarOpen && (
                     <span className={styles.menuText}>{item.name}</span>
                   )}
-                </Link>
+                </NavLink>
               </li>
             ))}
           </ul>

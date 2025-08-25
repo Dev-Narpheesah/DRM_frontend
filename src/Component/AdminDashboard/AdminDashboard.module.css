@@ -129,6 +129,7 @@
   max-width: 1200px;
   margin: 0 auto 40px;
   animation: fadeIn 0.7s ease-out 0.4s both;
+  border: 1px solid rgba(148, 163, 184, 0.25);
 }
 
 .tableSection:hover {
@@ -138,24 +139,26 @@
 .tableSection h2 {
   font-size: 1.75rem;
   margin: 0 0 20px;
-  color: #1e3a8a;
-  font-weight: 700;
+  color: var(--text-color);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.tableContainer {
-  overflow-x: auto;
-}
+.tableContainer { overflow-x: auto; }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 .table th {
-  background: #1e3a8a;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
   color: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -163,29 +166,24 @@
 
 .table th,
 .table td {
-  padding: 12px;
+  padding: 14px 16px;
   text-align: left;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
 }
 
-.table td {
-  background: #ffffff;
-  color: #1f2937;
-  transition: background 0.2s ease;
+.table tbody tr {
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.table tr:hover td {
-  background: #f1f5f9;
+.table tbody tr:hover td {
+  background: var(--surface-2);
 }
 
-.resolvedIcon {
-  color: #22c55e;
-}
+/* Icons */
+.resolvedIcon { color: #22c55e; }
+.ongoingIcon { color: #f59e0b; }
 
-.ongoingIcon {
-  color: #f59e0b;
-}
-
+/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -195,7 +193,7 @@
 }
 
 .pageButton {
-  background: #06b6d4;
+  background: var(--primary);
   border: none;
   border-radius: 12px;
   padding: 10px;
@@ -213,8 +211,8 @@
 }
 
 .pageButton:hover:not(:disabled) {
-  background: #0284c7;
-  transform: scale(1.15);
+  background: var(--primary-2);
+  transform: scale(1.08);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 

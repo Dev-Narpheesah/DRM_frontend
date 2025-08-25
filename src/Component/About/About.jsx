@@ -1,38 +1,38 @@
 import React from 'react';
-import { HeartIcon, UsersIcon, LightBulbIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { useTheme } from '../../../context/ThemeContext';
+import { FaHeart, FaShieldAlt, FaUsers, FaLightbulb } from 'react-icons/fa';
 import styles from './About.module.css';
 
 const About = () => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <section className={styles.aboutSection}>
-      <div className={styles.overlay}></div>
+    <section className={`${styles.aboutSection} ${isDarkMode ? styles.dark : ''}`}>
       <div className={styles.container}>
-        
         <h2 className={styles.heading}>About Relief</h2>
         <p className={styles.intro}>
           Relief is a platform dedicated to streamlining disaster response, 
           connecting volunteers and resources with communities in need.
         </p>
 
-        {/* Mission, Vision, etc. */}
         <div className={styles.grid}>
           <Block 
-            icon={<HeartIcon className={styles.icon} />} 
+            icon={<FaHeart className={styles.icon} />} 
             title="Our Mission" 
             text="To deliver swift, effective disaster relief through technology and collaboration."
           />
           <Block 
-            icon={<ShieldCheckIcon className={styles.icon} />} 
+            icon={<FaShieldAlt className={styles.icon} />} 
             title="Our Vision" 
             text="A world where disaster response is fast, efficient, and compassionate, empowering resilient communities."
           />
           <Block 
-            icon={<UsersIcon className={styles.icon} />} 
+            icon={<FaUsers className={styles.icon} />} 
             title="How We Work" 
             text="We coordinate disaster response teams, volunteers, and resources using advanced technology for rapid aid delivery."
           />
           <Block 
-            icon={<LightBulbIcon className={styles.icon} />} 
+            icon={<FaLightbulb className={styles.icon} />} 
             title="Our Values"
             text={
               <ul className={styles.values}>
@@ -45,7 +45,6 @@ const About = () => {
           />
         </div>
 
-        {/* Features & Benefits */}
         <div className={styles.services}>
           <ServiceItem
             title="Features"

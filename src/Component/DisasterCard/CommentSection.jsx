@@ -1,224 +1,267 @@
-import Action from './Action';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import DownArrow from '../../assets/down-arrow.svg?react';
 import UpArrow from '../../assets/up-arrow.svg?react';
 import './CommentSection.css';
 
-const CommentSection = ({ comment, reportId }) => {
-  const API_URL = 'https://drm-backend.vercel.app/api';
-  console.log('CommentSection rendered for comment:',comment);
+const API_URL = 'https://drm-backend.vercel.app/api';
 
-  const handleNewComment = async (inputElement, isReply = false) => {
-    const text = inputElement.value.trim();
-    if (!text) return;
+const CommentSection = ({ reportId }) => {
+  const [tree, setTree] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [newComment, setNewComment] = useState('');
+  const isMounted = useRef(true);
+
+  const fetchComments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await fetch(`${API_URL}/comments/${reportId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch comments');
+      const data = await res.json();
+      if (!isMounted.current) return;
+      setTree(Array.isArray(data) ? data : []);
+    } catch (e) {
+      if (!isMounted.current) return;
+      setError(e.message || 'Failed to load comments');
+    } finally {
+      if (isMounted.current) setLoading(false);
+    }
+  }, [reportId]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    fetchComments();
+    const handler = (e) => {
+      if (e?.detail?.reportId === reportId) fetchComments();
+    };
+    window.addEventListener('commentsUpdated', handler);
+    return () => {
+      isMounted.current = false;
+      window.removeEventListener('commentsUpdated', handler);
+    };
+  }, [reportId, fetchComments]);
+
+  const addOptimistic = (list, parentId, node) => {
+    if (!parentId) return [node, ...list];
+    return list.map((item) => {
+      if (item.id === parentId) {
+        return { ...item, items: [node, ...(item.items || [])] };
+      }
+      if (item.items && item.items.length) {
+        return { ...item, items: addOptimistic(item.items, parentId, node) };
+      }
+      return item;
+    });
+  };
+
+  const updateOptimistic = (list, id, updater) => {
+    return list.map((item) => {
+      if (item.id === id) return updater(item);
+      if (item.items && item.items.length) {
+        return { ...item, items: updateOptimistic(item.items, id, updater) };
+      }
+      return item;
+    });
+  };
+
+  const deleteOptimistic = (list, id) => {
+    return list
+      .filter((item) => item.id !== id)
+      .map((item) => ({
+        ...item,
+        items: item.items ? deleteOptimistic(item.items, id) : [],
+      }));
+  };
+
+  const handleCreate = async (text, parentId = null, clear) => {
+    const trimmed = (text || '').trim();
+    if (!trimmed) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const optimisticNode = {
+      id: tempId,
+      name: trimmed,
+      reportId,
+      parentId: parentId || null,
+      items: [],
+      createdAt: new Date().toISOString(),
+      optimistic: true,
+    };
+    setTree((prev) => addOptimistic(prev, parentId, optimisticNode));
+    if (clear) clear();
 
     try {
       const response = await fetch(`${API_URL}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({
-          reportId,
-          parentId: isReply ? comment._id : comment.id,
-          name: text,
-        }),
+        body: JSON.stringify({ reportId, parentId, name: trimmed }),
       });
-      console.log(response)
-            if (!response.ok) throw new Error('Failed to add comment');
-
-      // Clear input and refetch comments
-      inputElement.value = '';
-      await refetchComments();
-    } catch (err) {
-      console.error('Error adding comment:', err);
+      if (!response.ok) throw new Error('Failed to add comment');
+      const saved = await response.json();
+      // Replace temp with saved
+      setTree((prev) => updateOptimistic(prev, tempId, () => ({
+        ...optimisticNode,
+        id: saved._id,
+        optimistic: false,
+      })));
+    } catch (e) {
+      // Revert on failure
+      setTree((prev) => deleteOptimistic(prev, tempId));
       alert('Failed to add comment');
     }
   };
 
-  const handleEditComment = async (commentId, textElement) => {
-    const text = textElement.innerText.trim();
-    if (!text) return;
-
+  const handleEdit = async (id, newText) => {
+    const trimmed = (newText || '').trim();
+    if (!trimmed) return;
+    const prevTree = tree;
+    setTree((prev) => updateOptimistic(prev, id, (item) => ({ ...item, name: trimmed })));
     try {
-      const response = await fetch(`${API_URL}/comments/${commentId}`, {
+      const response = await fetch(`${API_URL}/comments/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name: text }),
+        body: JSON.stringify({ name: trimmed }),
       });
-
       if (!response.ok) throw new Error('Failed to edit comment');
-
-      // Refetch comments
-      await refetchComments();
-    } catch (err) {
-      console.error('Error editing comment:', err);
+    } catch (e) {
+      setTree(prevTree);
       alert('Failed to edit comment');
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDelete = async (id) => {
+    const prevTree = tree;
+    setTree((prev) => deleteOptimistic(prev, id));
     try {
-      const response = await fetch(`${API_URL}/comments/${commentId}`, {
+      const response = await fetch(`${API_URL}/comments/${id}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
       });
-
       if (!response.ok) throw new Error('Failed to delete comment');
-
-      // Refetch comments
-      await refetchComments();
-    } catch (err) {
-      console.error('Error deleting comment:', err);
+    } catch (e) {
+      setTree(prevTree);
       alert('Failed to delete comment');
     }
   };
 
-  const refetchComments = async () => {
-    try {
-      const response = await fetch(`${API_URL}/comments/${reportId}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch comments');
-
-      const commentData = await response.json();
-      // Trigger a parent refresh (handled in DisasterCard)
-      window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
-    } catch (err) {
-      console.error('Error fetching comments:', err);
-      alert('Failed to load comments');
-    }
-  };
-
-  if (!comment) return null;
-
   return (
     <div className="comment-section">
-      <div className={comment.id === 1 ? 'input-container' : 'comment-container'}>
-        {comment.id === 1 ? (
-          <>
-            <input
-              type="text"
-              className="input-container__input input-container__input--first"
-              autoFocus
-              placeholder="Type your comment..."
-              aria-label="New comment"
-            />
-            <Action
-              className="action action--reply"
-              type="COMMENT"
-              handleClick={() => handleNewComment(document.querySelector('.input-container__input--first'))}
-              aria-label="Submit comment"
-            />
-          </>
-        ) : (
-          <>
-            <span
-              className="comment-text"
-              contentEditable={false}
-              aria-label="Comment text"
-            >
-              {comment.name || ''}
-            </span>
-            <div className="action-container">
-              <Action
-                className="action action--reply"
-                type={
-                  <>
-                    <DownArrow className="action-icon" />
-                    Reply
-                  </>
-                }
-                handleClick={() => {
-                  const replyInput = document.querySelector(`#reply-input-${comment.id}`);
-                  if (replyInput) replyInput.style.display = 'block';
-                }}
-                aria-label="Reply to comment"
-              />
-              <Action
-                className="action action--reply"
-                type="EDIT"
-                handleClick={() => {
-                  const textElement = document.querySelector(`#comment-text-${comment.id}`);
-                  if (textElement) {
-                    textElement.contentEditable = true;
-                    textElement.classList.add('comment-text--editable');
-                    textElement.focus();
-                  }
-                }}
-                aria-label="Edit comment"
-              />
-              <Action
-                className="action action--reply"
-                type="SAVE"
-                handleClick={() => handleEditComment(comment.id, document.querySelector(`#comment-text-${comment.id}`))}
-                aria-label="Save edited comment"
-              />
-              <Action
-                className="action action--reply"
-                type="CANCEL"
-                handleClick={() => {
-                  const textElement = document.querySelector(`#comment-text-${comment.id}`);
-                  if (textElement) {
-                    textElement.contentEditable = false;
-                    textElement.classList.remove('comment-text--editable');
-                    textElement.innerText = comment.name || '';
-                  }
-                }}
-                aria-label="Cancel edit"
-              />
-              <Action
-                className="action action--reply"
-                type="DELETE"
-                handleClick={() => handleDeleteComment(comment.id)}
-                aria-label="Delete comment"
-              />
-            </div>
-          </>
-        )}
+      <div className="input-container">
+        <input
+          type="text"
+          className="input-container__input input-container__input--first"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          placeholder="Type your comment..."
+          aria-label="New comment"
+        />
+        <button
+          className="action action--reply"
+          onClick={() => handleCreate(newComment, null, () => setNewComment(''))}
+          aria-label="Submit comment"
+        >
+          Comment
+        </button>
       </div>
+
+      {loading && <p>Loading comments...</p>}
+      {error && <p style={{ color: 'crimson' }}>{error}</p>}
 
       <div className="nested-comments">
-        {comment.id < 0 && (
-          <div className="input-container" id={`reply-input-${comment.id}`} style={{ display: 'none' }}>
-            <input
-              type="text"
-              className="input-container__input"
-              autoFocus
-              placeholder="Type your reply..."
-              aria-label="Reply to comment"
-            />
-            <Action
-              className="action action--reply"
-              type="REPLY"
-              handleClick={() => handleNewComment(document.querySelector(`#reply-input-${comment.id}.input-container__input`), true)}
-              aria-label="Submit reply"
-            />
-            <Action
-              className="action action--reply"
-              type="CANCEL"
-              handleClick={() => {
-                const replyInput = document.querySelector(`#reply-input-${comment.id}`);
-                if (replyInput) replyInput.style.display = 'none';
-              }}
-              aria-label="Cancel reply"
-            />
-          </div>
-        )}
-
-        {comment?.items?.map((cmnt) => (
-        <div
-            key={cmnt.id}
-            comment={cmnt}
-            reportId={reportId} > 
-            {comment}
-          
-        </div>
+        {tree.map((node) => (
+          <CommentNode
+            key={node.id}
+            node={node}
+            onReply={(text) => handleCreate(text, node.id)}
+            onEdit={(text) => handleEdit(node.id, text)}
+            onDelete={() => handleDelete(node.id)}
+          />
         ))}
       </div>
+    </div>
+  );
+};
+
+const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(node.name || '');
+  const [expanded, setExpanded] = useState(true);
+
+  return (
+    <div className="comment-container">
+      <div className="comment-header">
+        <span className="comment-author">User</span>
+        <span className="comment-time">{new Date(node.createdAt || Date.now()).toLocaleString()}</span>
+        {node.optimistic && <span className="comment-pending">sending…</span>}
+      </div>
+
+      {isEditing ? (
+        <div className="edit-row">
+          <input
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="input-container__input"
+            aria-label="Edit comment"
+          />
+          <button className="action action--reply" onClick={() => { onEdit(editText); setIsEditing(false); }}>Save</button>
+          <button className="action action--reply" onClick={() => { setIsEditing(false); setEditText(node.name || ''); }}>Cancel</button>
+        </div>
+      ) : (
+        <span className="comment-text">{node.name}</span>
+      )}
+
+      <div className="action-container">
+        <button className="action action--reply" onClick={() => setIsReplyOpen((v) => !v)} aria-label="Reply to comment">
+          {isReplyOpen ? <UpArrow className="action-icon" /> : <DownArrow className="action-icon" />}
+          Reply
+        </button>
+        <button className="action action--reply" onClick={() => setIsEditing(true)} aria-label="Edit comment">Edit</button>
+        <button className="action action--reply" onClick={onDelete} aria-label="Delete comment">Delete</button>
+        {node.items?.length > 0 && (
+          <button className="action action--reply" onClick={() => setExpanded((v) => !v)} aria-label="Toggle replies">
+            {expanded ? 'Hide Replies' : 'Show Replies'} ({node.items.length})
+          </button>
+        )}
+      </div>
+
+      {isReplyOpen && (
+        <div className="input-container">
+          <input
+            type="text"
+            className="input-container__input"
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="Type your reply..."
+            aria-label="Reply to comment"
+          />
+          <button className="action action--reply" onClick={() => { onReply(replyText); setReplyText(''); setIsReplyOpen(false); }}>Reply</button>
+          <button className="action action--reply" onClick={() => { setIsReplyOpen(false); setReplyText(''); }}>Cancel</button>
+        </div>
+      )}
+
+      {expanded && node.items?.length > 0 && (
+        <div className="nested-comments">
+          {node.items.map((child) => (
+            <CommentNode
+              key={child.id}
+              node={child}
+              onReply={(text) => onReply(text)}
+              onEdit={(text) => onEdit(text)}
+              onDelete={() => onDelete(child.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
