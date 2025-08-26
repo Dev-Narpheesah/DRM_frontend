@@ -30,6 +30,16 @@ const DisasterForm = () => {
     setImagePreview(selectedFile ? URL.createObjectURL(selectedFile) : null);
   };
 
+  // Prefill email from signed-in user
+  React.useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("user") || "{}");
+      if (stored?.email) {
+        setFormData((prev) => ({ ...prev, email: stored.email }));
+      }
+    } catch {}
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -52,13 +62,11 @@ const DisasterForm = () => {
 
     try {
       const token = JSON.parse(localStorage.getItem("user") || "{}").token;
-      if (!token) throw new Error("Please sign in to submit a report");
-
       const response = await fetch(
         "https://drm-backend.vercel.app/api/reports",
         {
           method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
           body: formDataWithImage,
         }
       );

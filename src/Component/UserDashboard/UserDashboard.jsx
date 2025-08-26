@@ -14,19 +14,41 @@ const UserDashboard = () => {
 
   const fetchUserDisasters = async () => {
     try {
-      if (!authToken) {
-        throw new Error("Missing auth token. Please sign in again.");
+      if (!userEmail) {
+        throw new Error("Please sign in to view your reports");
       }
 
-      const res = await fetch(
-        "https://drm-backend.vercel.app/api/reports/my",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      // Combine token-owned and email-submitted reports
+      const [byToken, byEmail] = await Promise.all([
+        authToken
+          ? fetch("https://drm-backend.vercel.app/api/reports/my", {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${authToken}`,
+              },
+            })
+          : Promise.resolve({ ok: true, json: async () => [] }),
+        fetch(
+          `https://drm-backend.vercel.app/api/reports/my?email=${encodeURIComponent(
+            userEmail
+          )}`,
+          { headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) } }
+        ),
+      ]);
+
+      if (!byEmail.ok || (authToken && !byToken.ok)) {
+        const status = !byEmail.ok ? byEmail.status : byToken.status;
+        throw new Error(`Failed to fetch reports (HTTP ${status})`);
+      }
+
+      const tokenReports = authToken ? await byToken.json() : [];
+      const emailReports = await byEmail.json();
+
+      const map = new Map();
+      [...(Array.isArray(tokenReports) ? tokenReports : []), ...(Array.isArray(emailReports) ? emailReports : [])].forEach((r) => {
+        if (r && r._id) map.set(r._id, r);
+      });
+      setReports(Array.from(map.values()));
 
       if (!res.ok) throw new Error("Failed to fetch reports");
       const data = await res.json();
@@ -55,6 +77,20 @@ const UserDashboard = () => {
       return isRecent || isPending;
     }).length;
   }, [reports]);
+
+  if (!userEmail) {
+    return (
+      <div className={styles.layout}>
+        <Sidebar username={"Guest"} notificationCount={0} />
+        <main className={styles.dashboardContainer}>
+          <p className={styles.error}>You need to sign in to view your dashboard.</p>
+          <p>
+            <a href="/">Go back home</a>
+          </p>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.layout}>
