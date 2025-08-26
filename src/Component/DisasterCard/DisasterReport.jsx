@@ -85,52 +85,36 @@ const DisasterReport = () => {
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        <h1 className={styles.title}>
-          {report.disasterType || "Unknown Disaster"}
-        </h1>
+        <h1 className={styles.title}>{report.disasterType || "Unknown Disaster"}</h1>
 
         <div className={styles.mediaGrid}>
           <div className={styles.mapWrapper}>
             <Map
               address={report.location || "Lagos, Nigeria"}
               title={report.disasterType}
-              // imageUrl={report.image?.url}
               details={{
-                "Reported On": report.createdAt
-                  ? new Date(report.createdAt).toLocaleString()
-                  : "Unknown",
-                Email: report.email || "Not provided",
-                Phone: report.phone || "Not provided",
+                "Reported On": report.createdAt ? new Date(report.createdAt).toLocaleString() : "Unknown",
+                Location: report.location || "Not specified",
+                Email: report.email || undefined,
+                Phone: report.phone || undefined,
               }}
             />
           </div>
 
-          <div className={styles.imageWrapper}>
-            {report.image?.url ? (
+          {report.image?.url && (
+            <div className={styles.imageWrapper}>
               <img
                 src={report.image.url}
                 alt={report.disasterType || "Disaster"}
                 onError={(e) => (e.target.src = "/default-disaster-image.jpg")}
               />
-            ) : (
-              <div className={styles.noImage}>No image available</div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        <p className={styles.description}>
-          {report.report || "No description provided"}
-        </p>
+        <p className={styles.description}>{report.report || "No description provided"}</p>
 
-        <p className={styles.details}>
-          <strong>Location:</strong> {report.location || "Not specified"}
-        </p>
-        <p className={styles.details}>
-          <strong>Email:</strong> {report.email || "Not provided"}
-        </p>
-        <p className={styles.details}>
-          <strong>Phone:</strong> {report.phone || "Not provided"}
-        </p>
+        {/* Meta details moved into the map popup to avoid duplication */}
 
         {/* Social Features Section */}
         <SocialFeatures reportId={id} />

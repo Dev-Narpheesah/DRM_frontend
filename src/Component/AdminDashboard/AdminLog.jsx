@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styles from "./AdminDashboard.module.css";
 import PasswordInput from "../passwordInput/passwordInput";
@@ -48,8 +48,10 @@ const AdminLog = () => {
         }
 
         const data = await response.json();
+        localStorage.setItem("adminToken", data.token);
+        localStorage.setItem("admin", JSON.stringify(data.user));
         toast.success("Admin login successful");
-        navigate("/admin/dashboard", { state: { user: data.user, token: data.token } });
+        navigate("/admin");
       } catch (error) {
         console.error("Admin login error:", error);
         setFormValidMessage(error.message || "Network error. Please try again.");

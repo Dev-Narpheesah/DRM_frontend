@@ -1,207 +1,204 @@
-import React, { useState, useEffect } from 'react';
-import { FaHeart, FaRegHeart, FaStar, FaRegStar, FaComment } from 'react-icons/fa';
-import CommentSection from './CommentSection';
-import styles from './SocialFeatures.module.css';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { FaHeart, FaRegHeart, FaStar, FaRegStar, FaComment } from "react-icons/fa";
+import CommentSection from "./CommentSection";
+import styles from "./SocialFeatures.module.css";
+
+// 🔥 Toast notifications are optional but help give instant feedback
+import { toast } from "react-toastify";
 
 const SocialFeatures = ({ reportId }) => {
+  const API_URL = "https://drm-backend.vercel.app/api";
+  const authToken = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+
   const [likes, setLikes] = useState({ count: 0, userLiked: false });
-  const [ratings, setRatings] = useState({ 
-    average: 0, 
-    total: 0, 
+  const [ratings, setRatings] = useState({
+    average: 0,
+    total: 0,
     userRating: null,
-    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
   });
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  const API_URL = 'https://drm-backend.vercel.app/api';
-  const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
-
+  // Fetch all social stats (likes, ratings, comments)
   useEffect(() => {
-    fetchSocialData();
-  }, [reportId]);
+    const fetchSocialData = async () => {
+      try {
+        setLoading(true);
+        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
 
-  useEffect(() => {
-    
-  }, [reportId]);
+        const [likesRes, ratingsRes, commentsRes] = await Promise.all([
+          fetch(`${API_URL}/likes/${reportId}/count`, { headers }),
+          fetch(`${API_URL}/ratings/${reportId}/stats`, { headers }),
+          fetch(`${API_URL}/comments/${reportId}`),
+        ]);
 
-  const fetchSocialData = async () => {
-    try {
-      setLoading(true);
-      const [likesResponse, ratingsResponse, commentsResponse] = await Promise.all([
-        fetch(`${API_URL}/likes/${reportId}/count`, {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
-        }),
-        fetch(`${API_URL}/ratings/${reportId}/stats`, {
-          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
-        }),
-        fetch(`${API_URL}/comments/${reportId}`)
-      ]);
-
-      if (likesResponse.ok) {
-        const likesData = await likesResponse.json();
-        setLikes({ count: likesData.likeCount ?? 0, userLiked: !!likesData.userLiked });
-      } else {
-        console.error('Failed to fetch likes:', likesResponse.status);
-      }
-
-      if (ratingsResponse.ok) {
-        const ratingsData = await ratingsResponse.json();
-        setRatings({
-          average: ratingsData.averageRating ?? 0,
-          total: ratingsData.totalRatings ?? 0,
-          userRating: ratingsData.userRating ?? null,
-          distribution: ratingsData.ratingDistribution || { 1:0, 2:0, 3:0, 4:0, 5:0 },
-        });
-      } else {
-        console.error('Failed to fetch ratings:', ratingsResponse.status);
-      }
-
-      if (commentsResponse.ok) {
-        const commentsData = await commentsResponse.json();
-        const countRec = (nodes) => nodes.reduce((acc, n) => acc + 1 + (n.items ? countRec(n.items) : 0), 0);
-        setCommentCount(Array.isArray(commentsData) ? countRec(commentsData) : 0);
-      }
-    } catch (error) {
-      console.error('Error fetching social data:', error);
-      setError('Failed to load social features');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLikeToggle = async () => {
-    try {
-      if (!authToken) throw new Error('Please sign in to like');
-      const response = await fetch(`${API_URL}/likes/${reportId}/toggle`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${authToken}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLikes(prev => ({
-          count: data.likeCount,
-          userLiked: data.liked
-        }));
-      }
-    } catch (error) {
-      console.error('Error toggling like:', error);
-    }
-  };
-
-  const handleRating = async (rating) => {
-    try {
-      if (!authToken) throw new Error('Please sign in to rate');
-      const response = await fetch(`${API_URL}/ratings/${reportId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-        body: JSON.stringify({ rating })
-      });
-
-      if (response.ok) {
-        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}/stats`, { headers: { 'Authorization': `Bearer ${authToken}` } });
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setRatings(statsData);
+        if (likesRes.ok) {
+          const data = await likesRes.json();
+          setLikes({ count: data.likeCount ?? 0, userLiked: !!data.userLiked });
         }
+
+        if (ratingsRes.ok) {
+          const data = await ratingsRes.json();
+          setRatings({
+            average: data.averageRating ?? 0,
+            total: data.totalRatings ?? 0,
+            userRating: data.userRating ?? null,
+            distribution: data.ratingDistribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+          });
+        }
+
+        if (commentsRes.ok) {
+          const comments = await commentsRes.json();
+          const countComments = (arr) =>
+            arr.reduce((acc, c) => acc + 1 + (c.items ? countComments(c.items) : 0), 0);
+          setCommentCount(Array.isArray(comments) ? countComments(comments) : 0);
+        }
+      } catch (err) {
+        toast.error("⚠️ Failed to load social features");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error adding rating:', error);
+    };
+
+    fetchSocialData();
+  }, [reportId, authToken]);
+
+  // ====== HANDLERS ======
+
+  // Optimistic like toggle
+  const handleLikeToggle = async () => {
+    if (!authToken) return toast.info("🔑 Please log in to like");
+
+    // Optimistic UI update
+    setLikes((prev) => ({
+      count: prev.count + (prev.userLiked ? -1 : 1),
+      userLiked: !prev.userLiked,
+    }));
+
+    try {
+      const res = await fetch(`${API_URL}/likes/${reportId}/toggle`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setLikes({ count: data.likeCount, userLiked: data.liked });
+    } catch {
+      toast.error("❌ Failed to update like");
+      // rollback if error
+      setLikes((prev) => ({
+        count: prev.userLiked ? prev.count - 1 : prev.count + 1,
+        userLiked: !prev.userLiked,
+      }));
+    }
+  };
+
+  // Optimistic rating
+  const handleRating = async (value) => {
+    if (!authToken) return toast.info("🔑 Please log in to rate");
+
+    const oldRatings = { ...ratings };
+
+    // Optimistic update (just replace user rating)
+    setRatings((prev) => ({
+      ...prev,
+      userRating: value,
+    }));
+
+    try {
+      const res = await fetch(`${API_URL}/ratings/${reportId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ rating: value }),
+      });
+
+      if (!res.ok) throw new Error();
+      const stats = await res.json();
+      setRatings(stats);
+    } catch {
+      toast.error("❌ Failed to update rating");
+      setRatings(oldRatings); // rollback
     }
   };
 
   const handleDeleteRating = async () => {
+    if (!authToken) return toast.info("🔑 Please log in to remove rating");
+
     try {
-      if (!authToken) throw new Error('Please sign in to update rating');
-      const response = await fetch(`${API_URL}/ratings/${reportId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
-      if (response.ok) {
-        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}/stats`, { headers: { 'Authorization': `Bearer ${authToken}` } });
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setRatings(statsData);
-        }
-      }
-    } catch (error) {
-      console.error('Error deleting rating:', error);
+      const res = await fetch(`${API_URL}/ratings/${reportId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+
+      if (!res.ok) throw new Error();
+      const stats = await res.json();
+      setRatings(stats);
+    } catch {
+      toast.error("❌ Failed to remove rating");
     }
   };
 
-  const renderStars = (rating, interactive = false, onStarClick = null) => {
-    return Array.from({ length: 5 }, (_, index) => {
-      const starValue = index + 1;
-      const isFilled = starValue <= rating;
+  // Render stars ⭐
+  const renderStars = (value, interactive = false, onClick = null) =>
+    Array.from({ length: 5 }, (_, i) => {
+      const starValue = i + 1;
+      const isFilled = starValue <= value;
       return (
         <span
-          key={index}
-          className={`${styles.star} ${interactive ? styles.interactive : ''}`}
-          onClick={interactive ? () => onStarClick(starValue) : undefined}
+          key={i}
+          className={`${styles.star} ${interactive ? styles.interactive : ""}`}
+          onClick={interactive ? () => onClick(starValue) : undefined}
         >
           {isFilled ? <FaStar /> : <FaRegStar />}
         </span>
       );
     });
-  };
 
   if (loading) return <div className={styles.loading}>Loading social features...</div>;
-  if (error) return <div className={styles.error}>{error}</div>;
 
   return (
     <div className={styles.socialFeatures}>
-      <div className={styles.likesSection}>
-        <button 
-          className={`${styles.likeButton} ${likes.userLiked ? styles.liked : ''}`}
-          onClick={handleLikeToggle}
-        >
-          {likes.userLiked ? <FaHeart /> : <FaRegHeart />}
-          <span>{likes.count}</span>
-        </button>
-      </div>
+      {/* Likes ❤️ */}
+      <button
+        className={`${styles.likeButton} ${likes.userLiked ? styles.liked : ""}`}
+        onClick={handleLikeToggle}
+      >
+        {likes.userLiked ? <FaHeart /> : <FaRegHeart />}
+        <span>{likes.count}</span>
+      </button>
 
+      {/* Ratings ⭐ */}
       <div className={styles.ratingsSection}>
-        <div className={styles.ratingDisplay}>
-          <div className={styles.averageRating}>
-            <span className={styles.ratingNumber}>{ratings.average}</span>
-            <div className={styles.stars}>{renderStars(Math.round(ratings.average))}</div>
-            <span className={styles.totalRatings}>({ratings.total} ratings)</span>
-          </div>
+        <div className={styles.averageRating}>
+          <span>{ratings.average.toFixed(1)}</span>
+          <div>{renderStars(Math.round(ratings.average))}</div>
+          <span>({ratings.total} ratings)</span>
         </div>
 
         <div className={styles.userRating}>
           <span>Your rating: </span>
-          <div className={styles.userStars}>{renderStars(ratings.userRating || 0, true, handleRating)}</div>
+          {renderStars(ratings.userRating || 0, true, handleRating)}
           {ratings.userRating && (
-            <button className={styles.removeRating} onClick={handleDeleteRating}>Remove</button>
+            <button onClick={handleDeleteRating} className={styles.removeRating}>
+              Remove
+            </button>
           )}
-        </div>
-
-        <div className={styles.ratingDistribution}>
-          {[5, 4, 3, 2, 1].map(star => (
-            <div key={star} className={styles.distributionRow}>
-              <span>{star}★</span>
-              <div className={styles.progressBar}>
-                <div className={styles.progressFill} style={{ width: `${ratings.total > 0 ? (ratings.distribution[star] / ratings.total) * 100 : 0}%` }} />
-              </div>
-              <span>{ratings.distribution[star]}</span>
-            </div>
-          ))}
         </div>
       </div>
 
+      {/* Comments 💬 */}
       <div className={styles.commentsSection}>
-        <button className={styles.commentsToggle} onClick={() => setShowComments(!showComments)}>
-          <FaComment />
-          <span>Comments</span>
+        <button onClick={() => setShowComments((p) => !p)} className={styles.commentsToggle}>
+          <FaComment /> <span>Comments</span>
           {commentCount > 0 && <span className={styles.commentBadge}>{commentCount}</span>}
         </button>
-        {showComments && (
-          <div className={styles.commentsContainer}>
-            <CommentSection reportId={reportId} />
-          </div>
-        )}
+        {showComments && <CommentSection reportId={reportId} />}
       </div>
     </div>
   );

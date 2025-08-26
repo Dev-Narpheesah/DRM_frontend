@@ -29,10 +29,13 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await fetch("https://drm-backend.vercel.app/api/user");
+        const adminToken = localStorage.getItem("adminToken");
+        const res = await fetch("https://drm-backend.vercel.app/api/admin/users", {
+          headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+        });
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
         const data = await res.json();
-        setUsers(data);
+        setUsers(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching users:", error);
         toast.error("Failed to fetch user data.");
@@ -40,10 +43,25 @@ const AdminDashboard = () => {
       }
     };
 
+    const fetchReports = async () => {
+      try {
+        const adminToken = localStorage.getItem("adminToken");
+        const res = await fetch("https://drm-backend.vercel.app/api/admin/reports", {
+          headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+        });
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const data = await res.json();
+        setDisasters(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+        toast.error("Failed to fetch reports.");
+      }
+    };
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      await Promise.all([fetchUsers()]);
+      await Promise.all([fetchUsers(), fetchReports()]);
       setLoading(false);
     };
 

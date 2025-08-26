@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Sidebar from "../SideBar/SideBar";
 import styles from "./UserDashboard.module.css";
- 
+
 
 const UserDashboard = () => {
   const [reports, setReports] = useState([]);
@@ -14,29 +14,27 @@ const UserDashboard = () => {
 
   const fetchUserDisasters = async () => {
     try {
-      if (!userEmail) {
+      if (!userEmail || !authToken) {
         throw new Error("Please sign in to view your reports");
       }
 
       // Combine token-owned and email-submitted reports
       const [byToken, byEmail] = await Promise.all([
-        authToken
-          ? fetch("https://drm-backend.vercel.app/api/reports/my", {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
-              },
-            })
-          : Promise.resolve({ ok: true, json: async () => [] }),
+        fetch("https://drm-backend.vercel.app/api/reports/my", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }),
         fetch(
           `https://drm-backend.vercel.app/api/reports/my?email=${encodeURIComponent(
-            userEmail
+          userEmail
           )}`,
-          { headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) } }
+          { headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` } }
         ),
       ]);
 
-      if (!byEmail.ok || (authToken && !byToken.ok)) {
+      if (!byEmail.ok || !byToken.ok) {
         const status = !byEmail.ok ? byEmail.status : byToken.status;
         throw new Error(`Failed to fetch reports (HTTP ${status})`);
       }
@@ -49,10 +47,6 @@ const UserDashboard = () => {
         if (r && r._id) map.set(r._id, r);
       });
       setReports(Array.from(map.values()));
-
-      if (!res.ok) throw new Error("Failed to fetch reports");
-      const data = await res.json();
-      setReports(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message || "Unable to load your reports");
     }
@@ -97,7 +91,7 @@ const UserDashboard = () => {
       <Sidebar username={greetingName} notificationCount={notificationCount} />
 
       <main className={styles.dashboardContainer}>
-        <h2 className={styles.greeting}>Hi {greetingName} 👋</h2>
+        <h2 className={styles.greeting}>Hi {greetingName} </h2>
         <p className={styles.subHeading}>Here are your submitted reports:</p>
 
         {error && <p className={styles.error}>{error}</p>}
@@ -107,6 +101,7 @@ const UserDashboard = () => {
             <table className={styles.reportTable}>
               <thead>
                 <tr>
+                  <th>Image</th>
                   <th>Disaster Type</th>
                   <th>Location</th>
                   <th>Date</th>
@@ -116,6 +111,18 @@ const UserDashboard = () => {
               <tbody>
                 {reports.map((report) => (
                   <tr key={report._id}>
+                    <td>
+                      {report.image?.url ? (
+                        <img
+                          src={report.image.url}
+                          alt={report.disasterType || "disaster"}
+                          style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
+                          onError={(e) => (e.currentTarget.style.display = "none")}
+                        />
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td>{report.disasterType || "-"}</td>
                     <td>{report.location || "-"}</td>
                     <td>

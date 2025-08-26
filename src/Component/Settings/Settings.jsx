@@ -17,10 +17,11 @@ const Settings = () => {
     const fetchUserData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch('https://drm-backend.vercel.app/api/user', {
+        const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+        if (!token) throw new Error('Please sign in');
+        const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         });
         if (!response.ok) throw new Error('Failed to fetch user data');
 
@@ -60,10 +61,11 @@ const Settings = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch('https://drm-backend.vercel.app/api/user', {
+      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+      if (!token) throw new Error('Please sign in');
+      const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
           username: user.username,
           email: user.email,
@@ -91,9 +93,11 @@ const Settings = () => {
     try {
       const formData = new FormData();
       formData.append('profilePic', file);
-      const response = await fetch('https://drm-backend.vercel.app/api/user/profile-pic', {
+      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+      if (!token) throw new Error('Please sign in');
+      const response = await fetch('https://drm-backend.vercel.app/api/auth/profile-pic', {
         method: 'POST',
-        credentials: 'include',
+        headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
       });
 
@@ -115,10 +119,11 @@ const Settings = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch('https://drm-backend.vercel.app/api/user', {
+      const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
+      if (!token) throw new Error('Please sign in');
+      const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       });
 
       if (!response.ok) throw new Error('Failed to delete account');

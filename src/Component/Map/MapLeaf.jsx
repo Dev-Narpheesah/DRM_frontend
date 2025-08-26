@@ -16,7 +16,7 @@ function RecenterMap({ coords }) {
   return null;
 }
 
-export default function PropertyMap({ address, title, imageUrl, details }) {
+export default function PropertyMap({ address, title, details }) {
   const [coords, setCoords] = useState(null);
 
   useEffect(() => {
@@ -51,17 +51,24 @@ export default function PropertyMap({ address, title, imageUrl, details }) {
         <RecenterMap coords={coords} />
         <Marker position={coords}>
           <Popup>
-            <div style={{ maxWidth: "220px" }}>
-              {imageUrl && (
-                <img
-                  src={imageUrl}
-                  alt={title}
-                  style={{ width: "100%", height: "120px", objectFit: "cover", borderRadius: "8px", marginBottom: "8px" }}
-                />
+            <div style={{ maxWidth: "240px" }}>
+              <h4 style={{ margin: "0 0 6px" }}>{title || "Disaster"}</h4>
+              {details && (
+                <div style={{ fontSize: "12px", color: "#333", lineHeight: 1.4 }}>
+                  {details["Reported On"] && (
+                    <p style={{ margin: 0 }}><strong>Date:</strong> {details["Reported On"]}</p>
+                  )}
+                  {details["Location"] && (
+                    <p style={{ margin: 0 }}><strong>Location:</strong> {details["Location"]}</p>
+                  )}
+                  {details["Email"] && (
+                    <p style={{ margin: 0 }}><strong>Email:</strong> {details["Email"]}</p>
+                  )}
+                  {details["Phone"] && (
+                    <p style={{ margin: 0 }}><strong>Phone:</strong> {details["Phone"]}</p>
+                  )}
+                </div>
               )}
-              <h4>{title || "Disaster"}</h4>
-              <p style={{ fontSize: "12px", color: "#555" }}>{address || "Unknown Address"}</p>
-            
             </div>
           </Popup>
         </Marker>
