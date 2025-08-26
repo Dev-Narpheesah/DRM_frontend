@@ -25,7 +25,7 @@ const SocialFeatures = ({ reportId }) => {
   }, [reportId]);
 
   useEffect(() => {
-    // WebSocket removed for Vercel compatibility
+    
   }, [reportId]);
 
   const fetchSocialData = async () => {
