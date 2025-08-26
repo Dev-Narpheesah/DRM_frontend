@@ -35,39 +35,54 @@ const DisasterForm = () => {
     setIsLoading(true);
 
     const formDataWithImage = new FormData();
+    if (!file) {
+      setIsLoading(false);
+      toast.error("Please upload an image of the disaster", {
+        className: styles.errorToast,
+      });
+      return;
+    }
     formDataWithImage.append("email", formData.email);
     formDataWithImage.append("phone", formData.phone);
     formDataWithImage.append("disasterType", formData.disasterType);
     formDataWithImage.append("location", formData.location);
     formDataWithImage.append("report", formData.report);
     formDataWithImage.append("createdAt", new Date().toISOString());
-    if (file) {
-      formDataWithImage.append("image", file);
-    }
+    formDataWithImage.append("image", file);
 
     try {
+      const token = JSON.parse(localStorage.getItem("user") || "{}").token;
+      if (!token) throw new Error("Please sign in to submit a report");
+
       const response = await fetch(
-        "https://drm-backend.vercel.app/api/user",
+        "https://drm-backend.vercel.app/api/reports",
         {
           method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
           body: formDataWithImage,
         }
       );
 
-      if (!response.ok) throw new Error("Failed to submit disaster report");
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = null;
+      }
 
-      toast.success("Report submitted successfully!", {
-        className: styles.successToast,
-      });
+      if (!response.ok) {
+        const message = (data && (data.message || data.error)) || `Failed to submit disaster report (HTTP ${response.status})`;
+        throw new Error(message);
+      }
+
+      toast.success("Report submitted successfully!", { className: styles.successToast });
       setFormData(initialState);
       setFile(null);
       setImagePreview(null);
-      navigate("/card");
+      navigate("/reports");
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to submit disaster report", {
-        className: styles.errorToast,
-      });
+      console.error("Submit report error:", error);
+      toast.error(error.message || "Failed to submit disaster report", { className: styles.errorToast });
     } finally {
       setIsLoading(false);
     }

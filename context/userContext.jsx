@@ -113,9 +113,10 @@ export const UserProvider = ({ children }) => {
 
   // Login/Registration handler
   const loginUser = (userData) => {
-    // store _id as id
+    if (!userData) return;
+    const userId = userData.id || userData._id;
     setUser({
-      id: userData._id,
+      id: userId,
       username: userData.username,
       email: userData.email,
       token: userData.token,

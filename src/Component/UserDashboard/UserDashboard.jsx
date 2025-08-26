@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Sidebar from "../SideBar/SideBar";
 import styles from "./UserDashboard.module.css";
-import { io } from "socket.io-client";
-
-const SOCKET_URL = "https://drm-backend.vercel.app";
+ 
 
 const UserDashboard = () => {
   const [reports, setReports] = useState([]);
@@ -12,17 +10,22 @@ const UserDashboard = () => {
   // Read signed-in user from localStorage set by SignIn
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userEmail = storedUser?.email;
+  const authToken = storedUser?.token;
 
   const fetchUserDisasters = async () => {
     try {
-      if (!userEmail) {
-        throw new Error("Missing user email. Please sign in again.");
+      if (!authToken) {
+        throw new Error("Missing auth token. Please sign in again.");
       }
 
       const res = await fetch(
-        `https://drm-backend.vercel.app/api/user/reports?email=${encodeURIComponent(
-          userEmail
-        )}`
+        "https://drm-backend.vercel.app/api/reports/my",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       if (!res.ok) throw new Error("Failed to fetch reports");
@@ -38,42 +41,8 @@ const UserDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userEmail]);
 
-  // Socket.IO setup for live updates
-  useEffect(() => {
-    const socket = io(SOCKET_URL, {
-      transports: ["websocket"],
-      withCredentials: true,
-    });
-
-    const onCreated = (payload) => {
-      if (payload?.email && payload.email === userEmail) {
-        setReports((prev) => [payload, ...prev]);
-      }
-    };
-
-    const onUpdated = (payload) => {
-      if (payload?.email && payload.email === userEmail) {
-        setReports((prev) => prev.map((r) => (r._id === payload._id ? payload : r)));
-      }
-    };
-
-    const onDeleted = (payload) => {
-      if (payload?._id) {
-        setReports((prev) => prev.filter((r) => r._id !== payload._id));
-      }
-    };
-
-    socket.on("report:created", onCreated);
-    socket.on("report:updated", onUpdated);
-    socket.on("report:deleted", onDeleted);
-
-    return () => {
-      socket.off("report:created", onCreated);
-      socket.off("report:updated", onUpdated);
-      socket.off("report:deleted", onDeleted);
-      socket.close();
-    };
-  }, [userEmail]);
+  // WebSocket removed for Vercel compatibility
+  useEffect(() => {}, [userEmail]);
 
   const greetingName = storedUser?.username || storedUser?.email || "User";
 

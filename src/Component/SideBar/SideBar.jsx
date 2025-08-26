@@ -38,16 +38,15 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount
     { name: "Home", icon: HomeIcon, path: "/" },
     { name: "Dashboard", icon: ChartBarIcon, path: "/dashboard" },
     { name: "Reports", icon: ClipboardDocumentListIcon, path: "/reports" },
-    { name: "Disasters", icon: ExclamationTriangleIcon, path: "/disasters" },
-    { name: "Profile", icon: UserIcon, path: "/profile" },
+    { name: "Report Disaster", icon: ExclamationTriangleIcon, path: "/disForm" },
     { name: "Settings", icon: CogIcon, path: "/settings" },
   ];
 
   // Menu for admins
   const adminMenu = [
-    { name: "Dashboard", icon: HomeIcon, path: "/admin/dashboard" },
-    { name: "Users", icon: Users, path: "/admin/users" },
-    { name: "Reports", icon: FileText, path: "/admin/reports" },
+    { name: "Dashboard", icon: HomeIcon, path: "/admin" },
+    { name: "Users", icon: Users, path: "/admin" },
+    { name: "Reports", icon: FileText, path: "/reports" },
   ];
 
   const menuItems = isAdmin ? adminMenu : userMenu;

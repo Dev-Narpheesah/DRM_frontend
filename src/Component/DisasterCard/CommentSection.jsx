@@ -4,6 +4,7 @@ import UpArrow from '../../assets/up-arrow.svg?react';
 import './CommentSection.css';
 
 const API_URL = 'https://drm-backend.vercel.app/api';
+const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
 
 const CommentSection = ({ reportId }) => {
   const [tree, setTree] = useState([]);
@@ -19,7 +20,6 @@ const CommentSection = ({ reportId }) => {
       const res = await fetch(`${API_URL}/comments/${reportId}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch comments');
       const data = await res.json();
@@ -96,11 +96,11 @@ const CommentSection = ({ reportId }) => {
     if (clear) clear();
 
     try {
-      const response = await fetch(`${API_URL}/comments`, {
+      if (!authToken) throw new Error('Please sign in to comment');
+      const response = await fetch(`${API_URL}/comments/${reportId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ reportId, parentId, name: trimmed }),
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ text: trimmed }),
       });
       if (!response.ok) throw new Error('Failed to add comment');
       const saved = await response.json();
@@ -123,13 +123,8 @@ const CommentSection = ({ reportId }) => {
     const prevTree = tree;
     setTree((prev) => updateOptimistic(prev, id, (item) => ({ ...item, name: trimmed })));
     try {
-      const response = await fetch(`${API_URL}/comments/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ name: trimmed }),
-      });
-      if (!response.ok) throw new Error('Failed to edit comment');
+      // Edit endpoint not implemented on backend - revert immediately
+      setTree(prevTree);
     } catch (e) {
       setTree(prevTree);
       alert('Failed to edit comment');
@@ -140,10 +135,10 @@ const CommentSection = ({ reportId }) => {
     const prevTree = tree;
     setTree((prev) => deleteOptimistic(prev, id));
     try {
+      if (!authToken) throw new Error('Please sign in to delete comments');
       const response = await fetch(`${API_URL}/comments/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
       });
       if (!response.ok) throw new Error('Failed to delete comment');
     } catch (e) {

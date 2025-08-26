@@ -1,13 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import styles from "./SignIn.module.css";
 import { toast } from "react-toastify";
 import PasswordInput from "../passwordInput/passwordInput";
+import styles from "./SignIn.module.css";
 
-const initialState = {
-  email: "",
-  password: "",
-};
+const initialState = { email: "", password: "" };
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -15,105 +12,92 @@ const SignIn = () => {
   const [formValidMessage, setFormValidMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleInputChange = useCallback((e) => {
-    setFormValidMessage("");
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  }, []);
+    setFormValidMessage("");
+  };
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      const { email, password } = formData;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const { email, password } = formData;
 
-      if (!email || !password) {
-        setFormValidMessage("All fields are required");
-        return;
-      }
+    if (!email || !password) {
+      setFormValidMessage("All fields are required");
+      return;
+    }
 
-      setIsSubmitting(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setFormValidMessage("Invalid email address");
+      return;
+    }
 
-      try {
-        const response = await fetch(
-          "https://drm-backend.vercel.app/api/auth/login",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-            credentials: "include",
-          }
-        );
+    setIsSubmitting(true);
 
-        const data = await response.json();
+   try {
+  const response = await fetch("https://drm-backend.vercel.app/api/user/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
 
-        if (!response.ok) {
-          throw new Error(data.message || "Sign in failed");
-        }
+  let data = {};
+  try {
+    data = await response.json();
+  } catch {
+    data = {};
+  }
 
-        // Backend sends user fields at top level
-        const user = {
-          _id: data._id,
-          username: data.username,
-          email: data.email,
-          role: data.role,
-          token: data.token,
-        };
+  if (!response.ok) throw new Error(data.message || "Login failed");
 
-        toast.success("Welcome back " + user.username);
+  const authUser = {
+    id: data?.user?.id || data?.user?._id,
+    username: data?.user?.username,
+    email: data?.user?.email,
+    token: data?.token,
+  };
+  localStorage.setItem("user", JSON.stringify(authUser));
+  toast.success("Login successful");
+  navigate("/dashboard");
 
-        // Redirect based on role
-        if (user.role === "admin") {
-          navigate("/admin", { state: { user } });
-        } else {
-          navigate("/dashboard", { state: { user } });
-        }
-      } catch (error) {
-        console.error("Sign in error:", error);
-        setFormValidMessage(error.message || "Network error. Please try again.");
-        toast.error(error.message || "Network error. Please try again.");
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [formData, navigate]
-  );
+} catch (err) {
+  toast.error(err.message || "Something went wrong");
+  setFormValidMessage(err.message || "Network error");
+} finally {
+  setIsSubmitting(false);
+}
+  }
 
   return (
-    <div className={styles.signinContainer}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <h2 className={styles.formTitle}>Sign In</h2>
+    <div className={styles.container_signin}>
+      <form className={styles.container} onSubmit={handleSubmit}>
+        <p className={styles.formTitle}>Sign In</p>
 
-        <div className={styles.inputContainer}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+        />
+        <PasswordInput
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleInputChange}
+          required
+        />
 
-        <div className={styles.inputContainer}>
-          <PasswordInput
-            name="password"
-            placeholder="Enter your password"
-            value={formData.password}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <button type="submit" className={styles.submit} disabled={isSubmitting}>
+        <button type="submit" className={styles.btn} disabled={isSubmitting}>
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
 
-        <p className={styles.signupLink}>
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
+        <p>
+          Don't have an account? <Link to="/signup">Register</Link>
         </p>
-
-        {formValidMessage && (
-          <p className={styles.errorMessage}>{formValidMessage}</p>
-        )}
+        {formValidMessage && <p className={styles.errorMessage}>{formValidMessage}</p>}
       </form>
     </div>
   );

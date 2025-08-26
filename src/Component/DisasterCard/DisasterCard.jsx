@@ -18,13 +18,12 @@ const DisasterCard = () => {
 
       try {
         const response = await fetch(
-          `https://drm-backend.vercel.app/api/user`,
+          `https://drm-backend.vercel.app/api/reports`,
           {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
             },
-            credentials: "include",
           }
         );
 

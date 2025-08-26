@@ -143,9 +143,7 @@ const Home = () => {
     setSearching(true);
     setSearchError("");
     try {
-      const res = await fetch(`${API_URL}/user/reports`, {
-        credentials: "include",
-      });
+      const res = await fetch(`${API_URL}/reports`);
       if (!res.ok) throw new Error("Failed to fetch reports");
       const data = await res.json();
       const filtered = (Array.isArray(data) ? data : []).filter((r) => {

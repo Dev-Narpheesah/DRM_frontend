@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaHeart, FaRegHeart, FaStar, FaRegStar, FaComment } from 'react-icons/fa';
 import CommentSection from './CommentSection';
 import styles from './SocialFeatures.module.css';
-import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-
-const SOCKET_URL = 'https://drm-backend.vercel.app';
 
 const SocialFeatures = ({ reportId }) => {
   const [likes, setLikes] = useState({ count: 0, userLiked: false });
@@ -21,81 +18,44 @@ const SocialFeatures = ({ reportId }) => {
   const [error, setError] = useState(null);
 
   const API_URL = 'https://drm-backend.vercel.app/api';
+  const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
 
   useEffect(() => {
     fetchSocialData();
   }, [reportId]);
 
   useEffect(() => {
-    // Setup socket listeners for comments and likes
-    const socket = io(SOCKET_URL, { transports: ['websocket'], withCredentials: true });
-
-    const onCommentCreated = (payload) => {
-      if (payload?.reportId === reportId) {
-        setCommentCount((c) => c + 1);
-        window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
-        toast.info('New comment received');
-      }
-    };
-    const onCommentUpdated = (payload) => {
-      if (payload?.reportId === reportId) {
-        window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
-        toast.info('A comment was updated');
-      }
-    };
-    const onCommentDeleted = (payload) => {
-      if (payload?.reportId === reportId) {
-        setCommentCount((c) => Math.max(0, c - 1));
-        window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
-        toast.info('A comment was deleted');
-      }
-    };
-    const onLikeUpdated = (payload) => {
-      if (payload?.reportId === reportId) {
-        setLikes((prev) => ({ count: payload.likeCount ?? prev.count, userLiked: prev.userLiked }));
-        toast.info(payload.liked ? 'Someone liked this report' : 'A like was removed');
-      }
-    };
-
-    socket.on('comment:created', onCommentCreated);
-    socket.on('comment:updated', onCommentUpdated);
-    socket.on('comment:deleted', onCommentDeleted);
-    socket.on('like:updated', onLikeUpdated);
-
-    return () => {
-      socket.off('comment:created', onCommentCreated);
-      socket.off('comment:updated', onCommentUpdated);
-      socket.off('comment:deleted', onCommentDeleted);
-      socket.off('like:updated', onLikeUpdated);
-      socket.close();
-    };
+    // WebSocket removed for Vercel compatibility
   }, [reportId]);
 
   const fetchSocialData = async () => {
     try {
       setLoading(true);
       const [likesResponse, ratingsResponse, commentsResponse] = await Promise.all([
-        fetch(`${API_URL}/likes/${reportId}`, {
-          credentials: 'include'
+        fetch(`${API_URL}/likes/${reportId}/count`, {
+          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
         }),
-        fetch(`${API_URL}/ratings/${reportId}`, {
-          credentials: 'include'
+        fetch(`${API_URL}/ratings/${reportId}/stats`, {
+          headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
         }),
-        fetch(`${API_URL}/comments/${reportId}`, {
-          credentials: 'include'
-        })
+        fetch(`${API_URL}/comments/${reportId}`)
       ]);
 
       if (likesResponse.ok) {
         const likesData = await likesResponse.json();
-        setLikes(likesData);
+        setLikes({ count: likesData.likeCount ?? 0, userLiked: !!likesData.userLiked });
       } else {
         console.error('Failed to fetch likes:', likesResponse.status);
       }
 
       if (ratingsResponse.ok) {
         const ratingsData = await ratingsResponse.json();
-        setRatings(ratingsData);
+        setRatings({
+          average: ratingsData.averageRating ?? 0,
+          total: ratingsData.totalRatings ?? 0,
+          userRating: ratingsData.userRating ?? null,
+          distribution: ratingsData.ratingDistribution || { 1:0, 2:0, 3:0, 4:0, 5:0 },
+        });
       } else {
         console.error('Failed to fetch ratings:', ratingsResponse.status);
       }
@@ -115,10 +75,10 @@ const SocialFeatures = ({ reportId }) => {
 
   const handleLikeToggle = async () => {
     try {
-      const response = await fetch(`${API_URL}/likes/${reportId}`, {
+      if (!authToken) throw new Error('Please sign in to like');
+      const response = await fetch(`${API_URL}/likes/${reportId}/toggle`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+        headers: { 'Authorization': `Bearer ${authToken}` },
       });
 
       if (response.ok) {
@@ -135,15 +95,15 @@ const SocialFeatures = ({ reportId }) => {
 
   const handleRating = async (rating) => {
     try {
+      if (!authToken) throw new Error('Please sign in to rate');
       const response = await fetch(`${API_URL}/ratings/${reportId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
         body: JSON.stringify({ rating })
       });
 
       if (response.ok) {
-        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}`, { credentials: 'include' });
+        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}/stats`, { headers: { 'Authorization': `Bearer ${authToken}` } });
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setRatings(statsData);
@@ -156,9 +116,10 @@ const SocialFeatures = ({ reportId }) => {
 
   const handleDeleteRating = async () => {
     try {
-      const response = await fetch(`${API_URL}/ratings/${reportId}`, { method: 'DELETE', credentials: 'include' });
+      if (!authToken) throw new Error('Please sign in to update rating');
+      const response = await fetch(`${API_URL}/ratings/${reportId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
       if (response.ok) {
-        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}`, { credentials: 'include' });
+        const statsResponse = await fetch(`${API_URL}/ratings/${reportId}/stats`, { headers: { 'Authorization': `Bearer ${authToken}` } });
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
           setRatings(statsData);
