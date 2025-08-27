@@ -8,7 +8,18 @@ import { toast } from "react-toastify";
 
 const SocialFeatures = ({ reportId }) => {
   const API_URL = "https://drm-backend.vercel.app/api";
-  const authToken = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const authToken = storedUser?.token;
+  const userId = storedUser?.id || storedUser?._id || null;
+  const sessionId = (() => {
+    const key = "sessionId";
+    let sid = localStorage.getItem(key);
+    if (!sid) {
+      sid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      localStorage.setItem(key, sid);
+    }
+    return sid;
+  })();
 
   const [likes, setLikes] = useState({ count: 0, userLiked: false });
   const [ratings, setRatings] = useState({
@@ -29,8 +40,8 @@ const SocialFeatures = ({ reportId }) => {
         const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
 
         const [likesRes, ratingsRes, commentsRes] = await Promise.all([
-          fetch(`${API_URL}/likes/${reportId}/count`, { headers }),
-          fetch(`${API_URL}/ratings/${reportId}/stats`, { headers }),
+          fetch(`${API_URL}/likes/${reportId}/count?sessionId=${encodeURIComponent(sessionId)}`, { headers }),
+          fetch(`${API_URL}/ratings/${reportId}/stats?userId=${encodeURIComponent(userId || sessionId)}`, { headers }),
           fetch(`${API_URL}/comments/${reportId}`),
         ]);
 
@@ -80,7 +91,8 @@ const SocialFeatures = ({ reportId }) => {
     try {
       const res = await fetch(`${API_URL}/likes/${reportId}/toggle`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
+        body: JSON.stringify({ sessionId }),
       });
 
       if (!res.ok) throw new Error();
@@ -113,9 +125,9 @@ const SocialFeatures = ({ reportId }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         },
-        body: JSON.stringify({ rating: value }),
+        body: JSON.stringify({ rating: value, userId: userId || sessionId }),
       });
 
       if (!res.ok) throw new Error();
@@ -133,7 +145,8 @@ const SocialFeatures = ({ reportId }) => {
     try {
       const res = await fetch(`${API_URL}/ratings/${reportId}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${authToken}` },
+        headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
+        body: JSON.stringify({ userId: userId || sessionId }),
       });
 
       if (!res.ok) throw new Error();

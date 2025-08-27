@@ -3,7 +3,7 @@ import DownArrow from '../../assets/down-arrow.svg?react';
 import UpArrow from '../../assets/up-arrow.svg?react';
 import './CommentSection.css';
 
-const API_URL = 'https://drm-backend.vercel.app/api';
+const API_URL = 'https://drm-backend.vercel.app/api' || 'http://localhost:4000/api';
 const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
 
 const CommentSection = ({ reportId }) => {
@@ -24,7 +24,25 @@ const CommentSection = ({ reportId }) => {
       if (!res.ok) throw new Error('Failed to fetch comments');
       const data = await res.json();
       if (!isMounted.current) return;
-      setTree(Array.isArray(data) ? data : []);
+
+      const flat = Array.isArray(data) ? data : [];
+      const normalized = flat.map((c) => ({
+        id: c._id,
+        text: c.text,
+        reportId: c.reportId,
+        parentId: c.parentId || null,
+        items: [],
+        createdAt: c.createdAt,
+      }));
+      const byId = new Map();
+      normalized.forEach((n) => byId.set(n.id, n));
+      normalized.forEach((n) => {
+        if (n.parentId && byId.get(n.parentId)) {
+          byId.get(n.parentId).items.push(n);
+        }
+      });
+      const roots = normalized.filter((n) => !n.parentId);
+      setTree(roots);
     } catch (e) {
       if (!isMounted.current) return;
       setError(e.message || 'Failed to load comments');
@@ -32,6 +50,7 @@ const CommentSection = ({ reportId }) => {
       if (isMounted.current) setLoading(false);
     }
   }, [reportId]);
+
 
   useEffect(() => {
     isMounted.current = true;
@@ -85,7 +104,7 @@ const CommentSection = ({ reportId }) => {
     const tempId = `temp-${Date.now()}`;
     const optimisticNode = {
       id: tempId,
-      name: trimmed,
+      text: trimmed, // ✅ use text, not name
       reportId,
       parentId: parentId || null,
       items: [],
@@ -96,20 +115,23 @@ const CommentSection = ({ reportId }) => {
     if (clear) clear();
 
     try {
-      if (!authToken) throw new Error('Please sign in to comment');
+      // 🚨 everyone can post, no auth required
       const response = await fetch(`${API_URL}/comments/${reportId}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-        body: JSON.stringify({ text: trimmed }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: trimmed, parentId }),
       });
       if (!response.ok) throw new Error('Failed to add comment');
       const saved = await response.json();
       // Replace temp with saved
-      setTree((prev) => updateOptimistic(prev, tempId, () => ({
-        ...optimisticNode,
-        id: saved._id,
-        optimistic: false,
-      })));
+      setTree((prev) =>
+        updateOptimistic(prev, tempId, () => ({
+          ...optimisticNode,
+          id: saved._id,
+          text: saved.text,
+          optimistic: false,
+        }))
+      );
     } catch (e) {
       // Revert on failure
       setTree((prev) => deleteOptimistic(prev, tempId));
@@ -121,7 +143,9 @@ const CommentSection = ({ reportId }) => {
     const trimmed = (newText || '').trim();
     if (!trimmed) return;
     const prevTree = tree;
-    setTree((prev) => updateOptimistic(prev, id, (item) => ({ ...item, name: trimmed })));
+    setTree((prev) =>
+      updateOptimistic(prev, id, (item) => ({ ...item, text: trimmed }))
+    );
     try {
       // Edit endpoint not implemented on backend - revert immediately
       setTree(prevTree);
@@ -135,10 +159,9 @@ const CommentSection = ({ reportId }) => {
     const prevTree = tree;
     setTree((prev) => deleteOptimistic(prev, id));
     try {
-      if (!authToken) throw new Error('Please sign in to delete comments');
       const response = await fetch(`${API_URL}/comments/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) throw new Error('Failed to delete comment');
     } catch (e) {
@@ -160,7 +183,9 @@ const CommentSection = ({ reportId }) => {
         />
         <button
           className="action action--reply"
-          onClick={() => handleCreate(newComment, null, () => setNewComment(''))}
+          onClick={() =>
+            handleCreate(newComment, null, () => setNewComment(''))
+          }
           aria-label="Submit comment"
         >
           Comment
@@ -189,14 +214,16 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
   const [isReplyOpen, setIsReplyOpen] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(node.name || '');
+  const [editText, setEditText] = useState(node.text || ''); // ✅ use text
   const [expanded, setExpanded] = useState(true);
 
   return (
     <div className="comment-container">
       <div className="comment-header">
         <span className="comment-author">User</span>
-        <span className="comment-time">{new Date(node.createdAt || Date.now()).toLocaleString()}</span>
+        <span className="comment-time">
+          {new Date(node.createdAt || Date.now()).toLocaleString()}
+        </span>
         {node.optimistic && <span className="comment-pending">sending…</span>}
       </div>
 
@@ -208,22 +235,62 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
             className="input-container__input"
             aria-label="Edit comment"
           />
-          <button className="action action--reply" onClick={() => { onEdit(editText); setIsEditing(false); }}>Save</button>
-          <button className="action action--reply" onClick={() => { setIsEditing(false); setEditText(node.name || ''); }}>Cancel</button>
+          <button
+            className="action action--reply"
+            onClick={() => {
+              onEdit(editText);
+              setIsEditing(false);
+            }}
+          >
+            Save
+          </button>
+          <button
+            className="action action--reply"
+            onClick={() => {
+              setIsEditing(false);
+              setEditText(node.text || '');
+            }}
+          >
+            Cancel
+          </button>
         </div>
       ) : (
-        <span className="comment-text">{node.name}</span>
+        <span className="comment-text">{node.text}</span> // ✅ render text
       )}
 
       <div className="action-container">
-        <button className="action action--reply" onClick={() => setIsReplyOpen((v) => !v)} aria-label="Reply to comment">
-          {isReplyOpen ? <UpArrow className="action-icon" /> : <DownArrow className="action-icon" />}
+        <button
+          className="action action--reply"
+          onClick={() => setIsReplyOpen((v) => !v)}
+          aria-label="Reply to comment"
+        >
+          {isReplyOpen ? (
+            <UpArrow className="action-icon" />
+          ) : (
+            <DownArrow className="action-icon" />
+          )}
           Reply
         </button>
-        <button className="action action--reply" onClick={() => setIsEditing(true)} aria-label="Edit comment">Edit</button>
-        <button className="action action--reply" onClick={onDelete} aria-label="Delete comment">Delete</button>
+        <button
+          className="action action--reply"
+          onClick={() => setIsEditing(true)}
+          aria-label="Edit comment"
+        >
+          Edit
+        </button>
+        <button
+          className="action action--reply"
+          onClick={onDelete}
+          aria-label="Delete comment"
+        >
+          Delete
+        </button>
         {node.items?.length > 0 && (
-          <button className="action action--reply" onClick={() => setExpanded((v) => !v)} aria-label="Toggle replies">
+          <button
+            className="action action--reply"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label="Toggle replies"
+          >
             {expanded ? 'Hide Replies' : 'Show Replies'} ({node.items.length})
           </button>
         )}
@@ -239,8 +306,25 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
             placeholder="Type your reply..."
             aria-label="Reply to comment"
           />
-          <button className="action action--reply" onClick={() => { onReply(replyText); setReplyText(''); setIsReplyOpen(false); }}>Reply</button>
-          <button className="action action--reply" onClick={() => { setIsReplyOpen(false); setReplyText(''); }}>Cancel</button>
+          <button
+            className="action action--reply"
+            onClick={() => {
+              onReply(replyText);
+              setReplyText('');
+              setIsReplyOpen(false);
+            }}
+          >
+            Reply
+          </button>
+          <button
+            className="action action--reply"
+            onClick={() => {
+              setIsReplyOpen(false);
+              setReplyText('');
+            }}
+          >
+            Cancel
+          </button>
         </div>
       )}
 
