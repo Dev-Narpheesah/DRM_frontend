@@ -85,7 +85,7 @@ const Home = () => {
         ]
       : [{ to: "/signin", label: "Sign In" }]),
     { to: "/disForm", label: "Report Disaster" },
-    { to: "/donate", label: "Donate" },
+    { to: "/disasters", label: "Disasters" },
   ];
 
   const renderNavLinks = (isDropdown = false) =>

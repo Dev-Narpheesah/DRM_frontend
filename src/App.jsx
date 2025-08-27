@@ -23,6 +23,11 @@ import Emergency from "./Component/Emergency/Emergency";
 import CommentSection from "./Component/DisasterCard/CommentSection";
 import Settings from "./Component/Settings/Settings";
 import DonationForm from "./Component/Help/DonationForm";
+import AllReports from "./Component/DisasterCard/AllReports";
+
+
+// Notifications and Saved removed per request
+
 
 function App() {
   return (
@@ -41,12 +46,15 @@ function App() {
       <Route path="/admin-log" element={<AdminLog />} />
       <Route path="/adminReg" element={<AdminReg />} />
       <Route path="/reports" element={<DisasterCard />} />
+      <Route path="/disasters" element={<AllReports />} />
       <Route path="/disReport/:id" element={<DisasterReport />} />
       <Route path="/disForm" element={<DisasterForm />} />
       <Route path="/donate" element={<DonationForm />} />
       <Route path="/emergency" element={<Emergency />} />
       <Route path="/comment" element={<CommentSection />} />
       <Route path="/settings" element={<Settings />} />
+      
+      {/* <Route path="/profile" element={<Profile />} /> */}
     </Routes>
   );
 }

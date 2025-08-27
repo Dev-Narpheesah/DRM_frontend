@@ -40,6 +40,8 @@
   flex: 1;
   padding: 16px;
   transition: margin-left 0.3s ease;
+  background: #f0f2f5;
+  min-height: 100vh;
 }
 
 .mainContent.sidebarOpen {
@@ -51,56 +53,42 @@
 }
 
 .cardContainer {
-  max-width: 1200px;
-  margin: 24px auto;
-  padding: 24px;
+  width: 100%;
+  max-width: 720px;
+  margin: 16px auto;
+  padding: 0 12px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  background: var(--primary-bg);
-  border-radius: 16px;
-  animation: fadeIn 0.6s ease-in;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  background: transparent;
+  border-radius: 0;
+  animation: fadeIn 0.3s ease-in;
 }
 
 .pageHeader {
   position: sticky;
   top: 0;
   z-index: 100;
-  text-align: center;
-  padding: 24px 16px;
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-  color: #FFFFFF;
-  border-radius: 12px;
-  margin-bottom: 32px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeIn 0.6s ease-in;
+  text-align: left;
+  padding: 12px 16px;
+  background: #fff;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  margin: 0 0 8px 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  animation: fadeIn 0.3s ease-in;
 }
 
-.pageHeader::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 20px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M1200 120L0 16.48V0H1200V120Z" fill="var(--card-bg)"/></svg>') no-repeat center bottom;
-  background-size: cover;
-}
+.pageHeader::after { content: none; }
 
 .pageHeader h1 {
-  font-size: 2.25rem;
+  font-size: 1.125rem;
   margin: 0;
   font-family: 'Inter', sans-serif;
-  font-weight: 800;
+  font-weight: 700;
 }
 
-.pageHeader p {
-  font-size: 1.125rem;
-  margin: 8px 0 0;
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  opacity: 0.9;
-}
+.pageHeader p { display: none; }
 
 .sidebarToggle {
   background: var(--button-bg);

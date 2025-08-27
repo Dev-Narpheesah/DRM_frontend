@@ -1,7 +1,7 @@
 .comment-section {
   font-family: 'Inter', sans-serif;
   color: #1e293b;
-  margin: 16px 0;
+  margin: 12px 0;
   position: relative;
 }
 
@@ -9,20 +9,19 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #f0f2f5;
+  border-radius: 999px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
 }
 
 .input-container__input {
   flex: 1;
-  border: 1px solid #e0e7ff;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.875rem;
+  border: none;
+  background: transparent;
+  padding: 8px 0;
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .input-container__input:focus {
@@ -35,20 +34,14 @@
 }
 
 .comment-container {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #fff;
+  border-radius: 18px;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
   margin-bottom: 8px;
 }
 
-.comment-text {
-  display: block;
-  font-size: 0.875rem;
-  color: #1e293b;
-  padding: 8px;
-  overflow-wrap: break-word;
-}
+.comment-text { display: block; font-size: 14px; color: #050505; padding: 4px 0; overflow-wrap: break-word; }
 
 .comment-text--editable {
   border: 1px solid #2563eb;
@@ -57,33 +50,11 @@
   background: #f8fafc;
 }
 
-.action-container {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
+.action-container { display: flex; gap: 8px; margin-top: 6px; }
 
-.action {
-  background: none;
-  border: none;
-  color: #2563eb;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  min-width: 44px;
-  min-height: 44px;
-}
+.action { background: none; border: none; color: #65676b; font-size: 12px; font-weight: 600; cursor: pointer; padding: 6px 8px; border-radius: 6px; display: inline-flex; align-items: center; }
 
-.action:hover {
-  background: #2563eb;
-  color: #ffffff;
-  transform: translateX(4px);
-}
+.action:hover { background: #f0f2f5; color: #050505; }
 
 .action-icon {
   width: 10px;
@@ -97,9 +68,7 @@
   fill: #ffffff;
 }
 
-.nested-comments {
-  padding-left: 24px;
-}
+.nested-comments { padding-left: 16px; }
 
 /* Responsive Design */
 @media (min-width: 1920px) {

@@ -4,9 +4,10 @@
   flex-direction: column;
   min-height: 100vh;
   width: 240px;
-  background: linear-gradient(180deg, #0b3b52 0%, #0e4a66 100%);
-  color: #ffffff;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #e5e7eb;
   transition: width 0.3s ease, transform 0.3s ease;
   position: fixed;
   top: 0;
@@ -47,11 +48,12 @@
 
 /* Logo */
 .logo {
-  padding: 20px;
-  font-size: 1.3rem;
+  padding: 16px;
+  font-size: 1.1rem;
   font-weight: 700;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: #1877f2;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 /* Live status */
@@ -71,10 +73,7 @@
   animation: pulse 1.8s infinite;
 }
 
-.pulseText {
-  font-size: 0.75rem;
-  color: #c7f9d5;
-}
+.pulseText { font-size: 0.75rem; color: #16a34a; }
 
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
@@ -83,34 +82,14 @@
 }
 
 /* User Box */
-.userBox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 16px;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
+.userBox { display:flex; align-items:center; gap:8px; padding:16px; font-size:0.95rem; font-weight:500; color:#374151; }
 
 .userBox svg {
   width: 18px;
   height: 18px;
 }
 
-.bellBtn {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  color: #fff;
-  position: relative;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: background 0.2s ease;
-}
+.bellBtn { margin-left:auto; display:inline-flex; align-items:center; justify-content:center; background:transparent; border: none; color:#111827; position:relative; cursor:pointer; padding:6px; border-radius:8px; transition: background 0.2s ease; }
 
 .bellBtn:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -142,38 +121,13 @@
   margin: 0;
 }
 
-.navItem {
-  display: flex;
-  align-items: center;
-  padding: 10px 14px;
-  color: #ffffff;
-  text-decoration: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease;
-  position: relative;
-}
+.navItem { display:flex; align-items:center; padding:10px 14px; color:#111827; text-decoration:none; border-radius:8px; font-size:0.95rem; transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease; position:relative; }
 
-.navItem:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateX(4px);
-}
+.navItem:hover { background: #f3f4f6; transform: translateX(4px); }
 
-.active {
-  background: rgba(255,255,255,0.18);
-}
+.active { background: #e7f3ff; color:#1877f2; }
 
-.active::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 60%;
-  border-radius: 2px;
-  background: #22d3ee;
-}
+.active::before { content:""; position:absolute; left:0; top:50%; transform: translateY(-50%); width:3px; height:60%; border-radius:2px; background:#1877f2; }
 
 .icon {
   width: 18px;
@@ -187,46 +141,17 @@
 }
 
 /* Logout Button */
-.logoutBtn {
-  margin: 16px;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
+.logoutBtn { margin:16px; padding:10px; display:flex; align-items:center; gap:8px; background:#f3f4f6; border:none; border-radius:8px; color:#111827; cursor:pointer; font-size:0.9rem; transition: background 0.2s ease, transform 0.2s ease; }
 
-.logoutBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
+.logoutBtn:hover { background:#e5e7eb; transform: translateY(-1px); }
 
 /* Toggle Button */
-.sidebarToggle {
-  position: absolute;
-  top: 20px;
-  right: -40px;
-  background: #0b3b52;
-  color: #ffffff;
-  border: none;
-  padding: 10px;
-  border-radius: 50%;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  transition: background 0.2s ease, transform 0.2s ease;
-  z-index: 1100;
-}
+.sidebarToggle { position:fixed; top:16px; left:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:#e7f3ff; color:#1877f2; border:none; border-radius:8px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.08); transition: background 0.2s ease, transform 0.2s ease; z-index:1100; }
 
-.sidebarToggle:hover {
-  background: #0e4a66;
-  transform: translateY(-2px);
-}
+.sidebarToggle:hover { background:#dbe9ff; transform: translateY(-1px); }
+
+/* Edge handle for collapsed state (similar to ChatGPT) */
+/* remove edgeHandle; single toggle covers both states */
 
 .sidebarToggle .icon {
   width: 18px;

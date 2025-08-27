@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import {
   Home as HomeIcon,
   LogOut,
@@ -20,8 +20,12 @@ import {
 
 import styles from "./SideBar.module.css";
 
-const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount = 0 }) => {
+const API_URL = "https://drm-backend.vercel.app/api";
+
+const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isOpen);
+  const navigate = useNavigate();
+ 
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -33,12 +37,15 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount
     window.location.href = "/signin";
   };
 
+
+
   // Menu for regular users
   const userMenu = [
     { name: "Home", icon: HomeIcon, path: "/" },
     { name: "Dashboard", icon: ChartBarIcon, path: "/dashboard" },
-    { name: "Reports", icon: ClipboardDocumentListIcon, path: "/reports" },
+    { name: "My Reports", icon: ClipboardDocumentListIcon, path: "/reports" },
     { name: "Report Disaster", icon: ExclamationTriangleIcon, path: "/disForm" },
+    { name: "Profile", icon: UserIcon, path: "/profile" },
     { name: "Settings", icon: CogIcon, path: "/settings" },
   ];
 
@@ -53,12 +60,10 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount
 
   return (
     <>
-      {/* Toggle Button */}
+      {/* Single toggle button - same place for open/close */}
       <button
         onClick={toggleSidebar}
-        className={`${styles.sidebarToggle} ${
-          isSidebarOpen ? styles.active : ""
-        }`}
+        className={styles.sidebarToggle}
         aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         aria-expanded={isSidebarOpen}
         aria-controls="app-sidebar"
@@ -101,13 +106,12 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount
           {/* Notification bell */}
           <button
             className={styles.bellBtn}
-            aria-label={`Notifications${notificationCount > 0 ? `: ${notificationCount} new` : ""}`}
-            title={notificationCount > 0 ? `${notificationCount} new notifications` : "Notifications"}
+            aria-label={"Notifications"}
+            title={"Notifications"}
+            onClick={(e)=> e.preventDefault()}
           >
             <BellAlertIcon className={styles.icon} />
-            {notificationCount > 0 && (
-              <span className={styles.badge} aria-hidden="true">{notificationCount}</span>
-            )}
+            
           </button>
         </div>
 
@@ -120,6 +124,7 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle, notificationCount
                   className={({ isActive }) =>
                     `${styles.navItem} ${isActive ? styles.active : ""}`
                   }
+                  title={item.name}
                 >
                   <item.icon className={styles.icon} />
                   {isSidebarOpen && (

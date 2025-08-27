@@ -161,7 +161,10 @@ const CommentSection = ({ reportId }) => {
     try {
       const response = await fetch(`${API_URL}/comments/${id}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
       });
       if (!response.ok) throw new Error('Failed to delete comment');
     } catch (e) {

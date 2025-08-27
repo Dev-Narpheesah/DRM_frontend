@@ -21,7 +21,26 @@ const SocialFeatures = ({ reportId }) => {
     return sid;
   })();
 
-  const [likes, setLikes] = useState({ count: 0, userLiked: false });
+  const reactionEmoji = {
+    like: '👍',
+    love: '❤️',
+    care: '🤗',
+    haha: '😂',
+    wow: '😮',
+    sad: '😢',
+    angry: '😡',
+  };
+  const reactionLabel = {
+    like: 'Like',
+    love: 'Love',
+    care: 'Care',
+    haha: 'Haha',
+    wow: 'Wow',
+    sad: 'Sad',
+    angry: 'Angry',
+  };
+
+  const [likes, setLikes] = useState({ count: 0, userLiked: false, userReaction: null, distribution: { like:0,love:0,care:0,haha:0,wow:0,sad:0,angry:0 } });
   const [ratings, setRatings] = useState({
     average: 0,
     total: 0,
@@ -29,6 +48,9 @@ const SocialFeatures = ({ reportId }) => {
     distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
   });
   const [showComments, setShowComments] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const touchTimerRef = React.useRef(null);
+  const barRef = React.useRef(null);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -37,17 +59,20 @@ const SocialFeatures = ({ reportId }) => {
     const fetchSocialData = async () => {
       try {
         setLoading(true);
-        const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
-
         const [likesRes, ratingsRes, commentsRes] = await Promise.all([
-          fetch(`${API_URL}/likes/${reportId}/count?sessionId=${encodeURIComponent(sessionId)}`, { headers }),
-          fetch(`${API_URL}/ratings/${reportId}/stats?userId=${encodeURIComponent(userId || sessionId)}`, { headers }),
+          fetch(`${API_URL}/likes/${reportId}/count?sessionId=${encodeURIComponent(sessionId)}`),
+          fetch(`${API_URL}/ratings/${reportId}/stats?userId=${encodeURIComponent(userId || sessionId)}`),
           fetch(`${API_URL}/comments/${reportId}`),
         ]);
 
         if (likesRes.ok) {
           const data = await likesRes.json();
-          setLikes({ count: data.likeCount ?? 0, userLiked: !!data.userLiked });
+          setLikes({
+            count: data.likeCount ?? 0,
+            userLiked: !!data.userLiked,
+            userReaction: data.userReaction || null,
+            distribution: data.distribution || { like:0,love:0,care:0,haha:0,wow:0,sad:0,angry:0 },
+          });
         }
 
         if (ratingsRes.ok) {
@@ -79,83 +104,81 @@ const SocialFeatures = ({ reportId }) => {
   // ====== HANDLERS ======
 
   // Optimistic like toggle
-  const handleLikeToggle = async () => {
-    if (!authToken) return toast.info("🔑 Please log in to like");
-
-    // Optimistic UI update
-    setLikes((prev) => ({
-      count: prev.count + (prev.userLiked ? -1 : 1),
-      userLiked: !prev.userLiked,
-    }));
+  const handleReaction = async (reaction) => {
+    // Optimistic update
+    setLikes((prev) => {
+      const hadReaction = !!prev.userReaction;
+      const prevReaction = prev.userReaction;
+      const next = { ...prev, userReaction: reaction === prevReaction ? null : reaction };
+      // Adjust counts
+      const dist = { ...prev.distribution };
+      if (prevReaction) dist[prevReaction] = Math.max(0, (dist[prevReaction] || 0) - 1);
+      if (reaction && reaction !== prevReaction) dist[reaction] = (dist[reaction] || 0) + 1;
+      next.distribution = dist;
+      next.count = Object.values(dist).reduce((a, b) => a + b, 0);
+      next.userLiked = !!next.userReaction;
+      return next;
+    });
 
     try {
       const res = await fetch(`${API_URL}/likes/${reportId}/toggle`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
-        body: JSON.stringify({ sessionId }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId, reactionType: reaction }),
       });
-
       if (!res.ok) throw new Error();
       const data = await res.json();
-      setLikes({ count: data.likeCount, userLiked: data.liked });
-    } catch {
-      toast.error("❌ Failed to update like");
-      // rollback if error
       setLikes((prev) => ({
-        count: prev.userLiked ? prev.count - 1 : prev.count + 1,
-        userLiked: !prev.userLiked,
+        ...prev,
+        count: data.likeCount ?? prev.count,
+        distribution: data.distribution || prev.distribution,
+        userReaction: data.reaction || null,
+        userLiked: !!(data.reaction || null),
       }));
-    }
-  };
-
-  // Optimistic rating
-  const handleRating = async (value) => {
-    if (!authToken) return toast.info("🔑 Please log in to rate");
-
-    const oldRatings = { ...ratings };
-
-    // Optimistic update (just replace user rating)
-    setRatings((prev) => ({
-      ...prev,
-      userRating: value,
-    }));
-
-    try {
-      const res = await fetch(`${API_URL}/ratings/${reportId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-        },
-        body: JSON.stringify({ rating: value, userId: userId || sessionId }),
-      });
-
-      if (!res.ok) throw new Error();
-      const stats = await res.json();
-      setRatings(stats);
     } catch {
-      toast.error("❌ Failed to update rating");
-      setRatings(oldRatings); // rollback
+      toast.error("❌ Failed to react");
+      // reload server counts
+      try {
+        const likesRes = await fetch(`${API_URL}/likes/${reportId}/count?sessionId=${encodeURIComponent(sessionId)}`);
+        if (likesRes.ok) {
+          const data = await likesRes.json();
+          setLikes({
+            count: data.likeCount ?? 0,
+            userLiked: !!data.userLiked,
+            userReaction: data.userReaction || null,
+            distribution: data.distribution || { like:0,love:0,care:0,haha:0,wow:0,sad:0,angry:0 },
+          });
+        }
+      } catch {}
     }
   };
 
-  const handleDeleteRating = async () => {
-    if (!authToken) return toast.info("🔑 Please log in to remove rating");
-
-    try {
-      const res = await fetch(`${API_URL}/ratings/${reportId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json", ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
-        body: JSON.stringify({ userId: userId || sessionId }),
-      });
-
-      if (!res.ok) throw new Error();
-      const stats = await res.json();
-      setRatings(stats);
-    } catch {
-      toast.error("❌ Failed to remove rating");
-    }
+  const onMouseEnterBar = () => setShowPicker(true);
+  const onMouseLeaveBar = () => {};
+  const onTouchStartBar = () => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => setShowPicker(true), 350);
   };
+  const onTouchEndBar = () => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+  };
+
+  useEffect(() => {
+    if (!showPicker) return;
+    const handleClickOutside = (e) => {
+      if (barRef.current && !barRef.current.contains(e.target)) {
+        setShowPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showPicker]);
+
+  // Remove ratings functionality entirely per request
 
   // Render stars ⭐
   const renderStars = (value, interactive = false, onClick = null) =>
@@ -177,33 +200,54 @@ const SocialFeatures = ({ reportId }) => {
 
   return (
     <div className={styles.socialFeatures}>
-      {/* Likes ❤️ */}
-      <button
-        className={`${styles.likeButton} ${likes.userLiked ? styles.liked : ""}`}
-        onClick={handleLikeToggle}
+      {/* Reactions */}
+      <div
+        className={styles.reactionBar}
+        ref={barRef}
+        onMouseEnter={onMouseEnterBar}
+        onMouseLeave={onMouseLeaveBar}
+        onTouchStart={onTouchStartBar}
+        onTouchEnd={onTouchEndBar}
       >
-        {likes.userLiked ? <FaHeart /> : <FaRegHeart />}
-        <span>{likes.count}</span>
+        <button
+          className={`${styles.likeButton} ${likes.userReaction ? styles.liked : ""}`}
+          onClick={() => handleReaction(likes.userReaction ? null : 'like')}
+          aria-haspopup="true"
+          aria-expanded={showPicker}
+        >
+          <span className={styles.reactionEmoji} aria-hidden>
+            {likes.userReaction ? reactionEmoji[likes.userReaction] : '👍'}
+          </span>
+          <span>{likes.userReaction ? reactionLabel[likes.userReaction] : 'Like'}</span>
+          <span>· {likes.count}</span>
+        </button>
+        {showPicker && (
+          <div className={styles.reactionPicker} role="menu">
+            {[
+              { k:'like',  e:'👍',  label:'Like' },
+              { k:'love',  e:'❤️',  label:'Love' },
+              { k:'care',  e:'🤗',  label:'Care' },
+              { k:'haha',  e:'😂',  label:'Haha' },
+              { k:'wow',   e:'😮',  label:'Wow' },
+              { k:'sad',   e:'😢',  label:'Sad' },
+              { k:'angry', e:'😡',  label:'Angry' },
+            ].map((r) => (
+              <button
+                key={r.k}
+                className={styles.reactionItem}
+                onClick={() => { handleReaction(r.k); setShowPicker(false); }}
+                aria-label={`React ${r.k}`}
+                role="menuitem"
+                data-label={r.label}
+              >
+                <span className={styles.reactionEmoji}>{r.e}</span>
       </button>
-
-      {/* Ratings ⭐ */}
-      <div className={styles.ratingsSection}>
-        <div className={styles.averageRating}>
-          <span>{ratings.average.toFixed(1)}</span>
-          <div>{renderStars(Math.round(ratings.average))}</div>
-          <span>({ratings.total} ratings)</span>
+            ))}
         </div>
-
-        <div className={styles.userRating}>
-          <span>Your rating: </span>
-          {renderStars(ratings.userRating || 0, true, handleRating)}
-          {ratings.userRating && (
-            <button onClick={handleDeleteRating} className={styles.removeRating}>
-              Remove
-            </button>
-          )}
-        </div>
+        )}
       </div>
+
+      {/* Ratings removed per request */}
 
       {/* Comments 💬 */}
       <div className={styles.commentsSection}>
