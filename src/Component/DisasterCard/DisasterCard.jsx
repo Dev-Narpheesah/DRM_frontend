@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Sidebar from "../SideBar/SideBar";
+import CommentSection from "./CommentSection";
 import SocialFeatures from "./SocialFeatures";
 import styles from "./DisasterCard.module.css";
-
 const DisasterCard = () => {
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,35 +15,43 @@ const DisasterCard = () => {
   const sentinelRef = useRef(null);
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
+
   useEffect(() => {
     const fetchReports = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          throw new Error("You must be signed in to view reports.");
-        }
-
-        const response = await fetch("https://drm-backend.vercel.app/api/reports/my", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // single protected endpoint
-          },
-        });
+        const response = await fetch(
+          `https://drm-backend.vercel.app/api/reports`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to fetch reports: ${response.statusText}`);
         }
 
         const data = await response.json();
+
         if (!Array.isArray(data)) {
           throw new Error("Invalid data format received from server");
         }
 
-        setReports(data);
+        // If ?mine=1, filter to current user's reports
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const mine = query.get('mine') === '1';
+        const filtered = mine && currentUser?.id
+          ? data.filter((r) => (r.userId === currentUser.id || r.user === currentUser.id))
+          : data;
+
+        setReports(filtered);
       } catch (error) {
         console.error("Error fetching reports:", error);
         setError(error.message);
@@ -53,9 +62,9 @@ const DisasterCard = () => {
     };
 
     fetchReports();
-  }, []);
+  }, [location.search, query]);
 
-  // Infinite scroll
+  // Infinite scroll: reveal more already-fetched reports
   useEffect(() => {
     if (!sentinelRef.current) return;
     const observer = new IntersectionObserver(
@@ -72,7 +81,7 @@ const DisasterCard = () => {
     return () => observer.disconnect();
   }, [sentinelRef]);
 
-  const handleDonationClick = () => {
+  const handleDonationClick = (reportId) => {
     navigate(`/donate`);
     toast.info("Redirecting to donation page...");
   };
@@ -81,12 +90,15 @@ const DisasterCard = () => {
     setIsSidebarOpen(isOpen);
   };
 
-  // ---- render states ----
   if (isLoading) {
     return (
       <div className={styles.appContainer}>
         <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+        <div
+          className={`${styles.mainContent} ${
+            isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed
+          }`}
+        >
           <div className={styles.cardContainer}>
             <p>Loading reports...</p>
           </div>
@@ -99,7 +111,11 @@ const DisasterCard = () => {
     return (
       <div className={styles.appContainer}>
         <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+        <div
+          className={`${styles.mainContent} ${
+            isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed
+          }`}
+        >
           <div className={styles.cardContainer}>
             <p className={styles.error}>Error: {error}</p>
           </div>
@@ -112,7 +128,11 @@ const DisasterCard = () => {
     return (
       <div className={styles.appContainer}>
         <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-        <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+        <div
+          className={`${styles.mainContent} ${
+            isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed
+          }`}
+        >
           <div className={styles.cardContainer}>
             <p>No disaster reports available at this time.</p>
           </div>
@@ -124,7 +144,11 @@ const DisasterCard = () => {
   return (
     <div className={styles.appContainer}>
       <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-      <div className={`${styles.mainContent} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
+      <div
+        className={`${styles.mainContent} ${
+          isSidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed
+        }`}
+      >
         <header className={styles.pageHeader}>
           <h1>Disaster Reports</h1>
           <p>Stay informed about recent disaster events</p>
@@ -146,10 +170,7 @@ const DisasterCard = () => {
                   <div className={styles.postAvatar}></div>
                   <div>
                     <h3 className={styles.postTitle}>{report.disasterType}</h3>
-                    <p className={styles.postTimestamp}>
-                      {timestamp}
-                      {report.location ? ` · ${report.location}` : ""}
-                    </p>
+                    <p className={styles.postTimestamp}>{timestamp}{report.location ? ` · ${report.location}` : ''}</p>
                   </div>
                 </div>
                 <div className={styles.postContent}>
@@ -167,10 +188,16 @@ const DisasterCard = () => {
                   )}
                 </div>
                 <div className={styles.postActions}>
-                  <button className={styles.actionButton} onClick={handleDonationClick}>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleDonationClick()}
+                  >
                     Donate
                   </button>
-                  <Link to={`/disReport/${report._id}`} className={styles.actionButton}>
+                  <Link
+                    to={`/disReport/${report._id}`}
+                    className={styles.actionButton}
+                  >
                     Details
                   </Link>
                 </div>
@@ -180,7 +207,9 @@ const DisasterCard = () => {
               </div>
             );
           })}
-          {visibleCount < reports.length && <div ref={sentinelRef} style={{ height: 1 }} />}
+          {visibleCount < reports.length && (
+            <div ref={sentinelRef} style={{ height: 1 }} />
+          )}
         </div>
       </div>
     </div>
