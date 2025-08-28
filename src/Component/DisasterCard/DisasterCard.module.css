@@ -54,11 +54,11 @@
 
 .cardContainer {
   width: 100%;
-  max-width: 720px;
+  max-width: 1200px;
   margin: 16px auto;
   padding: 0 12px;
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
   background: transparent;
   border-radius: 0;
@@ -119,7 +119,7 @@
   animation: slideUp 0.5s ease-out;
   display: flex;
   flex-direction: column;
-  min-height: 400px;
+  min-height: 0;
 }
 
 .postCard:hover {
@@ -186,11 +186,7 @@
   margin: 0 0 12px;
   line-height: 1.6;
   font-family: 'Inter', sans-serif;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
 }
 
 .postImage, .cardImage {

@@ -57,6 +57,7 @@ const SocialFeatures = ({ reportId }) => {
   const [showReactionsDetail, setShowReactionsDetail] = useState(false);
   const [reactionsDetail, setReactionsDetail] = useState(null);
   const [activeReactionTab, setActiveReactionTab] = useState('all');
+  const bodyLockStateRef = React.useRef({ locked: false, prevOverflow: '', prevPaddingRight: '' });
 
   // Fetch all social stats (likes, ratings, comments)
   useEffect(() => {
@@ -208,7 +209,11 @@ const SocialFeatures = ({ reportId }) => {
     const onKey = (e) => {
       if (e.key === 'Escape') {
         setShowComments(false);
-        try { document.body.style.overflow = ''; } catch {}
+        try {
+          document.body.style.overflow = bodyLockStateRef.current.prevOverflow || '';
+          document.body.style.paddingRight = bodyLockStateRef.current.prevPaddingRight || '';
+          bodyLockStateRef.current.locked = false;
+        } catch {}
       }
     };
     window.addEventListener('keydown', onKey);
@@ -341,21 +346,43 @@ const SocialFeatures = ({ reportId }) => {
       <div className={styles.commentsSection}>
         <button onClick={() => {
           setShowComments(true);
-          try { document.body.style.overflow = 'hidden'; } catch {}
+          try {
+            const docEl = document.documentElement;
+            const scrollBarWidth = Math.max(0, window.innerWidth - docEl.clientWidth);
+            bodyLockStateRef.current.prevOverflow = document.body.style.overflow;
+            bodyLockStateRef.current.prevPaddingRight = document.body.style.paddingRight;
+            document.body.style.overflow = 'hidden';
+            if (scrollBarWidth) document.body.style.paddingRight = `${scrollBarWidth}px`;
+            bodyLockStateRef.current.locked = true;
+          } catch {}
         }} className={styles.commentsToggle} aria-haspopup="dialog" aria-expanded={showComments}>
           <FaComment /> <span>Comments</span>
           {commentCount > 0 && <span className={styles.commentBadge}>{commentCount}</span>}
         </button>
         {showComments && (
           <div className={styles.commentsOverlay} role="dialog" aria-modal="true">
-            <div className={styles.commentsBackdrop} onClick={() => { setShowComments(false); try { document.body.style.overflow = ''; } catch {} }} />
+            <div className={styles.commentsBackdrop} onClick={() => {
+              setShowComments(false);
+              try {
+                document.body.style.overflow = bodyLockStateRef.current.prevOverflow || '';
+                document.body.style.paddingRight = bodyLockStateRef.current.prevPaddingRight || '';
+                bodyLockStateRef.current.locked = false;
+              } catch {}
+            }} />
             <div className={styles.commentsPanel}>
               <div className={styles.commentsHeader}>
                 <span>Comments</span>
-                <button className={styles.closeButton} onClick={() => { setShowComments(false); try { document.body.style.overflow = ''; } catch {} }} aria-label="Close comments">✕</button>
+                <button className={styles.closeButton} onClick={() => {
+                  setShowComments(false);
+                  try {
+                    document.body.style.overflow = bodyLockStateRef.current.prevOverflow || '';
+                    document.body.style.paddingRight = bodyLockStateRef.current.prevPaddingRight || '';
+                    bodyLockStateRef.current.locked = false;
+                  } catch {}
+                }} aria-label="Close comments">✕</button>
               </div>
               <div className={styles.commentsBody}>
-                <CommentSection reportId={reportId} />
+                <CommentSection reportId={reportId} composerAtBottom={true} />
               </div>
             </div>
           </div>

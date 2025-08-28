@@ -6,7 +6,7 @@ import './CommentSection.css';
 const API_URL = 'https://drm-backend.vercel.app/api' || 'http://localhost:4000/api';
 const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
 
-const CommentSection = ({ reportId }) => {
+const CommentSection = ({ reportId, composerAtBottom = false }) => {
   const [tree, setTree] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -221,30 +221,35 @@ const CommentSection = ({ reportId }) => {
 
   return (
     <div className="comment-section">
-      <div className="input-container">
-        <input
-          type="text"
-          className="input-container__input input-container__input--first"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Type your comment..."
-          aria-label="New comment"
-        />
-        <button
-          className="action action--reply"
-          onClick={() =>
-            handleCreate(newComment, null, () => setNewComment(''))
-          }
-          aria-label="Submit comment"
-        >
-          Comment
-        </button>
-      </div>
+      {!composerAtBottom && (
+        <div className="input-container">
+          <input
+            type="text"
+            className="input-container__input input-container__input--first"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Type your comment..."
+            aria-label="New comment"
+          />
+          <button
+            className="action action--reply"
+            onClick={() =>
+              handleCreate(newComment, null, () => setNewComment(''))
+            }
+            aria-label="Submit comment"
+          >
+            Comment
+          </button>
+        </div>
+      )}
 
       {loading && <p>Loading comments...</p>}
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
 
-      <div className="nested-comments">
+      <div className="nested-comments" onMouseDown={(e) => {
+        // Prevent focus loss on input due to drag/click bubbling
+        if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON')) return;
+      }}>
         {tree.map((node) => (
           <CommentNode
             key={node.id}
@@ -258,6 +263,28 @@ const CommentSection = ({ reportId }) => {
           />
         ))}
       </div>
+
+      {composerAtBottom && (
+        <div className="composer-row">
+          <div className="input-container">
+            <input
+              type="text"
+              className="input-container__input input-container__input--first"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              aria-label="New comment"
+            />
+            <button
+              className="action action--reply"
+              onClick={() => handleCreate(newComment, null, () => setNewComment(''))}
+              aria-label="Submit comment"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
