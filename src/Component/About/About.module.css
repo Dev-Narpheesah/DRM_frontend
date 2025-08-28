@@ -1,12 +1,13 @@
 .aboutSection {
   position: relative;
   background: var(--gradient-primary);
-  padding: 3rem 1rem;
+  padding: 1.5rem 1rem;
   overflow: hidden;
+  margin-bottom: 1rem;
 }
 
 .aboutSection.dark {
-  background: var(--gradient-primary);
+  background: var(--bg-secondary);
 }
 
 .container {
@@ -49,14 +50,15 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
   text-align: left;
 }
 
 .block {
-  background: rgba(31, 58, 138, 0.3);
+  background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border-radius: 12px;
   padding: 1.5rem;
@@ -67,7 +69,7 @@
 
 .block:hover {
   transform: translateY(-6px);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 6px 20px rgba(6, 182, 212, 0.2);
 }
 
 .block h3 {
@@ -86,7 +88,8 @@
 .icon {
   width: 28px;
   height: 28px;
-  color: var(--accent-primary);
+  color: var(--accent-secondary);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
 }
 
 .values {
@@ -109,14 +112,15 @@
 }
 
 .serviceItem {
-  background: rgba(31, 58, 138, 0.3);
+  background: color-mix(in srgb, var(--accent-primary) 18%, transparent);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   padding: 1.5rem;
   border-radius: 12px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-md);
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
   text-align: left;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }

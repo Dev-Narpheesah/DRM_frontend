@@ -41,6 +41,7 @@ const SocialFeatures = ({ reportId }) => {
   };
 
   const [likes, setLikes] = useState({ count: 0, userLiked: false, userReaction: null, distribution: { like:0,love:0,care:0,haha:0,wow:0,sad:0,angry:0 } });
+  const prevLikesRef = React.useRef(null);
   const [ratings, setRatings] = useState({
     average: 0,
     total: 0,
@@ -53,6 +54,9 @@ const SocialFeatures = ({ reportId }) => {
   const barRef = React.useRef(null);
   const [commentCount, setCommentCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showReactionsDetail, setShowReactionsDetail] = useState(false);
+  const [reactionsDetail, setReactionsDetail] = useState(null);
+  const [activeReactionTab, setActiveReactionTab] = useState('all');
 
   // Fetch all social stats (likes, ratings, comments)
   useEffect(() => {
@@ -101,12 +105,30 @@ const SocialFeatures = ({ reportId }) => {
     fetchSocialData();
   }, [reportId, authToken]);
 
+  // Update comment count reactively when this report's comments change
+  useEffect(() => {
+    const eventName = `commentsUpdated:${reportId}`;
+    const handler = async () => {
+      try {
+        const commentsRes = await fetch(`${API_URL}/comments/${reportId}`);
+        if (commentsRes.ok) {
+          const comments = await commentsRes.json();
+          const countComments = (arr) => arr.reduce((acc, c) => acc + 1 + (c.items ? countComments(c.items) : 0), 0);
+          setCommentCount(Array.isArray(comments) ? countComments(comments) : 0);
+        }
+      } catch {}
+    };
+    window.addEventListener(eventName, handler);
+    return () => window.removeEventListener(eventName, handler);
+  }, [reportId]);
+
   // ====== HANDLERS ======
 
   // Optimistic like toggle
   const handleReaction = async (reaction) => {
     // Optimistic update
     setLikes((prev) => {
+      prevLikesRef.current = prev;
       const hadReaction = !!prev.userReaction;
       const prevReaction = prev.userReaction;
       const next = { ...prev, userReaction: reaction === prevReaction ? null : reaction };
@@ -137,19 +159,21 @@ const SocialFeatures = ({ reportId }) => {
       }));
     } catch {
       toast.error("❌ Failed to react");
-      // reload server counts
-      try {
-        const likesRes = await fetch(`${API_URL}/likes/${reportId}/count?sessionId=${encodeURIComponent(sessionId)}`);
-        if (likesRes.ok) {
-          const data = await likesRes.json();
-          setLikes({
-            count: data.likeCount ?? 0,
-            userLiked: !!data.userLiked,
-            userReaction: data.userReaction || null,
-            distribution: data.distribution || { like:0,love:0,care:0,haha:0,wow:0,sad:0,angry:0 },
-          });
-        }
-      } catch {}
+      // Revert optimistic change on failure
+      setLikes((prev) => prevLikesRef.current || prev);
+    }
+  };
+
+  const loadReactionsDetail = async () => {
+    try {
+      const res = await fetch(`${API_URL}/likes/${reportId}/reactions`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setReactionsDetail(data);
+      setActiveReactionTab('all');
+      setShowReactionsDetail(true);
+    } catch {
+      toast.error('Failed to load reactions');
     }
   };
 
@@ -177,6 +201,19 @@ const SocialFeatures = ({ reportId }) => {
       document.removeEventListener('touchstart', handleClickOutside);
     };
   }, [showPicker]);
+
+  // Escape-to-close for comments overlay
+  useEffect(() => {
+    if (!showComments) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setShowComments(false);
+        try { document.body.style.overflow = ''; } catch {}
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showComments]);
 
   // Remove ratings functionality entirely per request
 
@@ -219,7 +256,7 @@ const SocialFeatures = ({ reportId }) => {
             {likes.userReaction ? reactionEmoji[likes.userReaction] : '👍'}
           </span>
           <span>{likes.userReaction ? reactionLabel[likes.userReaction] : 'Like'}</span>
-          <span>· {likes.count}</span>
+          <span role="button" onClick={(e) => { e.stopPropagation(); loadReactionsDetail(); }}>· {likes.count}</span>
         </button>
         {showPicker && (
           <div className={styles.reactionPicker} role="menu">
@@ -241,7 +278,10 @@ const SocialFeatures = ({ reportId }) => {
                 data-label={r.label}
               >
                 <span className={styles.reactionEmoji}>{r.e}</span>
-      </button>
+                <span style={{ fontSize: 10, marginLeft: 4 }} aria-hidden>
+                  {likes?.distribution?.[r.k] ?? 0}
+                </span>
+              </button>
             ))}
         </div>
         )}
@@ -249,13 +289,77 @@ const SocialFeatures = ({ reportId }) => {
 
       {/* Ratings removed per request */}
 
+      {showReactionsDetail && reactionsDetail && (
+        <div className={styles.reactionsDetail}>
+          <div className={styles.reactionsTabs}>
+            {[
+              { k: 'all', label: 'All', e: '✨' },
+              { k: 'like', label: 'Like', e: '👍' },
+              { k: 'love', label: 'Love', e: '❤️' },
+              { k: 'care', label: 'Care', e: '🤗' },
+              { k: 'haha', label: 'Haha', e: '😂' },
+              { k: 'wow', label: 'Wow', e: '😮' },
+              { k: 'sad', label: 'Sad', e: '😢' },
+              { k: 'angry', label: 'Angry', e: '😡' },
+            ].map(t => (
+              <button key={t.k} className={`${styles.reactionsTab} ${activeReactionTab === t.k ? styles.active : ''}`} onClick={() => setActiveReactionTab(t.k)}>
+                <span>{t.e}</span><span>{t.label}</span>
+              </button>
+            ))}
+            <div style={{ marginLeft: 'auto' }}>
+              <button className={styles.reactionsTab} onClick={() => setShowReactionsDetail(false)}>Close</button>
+            </div>
+          </div>
+          <div className={styles.reactionsList}>
+            {(() => {
+              const entries = [];
+              if (activeReactionTab === 'all') {
+                for (const k of ['like','love','care','haha','wow','sad','angry']) {
+                  for (const item of (reactionsDetail?.[k] || [])) {
+                    entries.push({ ...item, reaction: k });
+                  }
+                }
+              } else {
+                for (const item of (reactionsDetail?.[activeReactionTab] || [])) {
+                  entries.push({ ...item, reaction: activeReactionTab });
+                }
+              }
+              if (!entries.length) return <div style={{ padding: 8, color: '#6b7280' }}>No reactions</div>;
+              return entries.map((u) => (
+                <div key={`${u.reaction}-${u.id}`} className={styles.reactionsListItem}>
+                  <span style={{ fontSize: 16 }}>{reactionEmoji[u.reaction]}</span>
+                  <span>{u.name}</span>
+                  {u.isGuest && <span style={{ color: '#6b7280', fontSize: 12 }}>(Guest)</span>}
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Comments 💬 */}
       <div className={styles.commentsSection}>
-        <button onClick={() => setShowComments((p) => !p)} className={styles.commentsToggle}>
+        <button onClick={() => {
+          setShowComments(true);
+          try { document.body.style.overflow = 'hidden'; } catch {}
+        }} className={styles.commentsToggle} aria-haspopup="dialog" aria-expanded={showComments}>
           <FaComment /> <span>Comments</span>
           {commentCount > 0 && <span className={styles.commentBadge}>{commentCount}</span>}
         </button>
-        {showComments && <CommentSection reportId={reportId} />}
+        {showComments && (
+          <div className={styles.commentsOverlay} role="dialog" aria-modal="true">
+            <div className={styles.commentsBackdrop} onClick={() => { setShowComments(false); try { document.body.style.overflow = ''; } catch {} }} />
+            <div className={styles.commentsPanel}>
+              <div className={styles.commentsHeader}>
+                <span>Comments</span>
+                <button className={styles.closeButton} onClick={() => { setShowComments(false); try { document.body.style.overflow = ''; } catch {} }} aria-label="Close comments">✕</button>
+              </div>
+              <div className={styles.commentsBody}>
+                <CommentSection reportId={reportId} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

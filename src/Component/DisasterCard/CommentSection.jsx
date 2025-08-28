@@ -11,23 +11,50 @@ const CommentSection = ({ reportId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newComment, setNewComment] = useState('');
+  const [activeReplyId, setActiveReplyId] = useState(null);
   const isMounted = useRef(true);
+  const currentUser = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+  }, []);
+  const currentName = currentUser?.name || currentUser?.username || currentUser?.email || 'Anonymous';
+
+  const formatRelativeTime = useCallback((dateInput) => {
+    const date = new Date(dateInput);
+    const now = new Date();
+    const diffMs = Math.max(0, now - date);
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+    if (seconds < 60) return `${seconds || 1}s`;
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    if (days < 7) return `${days}d`;
+    if (weeks < 5) return `${weeks}w`;
+    if (months < 12) return `${months}mo`;
+    return `${years}y`;
+  }, []);
 
   const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
-      const res = await fetch(`${API_URL}/comments/${reportId}`, {
+      const res = await fetch(`${API_URL}/comments/${reportId}?page=1&limit=50`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
       if (!res.ok) throw new Error('Failed to fetch comments');
-      const data = await res.json();
+      const payload = await res.json();
+      const data = Array.isArray(payload) ? payload : (payload?.data || []);
       if (!isMounted.current) return;
 
       const flat = Array.isArray(data) ? data : [];
       const normalized = flat.map((c) => ({
         id: c._id,
+        name: c.name || 'Anonymous',
         text: c.text,
         reportId: c.reportId,
         parentId: c.parentId || null,
@@ -55,13 +82,21 @@ const CommentSection = ({ reportId }) => {
   useEffect(() => {
     isMounted.current = true;
     fetchComments();
-    const handler = (e) => {
+    // Use a namespaced event per report to avoid cross-card updates
+    const eventName = `commentsUpdated:${reportId}`;
+    const handler = () => {
+      fetchComments();
+    };
+    window.addEventListener(eventName, handler);
+    // Also listen to legacy global event but gate strictly by reportId
+    const legacyHandler = (e) => {
       if (e?.detail?.reportId === reportId) fetchComments();
     };
-    window.addEventListener('commentsUpdated', handler);
+    window.addEventListener('commentsUpdated', legacyHandler);
     return () => {
       isMounted.current = false;
-      window.removeEventListener('commentsUpdated', handler);
+      window.removeEventListener(eventName, handler);
+      window.removeEventListener('commentsUpdated', legacyHandler);
     };
   }, [reportId, fetchComments]);
 
@@ -104,6 +139,7 @@ const CommentSection = ({ reportId }) => {
     const tempId = `temp-${Date.now()}`;
     const optimisticNode = {
       id: tempId,
+      name: currentName,
       text: trimmed, // ✅ use text, not name
       reportId,
       parentId: parentId || null,
@@ -119,7 +155,7 @@ const CommentSection = ({ reportId }) => {
       const response = await fetch(`${API_URL}/comments/${reportId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed, parentId }),
+        body: JSON.stringify({ name: currentName, text: trimmed, parentId }),
       });
       if (!response.ok) throw new Error('Failed to add comment');
       const saved = await response.json();
@@ -128,10 +164,16 @@ const CommentSection = ({ reportId }) => {
         updateOptimistic(prev, tempId, () => ({
           ...optimisticNode,
           id: saved._id,
+          name: saved.name || currentName,
           text: saved.text,
           optimistic: false,
         }))
       );
+      // Notify this report's listeners to refresh counts
+      const eventName = `commentsUpdated:${reportId}`;
+      window.dispatchEvent(new CustomEvent(eventName));
+      // Legacy global event for backward compatibility
+      window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
     } catch (e) {
       // Revert on failure
       setTree((prev) => deleteOptimistic(prev, tempId));
@@ -167,6 +209,10 @@ const CommentSection = ({ reportId }) => {
         },
       });
       if (!response.ok) throw new Error('Failed to delete comment');
+      // Notify this report's listeners to refresh counts
+      const eventName = `commentsUpdated:${reportId}`;
+      window.dispatchEvent(new CustomEvent(eventName));
+      window.dispatchEvent(new CustomEvent('commentsUpdated', { detail: { reportId } }));
     } catch (e) {
       setTree(prevTree);
       alert('Failed to delete comment');
@@ -203,9 +249,12 @@ const CommentSection = ({ reportId }) => {
           <CommentNode
             key={node.id}
             node={node}
+            activeReplyId={activeReplyId}
+            setActiveReplyId={setActiveReplyId}
             onReply={(text) => handleCreate(text, node.id)}
             onEdit={(text) => handleEdit(node.id, text)}
             onDelete={() => handleDelete(node.id)}
+            formatRelativeTime={formatRelativeTime}
           />
         ))}
       </div>
@@ -213,20 +262,19 @@ const CommentSection = ({ reportId }) => {
   );
 };
 
-const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
-  const [isReplyOpen, setIsReplyOpen] = useState(false);
+const CommentNode = ({ node, onReply, onEdit, onDelete, activeReplyId, setActiveReplyId, formatRelativeTime }) => {
   const [replyText, setReplyText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(node.text || ''); // ✅ use text
   const [expanded, setExpanded] = useState(true);
+  const isReplyOpen = activeReplyId === node.id;
+  const relative = React.useMemo(() => (node.createdAt ? new Date(node.createdAt) : new Date()), [node.createdAt]);
 
   return (
     <div className="comment-container">
       <div className="comment-header">
-        <span className="comment-author">User</span>
-        <span className="comment-time">
-          {new Date(node.createdAt || Date.now()).toLocaleString()}
-        </span>
+        <span className="comment-author">{node.name || 'User'}</span>
+        <span className="comment-time">• {formatRelativeTime(relative)} ago</span>
         {node.optimistic && <span className="comment-pending">sending…</span>}
       </div>
 
@@ -263,8 +311,10 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
 
       <div className="action-container">
         <button
-          className="action action--reply"
-          onClick={() => setIsReplyOpen((v) => !v)}
+          className="action reply-toggle"
+          onClick={() => {
+            setActiveReplyId(isReplyOpen ? null : node.id);
+          }}
           aria-label="Reply to comment"
         >
           {isReplyOpen ? (
@@ -300,34 +350,36 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
       </div>
 
       {isReplyOpen && (
-        <div className="input-container">
+        <div className="reply-row">
           <input
             type="text"
-            className="input-container__input"
+            className="reply-input"
             value={replyText}
             onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Type your reply..."
+            placeholder="Write a reply..."
             aria-label="Reply to comment"
           />
-          <button
-            className="action action--reply"
-            onClick={() => {
-              onReply(replyText);
-              setReplyText('');
-              setIsReplyOpen(false);
-            }}
-          >
-            Reply
-          </button>
-          <button
-            className="action action--reply"
-            onClick={() => {
-              setIsReplyOpen(false);
-              setReplyText('');
-            }}
-          >
-            Cancel
-          </button>
+          <div className="reply-actions">
+            <button
+              className="reply-button"
+              onClick={() => {
+                onReply(replyText);
+                setReplyText('');
+                setActiveReplyId(null);
+              }}
+            >
+              Reply
+            </button>
+            <button
+              className="reply-cancel"
+              onClick={() => {
+                setActiveReplyId(null);
+                setReplyText('');
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
@@ -337,9 +389,12 @@ const CommentNode = ({ node, onReply, onEdit, onDelete }) => {
             <CommentNode
               key={child.id}
               node={child}
+              activeReplyId={activeReplyId}
+              setActiveReplyId={setActiveReplyId}
               onReply={(text) => onReply(text)}
               onEdit={(text) => onEdit(text)}
               onDelete={() => onDelete(child.id)}
+              formatRelativeTime={formatRelativeTime}
             />
           ))}
         </div>

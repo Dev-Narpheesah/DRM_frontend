@@ -1,9 +1,10 @@
 .hero {
   position: relative;
-  height: calc(100vh - 60px);
-  min-height: 500px;
+  height: auto;
+  min-height: calc(100vh - 60px);
+  min-height: calc(100dvh - 60px);
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-color: var(--bg-primary);
   display: flex;
@@ -16,6 +17,12 @@
   margin-top: 60px;
 }
 
+@supports (height: 100svh) {
+  .hero {
+    min-height: calc(100svh - 60px);
+  }
+}
+
 .hero.dark {
   background-color: var(--bg-primary);
 }
@@ -24,6 +31,7 @@
   max-width: 700px;
   padding: 1rem;
   background: var(--gradient-primary);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
@@ -192,7 +200,8 @@
 
 @media (max-width: 767px) {
   .hero {
-    min-height: 400px;
+    min-height: 60vh;
+    min-height: 60svh;
     margin-top: 50px;
     padding: 1.5rem 0.75rem;
   }
