@@ -3,24 +3,19 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  if (requireAdmin) {
+    const adminToken = localStorage.getItem("adminToken");
+    const admin = (() => { try { return JSON.parse(localStorage.getItem("admin") || "null"); } catch { return null; } })();
+    if (!adminToken || !admin) {
+      return <Navigate to="/admin/signin" replace />;
+    }
+    return children;
+  }
 
+  const user = (() => { try { return JSON.parse(localStorage.getItem("user") || "null"); } catch { return null; } })();
   if (!user) {
-    // not logged in → go to signin
     return <Navigate to="/signin" replace />;
   }
-
-  if (requireAdmin && !user.isAdmin) {
-    // user is NOT admin but trying to access admin route
-    return <Navigate to="/user-dashboard" replace />;
-  }
-
-  if (!requireAdmin && user.isAdmin) {
-    // admin trying to access user-only route
-    return <Navigate to="/dashboard" replace />;
-  }
-
-  // ✅ allowed
   return children;
 };
 

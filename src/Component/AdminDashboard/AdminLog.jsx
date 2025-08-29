@@ -94,7 +94,7 @@ const AdminLog = () => {
         </button>
 
         <p className={styles.signupLink}>
-          Don't have an admin account? <Link to="/admin/register">Register</Link>
+          Don't have an admin account? <Link to="/adminReg">Register</Link>
         </p>
 
         {formValidMessage && <p className={styles.errorMessage}>{formValidMessage}</p>}

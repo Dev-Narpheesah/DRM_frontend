@@ -95,6 +95,22 @@ const AdminDashboard = () => {
     [disasters, currentPage]
   );
 
+  // ===== Analytics =====
+  const countInLastDays = (items, dateKey, days = 7) => {
+    const now = Date.now();
+    const windowMs = days * 24 * 60 * 60 * 1000;
+    return items.filter((it) => {
+      const raw = it?.[dateKey] || it?.createdAt || it?.updatedAt;
+      const t = raw ? new Date(raw).getTime() : 0;
+      return t && now - t <= windowMs;
+    }).length;
+  };
+
+  const newUsers7d = useMemo(() => countInLastDays(users, 'createdAt', 7), [users]);
+  const newReports7d = useMemo(() => countInLastDays(disasters, 'date', 7), [disasters]);
+  const resolvedCount = useMemo(() => disasters.filter((d) => d.status === 'Resolved').length, [disasters]);
+  const ongoingCount = useMemo(() => disasters.filter((d) => d.status !== 'Resolved').length, [disasters]);
+
   if (loading) {
     return (
       <div className={styles.loading}>
@@ -146,6 +162,26 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* ✅ Lightweight Analytics */}
+        <div className={styles.statistics}>
+          <div className={styles.statCard}>
+            <h3>New Users (7d)</h3>
+            <p>{newUsers7d}</p>
+          </div>
+          <div className={styles.statCard}>
+            <h3>New Reports (7d)</h3>
+            <p>{newReports7d}</p>
+          </div>
+          <div className={styles.statCard}>
+            <h3>Status Breakdown</h3>
+            <p>
+              <span title="Resolved">✅ {resolvedCount}</span>
+              <span style={{ margin: '0 8px' }}>·</span>
+              <span title="Ongoing">⏳ {ongoingCount}</span>
+            </p>
+          </div>
+        </div>
+
         {/* ✅ Users Table */}
         <div className={styles.tableSection}>
           <h2>Users</h2>
@@ -157,6 +193,7 @@ const AdminDashboard = () => {
                   <th>Email</th>
                   <th>Location</th>
                   <th>Registered</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,11 +204,34 @@ const AdminDashboard = () => {
                       <td>{u.email}</td>
                       <td>{u.location || "N/A"}</td>
                       <td>{formatDate(u.createdAt)}</td>
+                      <td>
+                        <button
+                          className={styles.dangerButton}
+                          onClick={async () => {
+                            if (!window.confirm(`Delete user ${u.username}?`)) return;
+                            try {
+                              const adminToken = localStorage.getItem("adminToken");
+                              const res = await fetch(`https://drm-backend.vercel.app/api/admin/users/${u._id}` , {
+                                method: 'DELETE',
+                                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+                              });
+                              if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                              setUsers((prev) => prev.filter((x) => x._id !== u._id));
+                              toast.success('User deleted');
+                            } catch (e) {
+                              console.error('Delete user error:', e);
+                              toast.error('Failed to delete user');
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4">No users found.</td>
+                    <td colSpan="5">No users found.</td>
                   </tr>
                 )}
               </tbody>
@@ -193,6 +253,7 @@ const AdminDashboard = () => {
                   <th>Deaths</th>
                   <th>Necessities</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,11 +273,60 @@ const AdminDashboard = () => {
                           <FaHourglassHalf className={styles.ongoingIcon} />
                         )}
                       </td>
+                      <td>
+                        {d.status !== 'Resolved' && (
+                          <button
+                            className={styles.primaryButton}
+                            onClick={async () => {
+                              try {
+                                const adminToken = localStorage.getItem("adminToken");
+                                const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${d.id}`, {
+                                  method: 'PUT',
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
+                                  },
+                                  body: JSON.stringify({ status: 'Resolved' })
+                                });
+                                if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                                setDisasters((prev) => prev.map((x) => x.id === d.id ? { ...x, status: 'Resolved' } : x));
+                                toast.success('Report marked as Resolved');
+                              } catch (e) {
+                                console.error('Resolve report error:', e);
+                                toast.error('Failed to resolve report');
+                              }
+                            }}
+                          >
+                            Resolve
+                          </button>
+                        )}
+                        <button
+                          className={styles.dangerButton}
+                          onClick={async () => {
+                            if (!window.confirm('Delete this report?')) return;
+                            try {
+                              const adminToken = localStorage.getItem("adminToken");
+                              const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${d.id}`, {
+                                method: 'DELETE',
+                                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
+                              });
+                              if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                              setDisasters((prev) => prev.filter((x) => x.id !== d.id));
+                              toast.success('Report deleted');
+                            } catch (e) {
+                              console.error('Delete report error:', e);
+                              toast.error('Failed to delete report');
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7">No disaster data available.</td>
+                    <td colSpan="8">No disaster data available.</td>
                   </tr>
                 )}
               </tbody>

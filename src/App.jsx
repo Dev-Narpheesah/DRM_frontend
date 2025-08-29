@@ -43,7 +43,7 @@ function App() {
       <Route path="/dashboard" element={<UserDashboard />} />
       <Route path="/update/:id" element={<UpdateUser />} />
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin-log" element={<AdminLog />} />
+      <Route path="/adminLog" element={<AdminLog />} />
       <Route path="/adminReg" element={<AdminReg />} />
       <Route path="/reports" element={<DisasterCard />} />
       <Route path="/disasters" element={<AllReports />} />

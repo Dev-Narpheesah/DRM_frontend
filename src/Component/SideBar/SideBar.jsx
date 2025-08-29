@@ -33,6 +33,12 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
   };
 
   const handleLogout = () => {
+    if (isAdmin) {
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("admin");
+      window.location.href = "/admin/signin";
+      return;
+    }
     localStorage.removeItem("user");
     window.location.href = "/signin";
   };

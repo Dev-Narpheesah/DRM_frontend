@@ -131,7 +131,7 @@ const AdminReg = () => {
         </button>
 
         <p className={styles.signupLink}>
-          Already registered? <Link to="/admin/signin">Admin Sign In</Link>
+          Already registered? <Link to="/adminLog">Admin Sign In</Link>
         </p>
 
         {formValidMessage && <p className={styles.errorMessage}>{formValidMessage}</p>}
