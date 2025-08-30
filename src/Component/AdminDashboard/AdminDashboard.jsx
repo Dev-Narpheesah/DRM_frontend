@@ -1,35 +1,46 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
-import axios from "axios";
-import { UserContext } from "../../../context/userContext";
-import { useNavigate } from "react-router-dom";
-import Sidebar from "../SideBar/SideBar"; // ✅ New Sidebar
-import styles from "./AdminDashboard.module.css";
-import {
-  FaCheck,
-  FaHourglassHalf,
-  FaArrowLeft,
-  FaArrowRight,
-} from "react-icons/fa";
 import { toast } from "react-toastify";
+import AdminSidebar from "./AdminSidebar";
+import styles from "./AdminDashboard.module.css";
 
 const AdminDashboard = () => {
-  const { user } = useContext(UserContext);
   const [users, setUsers] = useState([]);
   const [disasters, setDisasters] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const itemsPerPage = 10;
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage] = useState(10);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Utility
   const shortenText = (text = "", n) =>
     text?.length > n ? `${text.substring(0, n)}...` : text;
 
   useEffect(() => {
+    // Check admin authentication status
+    const adminToken = localStorage.getItem("adminToken");
+    const adminData = localStorage.getItem("admin");
+    
+    console.log("Admin Dashboard - Auth Check:", {
+      hasToken: !!adminToken,
+      hasAdminData: !!adminData,
+      adminData: adminData ? JSON.parse(adminData) : null
+    });
+    
+    if (!adminToken) {
+      console.error("No admin token found - redirecting to login");
+      // Redirect to admin login if no token
+      window.location.href = "/admin/signin";
+      return;
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const adminToken = localStorage.getItem("adminToken");
+        console.log("Admin token for users:", adminToken ? "Present" : "Missing");
+        
         const res = await fetch("https://drm-backend.vercel.app/api/admin/users", {
           headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
         });
@@ -46,6 +57,8 @@ const AdminDashboard = () => {
     const fetchReports = async () => {
       try {
         const adminToken = localStorage.getItem("adminToken");
+        console.log("Admin token for reports:", adminToken ? "Present" : "Missing");
+        
         const res = await fetch("https://drm-backend.vercel.app/api/admin/reports", {
           headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
         });
@@ -66,10 +79,6 @@ const AdminDashboard = () => {
     };
 
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    // WebSocket removed for Vercel compatibility
   }, []);
 
   const formatDate = (dateString) => {
@@ -109,7 +118,75 @@ const AdminDashboard = () => {
   const newUsers7d = useMemo(() => countInLastDays(users, 'createdAt', 7), [users]);
   const newReports7d = useMemo(() => countInLastDays(disasters, 'date', 7), [disasters]);
   const resolvedCount = useMemo(() => disasters.filter((d) => d.status === 'Resolved').length, [disasters]);
-  const ongoingCount = useMemo(() => disasters.filter((d) => d.status !== 'Resolved').length, [disasters]);
+  const submittedCount = useMemo(() => disasters.filter((d) => d.status === 'Submitted' || !d.status).length, [disasters]);
+  const ongoingCount = useMemo(() => disasters.filter((d) => d.status && d.status !== 'Resolved' && d.status !== 'Submitted').length, [disasters]);
+
+  // ===== Admin Actions =====
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    
+    try {
+      const adminToken = localStorage.getItem("adminToken");
+      const res = await fetch(`https://drm-backend.vercel.app/api/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      
+      toast.success("User deleted successfully");
+      setUsers(users.filter(user => user._id !== userId));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("Failed to delete user");
+    }
+  };
+
+  const handleResolveReport = async (reportId) => {
+    try {
+      const adminToken = localStorage.getItem("adminToken");
+      const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${reportId}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}` 
+        },
+        body: JSON.stringify({ status: "Resolved" }),
+      });
+      
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      
+      toast.success("Report marked as resolved");
+      setDisasters(disasters.map(report => 
+        report._id === reportId 
+          ? { ...report, status: "Resolved" }
+          : report
+      ));
+    } catch (error) {
+      console.error("Error resolving report:", error);
+      toast.error("Failed to resolve report");
+    }
+  };
+
+  const handleDeleteReport = async (reportId) => {
+    if (!window.confirm("Are you sure you want to delete this report?")) return;
+    
+    try {
+      const adminToken = localStorage.getItem("adminToken");
+      const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${reportId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+      
+      toast.success("Report deleted successfully");
+      setDisasters(disasters.filter(report => report._id !== reportId));
+    } catch (error) {
+      console.error("Error deleting report:", error);
+      toast.error("Failed to delete report");
+    }
+  };
 
   if (loading) {
     return (
@@ -123,242 +200,251 @@ const AdminDashboard = () => {
   if (error) {
     return (
       <div className={styles.error}>
+        <h3>Error Loading Dashboard</h3>
         <p>{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className={styles.retryButton}
-        >
-          Retry
-        </button>
+        <button onClick={() => window.location.reload()}>Retry</button>
       </div>
     );
   }
 
   return (
-    <div className={styles.layout}>
-      {/* ✅ Sidebar */}
-      <Sidebar username={user?.username} isAdmin={true} />
-
-      {/* ✅ Main Dashboard */}
-      <main className={styles.dashboard}>
-        <div className={styles.topSection}>
-          <h1>Admin Dashboard</h1>
-          <p>Manage users, reports, and disasters efficiently!</p>
+    <div className={styles.container}>
+      {/* Admin Sidebar */}
+      <AdminSidebar 
+        isOpen={sidebarOpen} 
+        onToggle={setSidebarOpen}
+        stats={{
+          users: users.length,
+          reports: disasters.length,
+          resolved: resolvedCount
+        }}
+      />
+      
+      {/* Main Content */}
+      <div className={`${styles.mainContent} ${sidebarOpen ? styles.withSidebar : styles.withoutSidebar}`}>
+        {/* Dashboard Header */}
+        <div className={styles.dashboardHeader}>
+          <h1 className={styles.dashboardTitle}>Admin Dashboard</h1>
+          <p className={styles.dashboardSubtitle}>
+            Manage users and disaster reports from your community
+          </p>
         </div>
 
-        {/* ✅ Stats */}
-        <div className={styles.statistics}>
-          <div className={styles.statCard}>
-            <h3>Total Users</h3>
-            <p>{users.length}</p>
+      {/* Analytics Cards */}
+      <div className={styles.analyticsGrid}>
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.usersIcon}`}>
+            👥
           </div>
-          <div className={styles.statCard}>
-            <h3>Total Disasters</h3>
-            <p>{disasters.length}</p>
-          </div>
-          <div className={styles.statCard}>
-            <h3>Active Disasters</h3>
-            <p>{disasters.filter((d) => d.status !== "Resolved").length}</p>
-          </div>
+          <div className={styles.analyticsValue}>{users.length}</div>
+          <div className={styles.analyticsLabel}>Total Users</div>
         </div>
 
-        {/* ✅ Lightweight Analytics */}
-        <div className={styles.statistics}>
-          <div className={styles.statCard}>
-            <h3>New Users (7d)</h3>
-            <p>{newUsers7d}</p>
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.reportsIcon}`}>
+            📊
           </div>
-          <div className={styles.statCard}>
-            <h3>New Reports (7d)</h3>
-            <p>{newReports7d}</p>
-          </div>
-          <div className={styles.statCard}>
-            <h3>Status Breakdown</h3>
-            <p>
-              <span title="Resolved">✅ {resolvedCount}</span>
-              <span style={{ margin: '0 8px' }}>·</span>
-              <span title="Ongoing">⏳ {ongoingCount}</span>
-            </p>
-          </div>
+          <div className={styles.analyticsValue}>{disasters.length}</div>
+          <div className={styles.analyticsLabel}>Total Reports</div>
         </div>
 
-        {/* ✅ Users Table */}
-        <div className={styles.tableSection}>
-          <h2>Users</h2>
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.resolvedIcon}`}>
+            ✅
+          </div>
+          <div className={styles.analyticsValue}>{resolvedCount}</div>
+          <div className={styles.analyticsLabel}>Resolved</div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.submittedIcon}`}>
+            📝
+          </div>
+          <div className={styles.analyticsValue}>{submittedCount}</div>
+          <div className={styles.analyticsLabel}>Submitted</div>
+        </div>
+
+        <div className={styles.analyticsCard}>
+          <div className={`${styles.analyticsIcon} ${styles.ongoingIcon}`}>
+            🔄
+          </div>
+          <div className={styles.analyticsValue}>{ongoingCount}</div>
+          <div className={styles.analyticsLabel}>Ongoing</div>
+        </div>
+      </div>
+
+      {/* Content Sections */}
+      <div className={styles.contentGrid}>
+        {/* Users Section */}
+        <div className={styles.contentSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span className={`${styles.sectionIcon} ${styles.usersSectionIcon}`}>
+                👥
+              </span>
+              User Management
+            </h2>
+            <span className={styles.analyticsLabel}>
+              {newUsers7d} new this week
+            </span>
+          </div>
+
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Username</th>
                   <th>Email</th>
-                  <th>Location</th>
-                  <th>Registered</th>
+                  <th>Joined</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.length > 0 ? (
-                  users.map((u) => (
-                    <tr key={u._id}>
-                      <td>{u.username}</td>
-                      <td>{u.email}</td>
-                      <td>{u.location || "N/A"}</td>
-                      <td>{formatDate(u.createdAt)}</td>
+                {users.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>
+                      No users found
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user._id}>
+                      <td>{user.username || "N/A"}</td>
+                      <td>{user.email || "N/A"}</td>
+                      <td>{formatDate(user.createdAt)}</td>
                       <td>
-                        <button
-                          className={styles.dangerButton}
-                          onClick={async () => {
-                            if (!window.confirm(`Delete user ${u.username}?`)) return;
-                            try {
-                              const adminToken = localStorage.getItem("adminToken");
-                              const res = await fetch(`https://drm-backend.vercel.app/api/admin/users/${u._id}` , {
-                                method: 'DELETE',
-                                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-                              });
-                              if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                              setUsers((prev) => prev.filter((x) => x._id !== u._id));
-                              toast.success('User deleted');
-                            } catch (e) {
-                              console.error('Delete user error:', e);
-                              toast.error('Failed to delete user');
-                            }
-                          }}
-                        >
-                          Delete
-                        </button>
+                        <div className={styles.actionButtons}>
+                          <button
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={() => handleDeleteUser(user._id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No users found.</td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* ✅ Disasters Table */}
-        <div className={styles.tableSection}>
-          <h2>Disaster Data</h2>
+        {/* Reports Section */}
+        <div className={styles.contentSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>
+              <span className={`${styles.sectionIcon} ${styles.reportsSectionIcon}`}>
+                📊
+              </span>
+              Disaster Reports
+            </h2>
+            <span className={styles.analyticsLabel}>
+              {newReports7d} new this week
+            </span>
+          </div>
+
           <div className={styles.tableContainer}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Disaster Type</th>
-                  <th>Country</th>
-                  <th>Date</th>
-                  <th>Injured</th>
-                  <th>Deaths</th>
-                  <th>Necessities</th>
+                  <th>Type</th>
+                  <th>Location</th>
                   <th>Status</th>
+                  <th>Date</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {disastersToDisplay.length > 0 ? (
-                  disastersToDisplay.map((d) => (
-                    <tr key={d.id}>
-                      <td>{shortenText(d.disasterType, 20)}</td>
-                      <td>{shortenText(d.country, 20)}</td>
-                      <td>{formatDate(d.date)}</td>
-                      <td>{d.injured}</td>
-                      <td>{d.death}</td>
-                      <td>{shortenText(d.necessity, 20)}</td>
+                {disastersToDisplay.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: "center", padding: "40px" }}>
+                      No reports found
+                    </td>
+                  </tr>
+                ) : (
+                  disastersToDisplay.map((disaster) => (
+                    <tr key={disaster._id}>
+                      <td>{disaster.disasterType || "N/A"}</td>
+                      <td>{shortenText(disaster.location, 30)}</td>
                       <td>
-                        {d.status === "Resolved" ? (
-                          <FaCheck className={styles.resolvedIcon} />
-                        ) : (
-                          <FaHourglassHalf className={styles.ongoingIcon} />
-                        )}
+                        <span className={`${styles.statusBadge} ${
+                          disaster.status === 'Resolved' 
+                            ? styles.statusResolved 
+                            : disaster.status === 'Submitted' || !disaster.status
+                            ? styles.statusSubmitted
+                            : styles.statusOngoing
+                        }`}>
+                          {disaster.status || 'Submitted'}
+                        </span>
                       </td>
+                      <td>{formatDate(disaster.date || disaster.createdAt)}</td>
                       <td>
-                        {d.status !== 'Resolved' && (
+                        <div className={styles.actionButtons}>
+                          {disaster.status !== 'Resolved' && (
+                            <button
+                              className={`${styles.btn} ${styles.btnSuccess}`}
+                              onClick={() => handleResolveReport(disaster._id)}
+                            >
+                              Resolve
+                            </button>
+                          )}
                           <button
-                            className={styles.primaryButton}
-                            onClick={async () => {
-                              try {
-                                const adminToken = localStorage.getItem("adminToken");
-                                const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${d.id}`, {
-                                  method: 'PUT',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    ...(adminToken ? { Authorization: `Bearer ${adminToken}` } : {}),
-                                  },
-                                  body: JSON.stringify({ status: 'Resolved' })
-                                });
-                                if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                                setDisasters((prev) => prev.map((x) => x.id === d.id ? { ...x, status: 'Resolved' } : x));
-                                toast.success('Report marked as Resolved');
-                              } catch (e) {
-                                console.error('Resolve report error:', e);
-                                toast.error('Failed to resolve report');
-                              }
-                            }}
+                            className={`${styles.btn} ${styles.btnDanger}`}
+                            onClick={() => handleDeleteReport(disaster._id)}
                           >
-                            Resolve
+                            Delete
                           </button>
-                        )}
-                        <button
-                          className={styles.dangerButton}
-                          onClick={async () => {
-                            if (!window.confirm('Delete this report?')) return;
-                            try {
-                              const adminToken = localStorage.getItem("adminToken");
-                              const res = await fetch(`https://drm-backend.vercel.app/api/admin/reports/${d.id}`, {
-                                method: 'DELETE',
-                                headers: adminToken ? { Authorization: `Bearer ${adminToken}` } : {},
-                              });
-                              if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                              setDisasters((prev) => prev.filter((x) => x.id !== d.id));
-                              toast.success('Report deleted');
-                            } catch (e) {
-                              console.error('Delete report error:', e);
-                              toast.error('Failed to delete report');
-                            }
-                          }}
-                        >
-                          Delete
-                        </button>
+                        </div>
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan="8">No disaster data available.</td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
 
           {/* Pagination */}
+          {disasters.length > itemsPerPage && (
           <div className={styles.pagination}>
             <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 0))}
+                className={`${styles.paginationBtn} ${currentPage === 0 ? styles.active : ''}`}
+                onClick={() => setCurrentPage(0)}
+                disabled={currentPage === 0}
+              >
+                First
+              </button>
+              <button
+                className={styles.paginationBtn}
+                onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 0}
-              className={styles.pageButton}
             >
-              <FaArrowLeft />
+                Previous
             </button>
-            <span>
+              <span className={styles.pageInfo}>
               Page {currentPage + 1} of {Math.ceil(disasters.length / itemsPerPage)}
             </span>
             <button
-              onClick={() =>
-                setCurrentPage((p) =>
-                  (p + 1) * itemsPerPage < disasters.length ? p + 1 : p
-                )
-              }
-              disabled={(currentPage + 1) * itemsPerPage >= disasters.length}
-              className={styles.pageButton}
-            >
-              <FaArrowRight />
+                className={styles.paginationBtn}
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage >= Math.ceil(disasters.length / itemsPerPage) - 1}
+              >
+                Next
+              </button>
+              <button
+                className={`${styles.paginationBtn} ${
+                  currentPage === Math.ceil(disasters.length / itemsPerPage) - 1 ? styles.active : ''
+                }`}
+                onClick={() => setCurrentPage(Math.ceil(disasters.length / itemsPerPage) - 1)}
+                disabled={currentPage >= Math.ceil(disasters.length / itemsPerPage) - 1}
+              >
+                Last
             </button>
           </div>
+          )}
         </div>
-      </main>
+      </div>
+    </div>
     </div>
   );
 };
