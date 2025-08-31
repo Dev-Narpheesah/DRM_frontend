@@ -1,19 +1,12 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
-  Home as HomeIcon,
   LogOut,
-  Users,
-  FileText,
   Shield,
   BarChart3,
   Settings,
-  Bell,
   User,
-  AlertTriangle,
   CheckCircle,
-  Clock,
-  Plus,
   Menu,
   X
 } from "lucide-react";
@@ -43,21 +36,9 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
       description: "Overview and analytics"
     },
     { 
-      name: "Users", 
-      icon: Users, 
-      path: "/admin/users",
-      description: "Manage user accounts"
-    },
-    { 
-      name: "Reports", 
-      icon: FileText, 
-      path: "/admin/reports",
-      description: "Disaster reports"
-    },
-    { 
       name: "Settings", 
       icon: Settings, 
-      path: "/admin/settings",
+      path: "/admin",
       description: "Admin preferences"
     },
   ];
@@ -152,27 +133,24 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
           </ul>
         </nav>
 
-        {/* Quick Stats */}
-        <div className={styles.quickStats}>
-          <h4 className={styles.statsTitle}>Quick Stats</h4>
-          <div className={styles.statsGrid}>
-            <div className={styles.statItem}>
-              <Users size={16} />
-              <span>{stats.users || 0}</span>
-              <small>Users</small>
-            </div>
-            <div className={styles.statItem}>
-              <FileText size={16} />
-              <span>{stats.reports || 0}</span>
-              <small>Reports</small>
-            </div>
-            <div className={styles.statItem}>
-              <CheckCircle size={16} />
-              <span>{stats.resolved || 0}</span>
-              <small>Resolved</small>
-            </div>
-          </div>
-        </div>
+                 {/* Quick Stats */}
+         <div className={styles.quickStats}>
+           <h4 className={styles.statsTitle}>Quick Stats</h4>
+           <div className={styles.statsGrid}>
+             <div className={styles.statItem}>
+               <span className={styles.statValue}>{stats.users || 0}</span>
+               <small>Users</small>
+             </div>
+             <div className={styles.statItem}>
+               <span className={styles.statValue}>{stats.reports || 0}</span>
+               <small>Reports</small>
+             </div>
+             <div className={styles.statItem}>
+               <span className={styles.statValue}>{stats.resolved || 0}</span>
+               <small>Resolved</small>
+             </div>
+           </div>
+         </div>
 
         {/* Footer */}
         <div className={styles.footer}>
