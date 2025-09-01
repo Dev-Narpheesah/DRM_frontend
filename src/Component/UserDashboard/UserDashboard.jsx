@@ -6,8 +6,8 @@ import styles from "./UserDashboard.module.css";
 const UserDashboard = () => {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState("");
+  const [isActiveAccount, setIsActiveAccount] = useState(true);
 
-  // Read signed-in user from localStorage set by SignIn
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userEmail = storedUser?.email;
   const authToken = storedUser?.token;
@@ -18,7 +18,6 @@ const UserDashboard = () => {
         throw new Error("Please sign in to view your reports");
       }
 
-      // Combine token-owned and email-submitted reports
       const [byToken, byEmail] = await Promise.all([
         fetch("https://drm-backend.vercel.app/api/reports/my", {
           headers: {
@@ -57,12 +56,11 @@ const UserDashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userEmail]);
 
-  // WebSocket removed for Vercel compatibility
   useEffect(() => {}, [userEmail]);
 
   const greetingName = storedUser?.username || storedUser?.email || "User";
+  const avatarUrl = userEmail ? `https://i.pravatar.cc/160?u=${encodeURIComponent(userEmail)}` : "https://i.pravatar.cc/160";
 
-  // Memoized notifications: recent (48h) or pending
   const notificationCount = useMemo(() => {
     const now = Date.now();
     return reports.filter((r) => {
@@ -72,11 +70,16 @@ const UserDashboard = () => {
     }).length;
   }, [reports]);
 
+  const latestReports = useMemo(() => {
+    const sorted = [...reports].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    return sorted.slice(0, 4);
+  }, [reports]);
+
   if (!userEmail) {
     return (
       <div className={styles.layout}>
         <Sidebar username={"Guest"} notificationCount={0} />
-        <main className={styles.dashboardContainer}>
+        <main className={styles.dashboardMain}>
           <p className={styles.error}>You need to sign in to view your dashboard.</p>
           <p>
             <a href="/">Go back home</a>
@@ -90,55 +93,92 @@ const UserDashboard = () => {
     <div className={styles.layout}>
       <Sidebar username={greetingName} notificationCount={notificationCount} />
 
-      <main className={styles.dashboardContainer}>
-        <h2 className={styles.greeting}>Hi {greetingName} </h2>
-        <p className={styles.subHeading}>Here are your submitted reports:</p>
+      <main className={styles.dashboardMain}>
+        <div className={styles.headerRow}>
+          <div>
+            <h1 className={styles.title}>Dashboard</h1>
+            <p className={styles.subtitle}>Welcome to DRM portal</p>
+          </div>
+          <div className={styles.helloBox}>
+            <img src={avatarUrl} alt={greetingName} className={styles.avatar} onError={(e)=>{ e.currentTarget.style.visibility = "hidden"; }} />
+            <span className={styles.helloText}>Hello {greetingName}</span>
+          </div>
+        </div>
 
         {error && <p className={styles.error}>{error}</p>}
 
-        <div className={styles.tableWrapper}>
-          {reports.length > 0 ? (
-            <table className={styles.reportTable}>
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Disaster Type</th>
-                  <th>Location</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((report) => (
-                  <tr key={report._id}>
-                    <td>
-                      {report.image?.url ? (
-                        <img
-                          src={report.image.url}
-                          alt={report.disasterType || "disaster"}
-                          style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
-                          onError={(e) => (e.currentTarget.style.display = "none")}
-                        />
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                    <td>{report.disasterType || "-"}</td>
-                    <td>{report.location || "-"}</td>
-                    <td>
-                      {report.createdAt
-                        ? new Date(report.createdAt).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    <td>{report.status || "Pending"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className={styles.noReports}>No reports submitted yet.</p>
-          )}
-        </div>
+        <section className={styles.grid}>
+          <article className={`${styles.card} ${styles.profileCard}`}>
+            <div className={styles.profileImageWrap}>
+              <img src={avatarUrl} alt={greetingName} className={styles.profileImage} onError={(e)=>{ e.currentTarget.style.display = "none"; }} />
+            </div>
+            <div className={styles.profileContent}>
+              <h3 className={styles.cardTitle}>My Profile</h3>
+              <div className={styles.profileFields}>
+                <div className={styles.fieldRow}>
+                  <span className={styles.fieldLabel}>Name</span>
+                  <span className={styles.fieldValue}>{greetingName}</span>
+                </div>
+                <div className={styles.fieldRow}>
+                  <span className={styles.fieldLabel}>Email</span>
+                  <span className={styles.fieldValue}>{userEmail}</span>
+                </div>
+              </div>
+              <button className={`${styles.ctaBtn} ${styles.saveBtn}`}>Save</button>
+            </div>
+          </article>
+
+          <article className={`${styles.card} ${styles.accountsCard}`}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>My account</h3>
+              <button className={`${styles.ctaBtn} ${styles.editBtn}`}>Edit</button>
+            </div>
+            <ul className={styles.itemList}>
+              <li className={styles.itemRow}>
+                <span>Active account</span>
+                <button
+                  className={`${styles.pillBtn} ${isActiveAccount ? styles.block : styles.unblock}`}
+                  onClick={() => setIsActiveAccount((v) => !v)}
+                >
+                  {isActiveAccount ? "Block" : "Unblock"}
+                </button>
+              </li>
+              <li className={styles.itemRow}>
+                <span>Blocked account</span>
+                <button
+                  className={`${styles.pillBtn} ${!isActiveAccount ? styles.unblock : styles.block}`}
+                  onClick={() => setIsActiveAccount((v) => !v)}
+                >
+                  {!isActiveAccount ? "Unblock" : "Block"}
+                </button>
+              </li>
+            </ul>
+          </article>
+
+          <article className={`${styles.card} ${styles.reportsCard}`}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>My reports</h3>
+            </div>
+            {latestReports.length === 0 ? (
+              <p className={styles.noReports}>No reports submitted yet.</p>
+            ) : (
+              <ul className={styles.itemList}>
+                {latestReports.map((r) => {
+                  const status = (r?.status || "Pending").toLowerCase();
+                  return (
+                    <li className={styles.itemRow} key={r._id}>
+                      <span>{r?.disasterType || "Report"}</span>
+                      <span className={`${styles.badge} ${status === "pending" ? styles.badgePending : status === "resolved" ? styles.badgeSuccess : styles.badgeInfo}`}>
+                        {r?.status || "Pending"}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+            <a className={styles.viewAll} href="/reports">View all</a>
+          </article>
+        </section>
       </main>
     </div>
   );
