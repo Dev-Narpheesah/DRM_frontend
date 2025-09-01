@@ -329,19 +329,19 @@ const AdminDashboard = () => {
         <span className={styles.analyticsLabel}>
           {newUsers7d} new this week
         </span>
-      </div>
+        </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Email</th>
               <th>Joined</th>
               <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+                </tr>
+              </thead>
+              <tbody>
             {users.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>
@@ -364,12 +364,12 @@ const AdminDashboard = () => {
                       </button>
                     </div>
                   </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
     </div>
   );
 
@@ -385,20 +385,20 @@ const AdminDashboard = () => {
         <span className={styles.analyticsLabel}>
           {newReports7d} new this week
         </span>
-      </div>
+        </div>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
+          <div className={styles.tableContainer}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
               <th>Type</th>
               <th>Location</th>
               <th>Status</th>
-              <th>Date</th>
+                  <th>Date</th>
               <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+                </tr>
+              </thead>
+              <tbody>
             {disastersToDisplay.length === 0 ? (
               <tr>
                 <td colSpan="5" style={{ textAlign: "center", padding: "40px" }}>
@@ -439,18 +439,18 @@ const AdminDashboard = () => {
                         Delete
                       </button>
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-      {/* Pagination */}
+          {/* Pagination */}
       {disasters.length > itemsPerPage && (
-        <div className={styles.pagination}>
-          <button
+          <div className={styles.pagination}>
+            <button
             className={`${styles.paginationBtn} ${currentPage === 0 ? styles.active : ''}`}
             onClick={() => setCurrentPage(0)}
             disabled={currentPage === 0}
@@ -460,7 +460,7 @@ const AdminDashboard = () => {
           <button
             className={styles.paginationBtn}
             onClick={() => setCurrentPage(currentPage - 1)}
-            disabled={currentPage === 0}
+              disabled={currentPage === 0}
           >
             Previous
           </button>
@@ -562,7 +562,7 @@ const AdminDashboard = () => {
             >
               Export Data
             </button>
-            <button 
+            <button
               className={`${styles.btn} ${styles.btnDanger}`}
               onClick={() => toast.warning("This action cannot be undone")}
             >
