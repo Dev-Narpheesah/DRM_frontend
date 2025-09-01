@@ -43,7 +43,7 @@ const HeroSection = () => {
   }, []);
 
   return (
-    <section 
+    <section
       className={`${styles.hero} ${isDarkMode ? styles.dark : ''}`}
       style={{ backgroundImage: `url(${heroImages[currentSlide].url})` }}
       role="banner"
@@ -51,13 +51,41 @@ const HeroSection = () => {
       <div className={styles.heroContent}>
         <h1 className={styles.heroTitle}>{heroImages[currentSlide].title}</h1>
         <p className={styles.heroSubtitle}>{heroImages[currentSlide].subtitle}</p>
+
+        <div className={styles.ratingRow} aria-label="platform rating">
+          <div className={styles.stars} aria-hidden="true">
+            <span>★</span>
+            <span>★</span>
+            <span>★</span>
+            <span>★</span>
+            <span>★</span>
+          </div>
+          <span className={styles.ratingScore}>5.0</span>
+          <span className={styles.ratingText}>from 50+ reviews</span>
+        </div>
+
         <div className={styles.heroButtons}>
-          <Link to="/donate" className={`${styles.heroButton} ${styles.primary}`} aria-label="Donate now">
-            Donate Now
+          <Link to="/disForm" className={`${styles.heroButton} ${styles.primary}`} aria-label="Get started">
+            Get Started
           </Link>
-          <Link to="/disForm" className={`${styles.heroButton} ${styles.secondary}`} aria-label="Report a disaster">
-            Report Disaster
+          <Link to="/disasters" className={`${styles.heroButton} ${styles.secondary}`} aria-label="Try the demo">
+            Try Demo
           </Link>
+        </div>
+      </div>
+
+      <div className={styles.metrics} aria-label="key platform metrics">
+        <div className={styles.metricCard}>
+          <div className={styles.metricValue}>100+</div>
+          <div className={styles.metricLabel}>Communities Supported</div>
+        </div>
+        <div className={styles.metricCard}>
+          <div className={styles.metricValue}>1951+</div>
+          <div className={styles.metricLabel}>Total Reports</div>
+        </div>
+        <div className={styles.metricCard}>
+          <div className={styles.metricValue}>6+</div>
+          <div className={styles.metricLabel}>Response Partners</div>
         </div>
       </div>
 
