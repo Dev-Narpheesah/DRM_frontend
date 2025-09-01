@@ -13,7 +13,7 @@ function Header() {
           <li><a href="#about">About</a></li>
         </ul>
       </nav>
-      <button className={styles.sign-up}>Sign Up</button>
+      <button className={styles["sign-up"]}>Sign Up</button>
     </header>
   );
 }
