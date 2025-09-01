@@ -56,7 +56,7 @@ const Contact = () => {
           value={formData.name}
           onChange={handleChange}
         />
-        {formErrors.name && <p className={styes.error}>{formErrors.name}</p>}
+        {formErrors.name && <p className={styles.error}>{formErrors.name}</p>}
 
         <label htmlFor="email">Email</label>
         <input
