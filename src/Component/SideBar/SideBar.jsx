@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Home as HomeIcon,
   LogOut,
@@ -22,10 +22,9 @@ import styles from "./SideBar.module.css";
 
 const API_URL = "https://drm-backend.vercel.app/api";
 
-const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
+const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isOpen);
   const navigate = useNavigate();
- 
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -36,20 +35,18 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
     if (isAdmin) {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("admin");
-      window.location.href = "/admin/signin";
+      navigate("/admin/signin"); // ✅ use client-side navigation
       return;
     }
     localStorage.removeItem("user");
-    window.location.href = "/signin";
+    navigate("/signin"); // ✅ use client-side navigation
   };
-
-
 
   // Menu for regular users
   const userMenu = [
     { name: "Home", icon: HomeIcon, path: "/" },
     { name: "Dashboard", icon: ChartBarIcon, path: "/dashboard" },
-    { name: "My Reports", icon: ClipboardDocumentListIcon, path: "/reports" },
+    { name: "Reports", icon: ClipboardDocumentListIcon, path: "/reports" },
     { name: "Report Disaster", icon: ExclamationTriangleIcon, path: "/disForm" },
     { name: "Profile", icon: UserIcon, path: "/profile" },
     { name: "Settings", icon: CogIcon, path: "/settings" },
@@ -83,7 +80,9 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
 
       {/* Optional backdrop for mobile when open */}
       <div
-        className={`${styles.backdrop} ${isSidebarOpen ? styles.backdropVisible : ""}`}
+        className={`${styles.backdrop} ${
+          isSidebarOpen ? styles.backdropVisible : ""
+        }`}
         onClick={toggleSidebar}
         aria-hidden="true"
       />
@@ -109,16 +108,15 @@ const Sidebar = ({ username, isAdmin, isOpen = true, onToggle}) => {
         <div className={styles.userBox}>
           <Shield size={20} />
           <span>{isAdmin ? `Admin: ${username}` : username}</span>
-          {/* Notification bell */}
-          <button
+          {/* Notification bell (optional) */}
+          {/* <button
             className={styles.bellBtn}
             aria-label={"Notifications"}
             title={"Notifications"}
             onClick={(e)=> e.preventDefault()}
           >
             <BellAlertIcon className={styles.icon} />
-            
-          </button>
+          </button> */}
         </div>
 
         <nav className={styles.nav}>
