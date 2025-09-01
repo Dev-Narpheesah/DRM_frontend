@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/* Theme tokens aligned with the design */
+:root {
+  --bg: 246 247 249; /* page background */
+  --panel: 255 255 255; /* cards */
+  --muted: 100 116 139; /* slate-500 */
+  --border: 226 232 240; /* slate-200 */
+  --ring: 99 102 241; /* indigo-500 */
+  --brand: 79 70 229; /* indigo-600 */
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-[rgb(var(--bg))] text-slate-800 antialiased;
+}
+
+.card {
+  @apply bg-[rgb(var(--panel))] rounded-xl border border-[rgb(var(--border))] shadow-sm;
+}
+
+.muted {
+  @apply text-slate-500;
+}
+
+.btn {
+  @apply inline-flex items-center gap-2 rounded-lg border border-[rgb(var(--border))] bg-white px-3 py-2 text-sm font-medium hover:bg-slate-50;
+}
