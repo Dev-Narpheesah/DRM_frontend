@@ -24,6 +24,7 @@ import CommentSection from "./Component/DisasterCard/CommentSection";
 import Settings from "./Component/Settings/Settings";
 import DonationForm from "./Component/Help/DonationForm";
 import AllReports from "./Component/DisasterCard/AllReports";
+import DonationsList from "./Component/Help/DonationList";
 
 
 // Notifications and Saved removed per request
@@ -50,6 +51,7 @@ function App() {
       <Route path="/disReport/:id" element={<DisasterReport />} />
       <Route path="/disForm" element={<DisasterForm />} />
       <Route path="/donate" element={<DonationForm />} />
+      <Route path="/donation" element={<DonationsList />} />
       <Route path="/emergency" element={<Emergency />} />
       <Route path="/comment" element={<CommentSection />} />
       <Route path="/settings" element={<Settings />} />

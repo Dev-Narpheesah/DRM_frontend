@@ -8,7 +8,8 @@ import {
   User,
   CheckCircle,
   Menu,
-  X
+  X,
+  HeartHandshake
 } from "lucide-react";
 import styles from "./AdminSidebar.module.css";
 
@@ -36,11 +37,17 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
       description: "Overview and analytics"
     },
     { 
+      name: "Donations", 
+      icon: HeartHandshake, 
+      path: "/donations",
+      description: "Manage & view donations"
+    },
+    { 
       name: "Settings", 
       icon: Settings, 
-      path: "/admin",
+      path: "/admin/settings",
       description: "Admin preferences"
-    },
+    }
   ];
 
   const getAdminData = () => {
@@ -115,7 +122,6 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
                     to={item.path}
                     className={`${styles.menuLink} ${isActive ? styles.active : ''}`}
                     onClick={() => {
-                      // If it's the same path, scroll to top
                       if (location.pathname === item.path) {
                         window.scrollTo(0, 0);
                       }
@@ -133,24 +139,28 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
           </ul>
         </nav>
 
-                 {/* Quick Stats */}
-         <div className={styles.quickStats}>
-           <h4 className={styles.statsTitle}>Quick Stats</h4>
-           <div className={styles.statsGrid}>
-             <div className={styles.statItem}>
-               <span className={styles.statValue}>{stats.users || 0}</span>
-               <small>Users</small>
-             </div>
-             <div className={styles.statItem}>
-               <span className={styles.statValue}>{stats.reports || 0}</span>
-               <small>Reports</small>
-             </div>
-             <div className={styles.statItem}>
-               <span className={styles.statValue}>{stats.resolved || 0}</span>
-               <small>Resolved</small>
-             </div>
-           </div>
-         </div>
+        {/* Quick Stats */}
+        <div className={styles.quickStats}>
+          <h4 className={styles.statsTitle}>Quick Stats</h4>
+          <div className={styles.statsGrid}>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{stats.users || 0}</span>
+              <small>Users</small>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{stats.reports || 0}</span>
+              <small>Reports</small>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{stats.resolved || 0}</span>
+              <small>Resolved</small>
+            </div>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{stats.donations || 0}</span>
+              <small>Donations</small>
+            </div>
+          </div>
+        </div>
 
         {/* Footer */}
         <div className={styles.footer}>

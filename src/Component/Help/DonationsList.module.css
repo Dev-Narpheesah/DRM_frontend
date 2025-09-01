@@ -1,0 +1,48 @@
+.container {
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1e293b;
+}
+
+.loading,
+.error,
+.noData {
+  font-size: 1rem;
+  color: #475569;
+  padding: 10px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table th {
+  text-align: left;
+  padding: 12px;
+  background: #f1f5f9;
+  font-weight: 600;
+  color: #334155;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+.table tr:hover {
+  background: #f8fafc;
+  transition: background 0.3s ease;
+}

@@ -6,6 +6,8 @@ import styles from "./AdminDashboard.module.css";
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [disasters, setDisasters] = useState([]);
+const [donations, setDonations] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
@@ -99,10 +101,29 @@ const AdminDashboard = () => {
       }
     };
 
+ const fetchDonations = async () => {
+  try {
+    const res = await fetch("https://drm-backend.vercel.app/api/donations");
+
+    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+    const data = await res.json();
+    console.log("Donations API data:", data);
+
+    // ✅ Correct way to set donations
+    setDonations(Array.isArray(data.donations) ? data.donations : []);
+  } catch (error) {
+    console.error("Error fetching donations:", error);
+    toast.error("Failed to fetch donations.");
+  }
+};
+
+
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      await Promise.all([fetchUsers(), fetchReports()]);
+      await Promise.all([fetchUsers(), fetchReports(), fetchDonations()]);
       setLoading(false);
     };
 
@@ -252,70 +273,114 @@ const AdminDashboard = () => {
   }
 
   const renderOverview = () => (
-    <>
-      {/* Analytics Cards */}
-      <div className={styles.analyticsGrid}>
-        <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.usersIcon}`}>
-            👥
-          </div>
-          <div className={styles.analyticsValue}>{users.length}</div>
-          <div className={styles.analyticsLabel}>Total Users</div>
-        </div>
-
-        <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.reportsIcon}`}>
-            📊
-          </div>
-          <div className={styles.analyticsValue}>{disasters.length}</div>
-          <div className={styles.analyticsLabel}>Total Reports</div>
-        </div>
-
-        <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.resolvedIcon}`}>
-            ✅
-          </div>
-          <div className={styles.analyticsValue}>{resolvedCount}</div>
-          <div className={styles.analyticsLabel}>Resolved</div>
-        </div>
-
-        <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.submittedIcon}`}>
-            📝
-          </div>
-          <div className={styles.analyticsValue}>{submittedCount}</div>
-          <div className={styles.analyticsLabel}>Submitted</div>
-        </div>
-
-        <div className={styles.analyticsCard}>
-          <div className={`${styles.analyticsIcon} ${styles.ongoingIcon}`}>
-            🔄
-          </div>
-          <div className={styles.analyticsValue}>{ongoingCount}</div>
-          <div className={styles.analyticsLabel}>Ongoing</div>
-        </div>
+  <>
+    {/* Analytics Cards */}
+    <div className={styles.analyticsGrid}>
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.usersIcon}`}>👥</div>
+        <div className={styles.analyticsValue}>{users.length}</div>
+        <div className={styles.analyticsLabel}>Total Users</div>
       </div>
 
-      {/* Quick Stats */}
-      <div className={styles.quickStatsSection}>
-        <h3>Recent Activity</h3>
-        <div className={styles.statsRow}>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>{newUsers7d}</span>
-            <small>New Users (7 Days)</small>
-          </div>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>{newReports7d}</span>
-            <small>New Reports (7 Days)</small>
-          </div>
-          <div className={styles.statItem}>
-            <span className={styles.statValue}>{resolvedCount}</span>
-            <small>Total Resolved</small>
-          </div>
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.reportsIcon}`}>📊</div>
+        <div className={styles.analyticsValue}>{disasters.length}</div>
+        <div className={styles.analyticsLabel}>Total Reports</div>
+      </div>
+
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.resolvedIcon}`}>✅</div>
+        <div className={styles.analyticsValue}>{resolvedCount}</div>
+        <div className={styles.analyticsLabel}>Resolved</div>
+      </div>
+
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.submittedIcon}`}>📝</div>
+        <div className={styles.analyticsValue}>{submittedCount}</div>
+        <div className={styles.analyticsLabel}>Submitted</div>
+      </div>
+
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.ongoingIcon}`}>🔄</div>
+        <div className={styles.analyticsValue}>{ongoingCount}</div>
+        <div className={styles.analyticsLabel}>Ongoing</div>
+      </div>
+
+      {/* ✅ Total Donations Card */}
+      <div className={styles.analyticsCard}>
+        <div className={`${styles.analyticsIcon} ${styles.donationIcon}`}>💰</div>
+        <div className={styles.analyticsValue}>
+          ₦{donations.reduce((sum, d) => sum + Number(d.amount || 0), 0).toLocaleString()}
+        </div>
+        <div className={styles.analyticsLabel}>Total Donations</div>
+      </div>
+    </div>
+
+    {/* Quick Stats */}
+    <div className={styles.quickStatsSection}>
+      <h3>Recent Activity</h3>
+      <div className={styles.statsRow}>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{newUsers7d}</span>
+          <small>New Users (7 Days)</small>
+        </div>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{newReports7d}</span>
+          <small>New Reports (7 Days)</small>
+        </div>
+        <div className={styles.statItem}>
+          <span className={styles.statValue}>{resolvedCount}</span>
+          <small>Total Resolved</small>
         </div>
       </div>
-    </>
-  );
+    </div>
+  </>
+);
+
+const renderDonations = () => (
+  <div className={styles.contentSection}>
+    <div className={styles.sectionHeader}>
+      <h2 className={styles.sectionTitle}>
+        <span className={`${styles.sectionIcon} ${styles.donationsSectionIcon}`}>💰</span>
+        Donations
+      </h2>
+    </div>
+
+    <div className={styles.tableContainer}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>Donor Name</th>
+            <th>Email</th>
+            <th>Amount (₦)</th>
+            <th>Message</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {donations.length === 0 ? (
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center", padding: "40px" }}>
+                No donations found
+              </td>
+            </tr>
+          ) : (
+            donations.map((don) => (
+              <tr key={don._id}>
+                <td>{don.fullName}</td>
+                <td>{don.email}</td>
+                <td>₦{Number(don.amount).toLocaleString()}</td>
+                <td>{don.message}</td>
+                <td>{formatDate(don.createdAt)}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
 
   const renderUsers = () => (
     <div className={styles.contentSection}>
@@ -488,6 +553,17 @@ const AdminDashboard = () => {
     </div>
   );
 
+ <div className={styles.analyticsCard}>
+  <div className={`${styles.analyticsIcon} ${styles.donationIcon}`}>
+    💰
+  </div>
+  <div className={styles.analyticsValue}>₦
+    {donations.reduce((sum, d) => sum + Number(d.amount || 0), 0).toLocaleString()}
+  </div>
+  <div className={styles.analyticsLabel}>Total Donations</div>
+</div>
+
+
   const renderSettings = () => (
     <div className={styles.contentSection}>
       <div className={styles.sectionHeader}>
@@ -580,6 +656,8 @@ const AdminDashboard = () => {
         return renderUsers();
       case 'reports':
         return renderReports();
+         case 'donations':
+      return renderDonations();
       case 'settings':
         return renderSettings();
       default:
@@ -631,6 +709,13 @@ const AdminDashboard = () => {
             📋 Reports
           </button>
           <button
+  className={`${styles.tabButton} ${activeTab === 'donations' ? styles.active : ''}`}
+  onClick={() => setActiveTab('donations')}
+>
+  💰 Donations
+</button>
+
+          <button
             className={`${styles.tabButton} ${activeTab === 'settings' ? styles.active : ''}`}
             onClick={() => setActiveTab('settings')}
           >
@@ -641,6 +726,7 @@ const AdminDashboard = () => {
         {/* Tab Content */}
         {renderContent()}
       </div>
+
     </div>
   );
 };

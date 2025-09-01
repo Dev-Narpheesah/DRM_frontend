@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FlutterWaveButton, closePaymentModal } from "flutterwave-react-v3";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import styles from "./DonationForm.module.css";
 
 const DonationForm = () => {
@@ -12,16 +13,41 @@ const DonationForm = () => {
   });
   const [toast, setToast] = useState({ show: false, type: "", message: "" });
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (toast.show) {
-      const timer = setTimeout(() => setToast({ show: false, type: "", message: "" }), 4000);
+      const timer = setTimeout(
+        () => setToast({ show: false, type: "", message: "" }),
+        4000
+      );
       return () => clearTimeout(timer);
     }
   }, [toast]);
 
+  // ✅ Validation before payment
+  const handleValidation = () => {
+    if (!form.fullName || !form.email || !form.amount) {
+      setToast({
+        show: true,
+        type: "error",
+        message: "Please fill in all required fields",
+      });
+      return false;
+    }
+    if (Number(form.amount) <= 0) {
+      setToast({
+        show: true,
+        type: "error",
+        message: "Amount must be greater than zero",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const config = {
-    public_key: import.meta.env.VITE_FLW_PUBLIC_KEY,
+    public_key: import.meta.env.VITE_FLW_PUBLIC_KEY || "", // ✅ fallback
     tx_ref: `donation-${Date.now()}`,
     amount: Number(form.amount),
     currency: "NGN",
@@ -50,14 +76,25 @@ const DonationForm = () => {
             { transaction_id: response.transaction_id, ...form }
           );
           setToast({ show: true, type: "success", message: res.data.message });
+
+          // Go back after success
+          setTimeout(() => navigate(-1), 2000);
         } else {
-          setToast({ show: true, type: "error", message: "Payment not completed." });
+          setToast({
+            show: true,
+            type: "error",
+            message: "Payment not completed.",
+          });
         }
       } catch {
-        setToast({ show: true, type: "error", message: "Payment verification failed." });
+        setToast({
+          show: true,
+          type: "error",
+          message: "Payment verification failed.",
+        });
       }
       setLoading(false);
-      closePaymentModal();
+      closePaymentModal(); // close Flutterwave modal
     },
     onClose: () => setLoading(false),
   };
@@ -69,11 +106,22 @@ const DonationForm = () => {
 
         {["fullName", "email", "amount", "message"].map((field) => (
           <div key={field} className={styles.inputGroup}>
-            <label>{field === "amount" ? "Amount (NGN)" : field.charAt(0).toUpperCase() + field.slice(1)}</label>
+            <label>
+              {field === "amount"
+                ? "Amount (NGN)"
+                : field.charAt(0).toUpperCase() + field.slice(1)}
+            </label>
             {field === "message" ? (
-              <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} />
+              <textarea
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+              />
             ) : (
-              <input type={field === "amount" ? "number" : "text"} value={form[field]} onChange={(e) => setForm({ ...form, [field]: e.target.value })} />
+              <input
+                type={field === "amount" ? "number" : "text"}
+                value={form[field]}
+                onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+              />
             )}
           </div>
         ))}
@@ -82,15 +130,12 @@ const DonationForm = () => {
           {...fwConfig}
           className={`${styles.submitButton} ${loading ? styles.loading : ""}`}
           disabled={loading}
-        >
-          {loading ? (
-            <>
-              <div className={styles.spinner}></div> Processing...
-            </>
-          ) : (
-            "Donate Now"
-          )}
-        </FlutterWaveButton>
+          onClick={(e) => {
+            if (!handleValidation()) {
+              e.preventDefault(); // stop payment if invalid
+            }
+          }}
+        />
       </div>
 
       {toast.show && (
