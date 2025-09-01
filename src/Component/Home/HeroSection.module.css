@@ -40,6 +40,31 @@
   animation: fadeInUp 1s ease-out;
 }
 
+.ratingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border-color);
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+}
+
+.stars span {
+  color: #fbbf24;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+}
+
+.ratingScore {
+  font-weight: 700;
+}
+
+.ratingText {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
 .heroTitle {
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 800;
@@ -105,6 +130,35 @@
 .heroButton:focus {
   outline: 2px solid var(--accent-secondary);
   outline-offset: 2px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  width: min(900px, 92%);
+}
+
+.metricCard {
+  background: color-mix(in srgb, var(--bg-primary) 70%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.metricValue {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+}
+
+.metricLabel {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .navigationDots {
@@ -208,6 +262,10 @@
   .heroContent {
     padding: 0.75rem;
     max-width: 90%;
+  }
+  .metrics {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
   .heroButtons {
     flex-direction: column;
