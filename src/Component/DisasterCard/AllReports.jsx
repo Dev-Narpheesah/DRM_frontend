@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { API_URL } from "../../config";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Sidebar from "../SideBar/SideBar";
@@ -20,7 +21,7 @@ const AllReports = () => {
       setError(null);
 
       try {
-        const response = await fetch("https://drm-backend.vercel.app/api/reports", {
+        const response = await fetch(`${API_URL}/reports`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { API_URL } from "../../config";
 import { useLocation } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -25,7 +26,7 @@ const DisasterCard = () => {
 
       try {
         const response = await fetch(
-          `https://drm-backend.vercel.app/api/reports`,
+          `${API_URL}/reports`,
           {
             method: "GET",
             headers: {

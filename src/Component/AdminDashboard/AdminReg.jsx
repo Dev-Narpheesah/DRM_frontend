@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { API_URL } from "../../config";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./AdminDashboard.module.css";
 import { toast } from "react-toastify";
@@ -52,7 +53,7 @@ const AdminReg = () => {
       setIsSubmitting(true);
 
       try {
-        const endpoint = "https://drm-backend.vercel.app/api/admin/register";
+        const endpoint = `${API_URL}/admin/register`;
 
         const response = await fetch(endpoint, {
           method: "POST",

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { API_URL } from "../../config";
 import Sidebar from "../SideBar/SideBar";
 import styles from "./UserDashboard.module.css";
 
@@ -20,14 +21,14 @@ const UserDashboard = () => {
 
       // Combine token-owned and email-submitted reports
       const [byToken, byEmail] = await Promise.all([
-        fetch("https://drm-backend.vercel.app/api/reports/my", {
+        fetch(`${API_URL}/reports/my`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
         }),
         fetch(
-          `https://drm-backend.vercel.app/api/reports/my?email=${encodeURIComponent(
+          `${API_URL}/reports/my?email=${encodeURIComponent(
           userEmail
           )}`,
           { headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` } }

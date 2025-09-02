@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FlutterWaveButton, closePaymentModal } from "flutterwave-react-v3";
 import axios from "axios";
+import { API_URL } from "../../config";
 import { useNavigate } from "react-router-dom";
 import styles from "./DonationForm.module.css";
 
@@ -71,10 +72,7 @@ const DonationForm = () => {
       setLoading(true);
       try {
         if (response.status === "successful") {
-          const res = await axios.post(
-            "https://drm-backend.vercel.app/api/donations/verify",
-            { transaction_id: response.transaction_id, ...form }
-          );
+          const res = await axios.post(`${API_URL}/donations/verify`, { transaction_id: response.transaction_id, ...form });
           setToast({ show: true, type: "success", message: res.data.message });
 
           // Go back after success

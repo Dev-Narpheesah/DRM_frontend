@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_URL } from "../../config";
 import styles from "./DonationsList.module.css";
 
 const DonationsList = () => {
@@ -9,9 +10,7 @@ const DonationsList = () => {
   useEffect(() => {
     const fetchDonations = async () => {
       try {
-        const res = await axios.get(
-          "https://drm-backend.vercel.app/api/donations"
-        );
+        const res = await axios.get(`${API_URL}/donations`);
         setDonations(res.data.donations || []);
       } catch (error) {
         console.error("Failed to fetch donations", error);

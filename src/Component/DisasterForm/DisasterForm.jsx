@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
 import { toast } from "react-toastify";
 import styles from "./DisasterForm.module.css";
+import { API_URL } from "../../config";
 
 const initialState = {
   email: "",
@@ -63,7 +64,7 @@ const DisasterForm = () => {
     try {
       const token = JSON.parse(localStorage.getItem("user") || "{}").token;
       const response = await fetch(
-        "https://drm-backend.vercel.app/api/reports",
+        `${API_URL}/reports`,
         {
           method: "POST",
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,

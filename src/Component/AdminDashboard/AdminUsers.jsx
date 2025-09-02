@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { API_URL } from "../../config";
 import { toast } from "react-toastify";
 import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminDashboard.module.css";
@@ -22,7 +23,7 @@ const AdminUsers = () => {
     const fetchUsers = async () => {
       try {
         const adminToken = localStorage.getItem("adminToken");
-        const res = await fetch("https://drm-backend.vercel.app/api/admin/users", {
+        const res = await fetch(`${API_URL}/admin/users`, {
           headers: { Authorization: `Bearer ${adminToken}` },
         });
         if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
@@ -45,7 +46,7 @@ const AdminUsers = () => {
     
     try {
       const adminToken = localStorage.getItem("adminToken");
-      const res = await fetch(`https://drm-backend.vercel.app/api/admin/users/${userId}`, {
+      const res = await fetch(`${API_URL}/admin/users/${userId}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${adminToken}` },
       });

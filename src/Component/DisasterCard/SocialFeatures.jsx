@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL as API_URL_BASE } from "../../config";
 import { FaHeart, FaRegHeart, FaStar, FaRegStar, FaComment } from "react-icons/fa";
 import CommentSection from "./CommentSection";
 import styles from "./SocialFeatures.module.css";
@@ -7,7 +8,7 @@ import styles from "./SocialFeatures.module.css";
 import { toast } from "react-toastify";
 
 const SocialFeatures = ({ reportId }) => {
-  const API_URL = "https://drm-backend.vercel.app/api";
+  const API_URL = API_URL_BASE;
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const authToken = storedUser?.token;
   const userId = storedUser?.id || storedUser?._id || null;
