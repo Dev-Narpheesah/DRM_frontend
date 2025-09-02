@@ -1,8 +1,49 @@
-# React + Vite
+## Disaster Relief Management System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Frontend (Vite + React)
 
-Currently, two official plugins are available:
+1) Install deps:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+```
+
+2) Create `.env` in project root:
+
+```bash
+VITE_API_URL=http://localhost:4000/api
+```
+
+3) Start dev server:
+
+```bash
+npm run dev
+```
+
+### Backend (Express, in-memory demo)
+
+1) Install deps:
+
+```bash
+cd server && npm install
+```
+
+2) Create `server/.env`:
+
+```bash
+PORT=4000
+CLIENT_ORIGIN=http://localhost:5173
+JWT_SECRET=change_me
+```
+
+3) Start:
+
+```bash
+npm run start
+```
+
+### Notes
+
+- Endpoints: `/api/auth/*`, `/api/user/*` (compat), `/api/reports/*`, `/api/comments/*`, `/api/likes/*`, `/api/donations/*`, `/api/admin/*`
+- File uploads served at `/uploads/*`
+- Data is ephemeral (in-memory). Replace with a DB for production.

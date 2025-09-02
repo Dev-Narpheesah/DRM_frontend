@@ -19,8 +19,7 @@ import {
 } from "@heroicons/react/24/outline";
 
 import styles from "./SideBar.module.css";
-
-const API_URL = "https://drm-backend.vercel.app/api";
+import { API_URL } from "../../config";
 
 const Sidebar = ({ username, isAdmin, isOpen = true, onToggle }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(isOpen);

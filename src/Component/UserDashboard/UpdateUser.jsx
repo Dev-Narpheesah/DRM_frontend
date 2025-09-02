@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_URL } from "../../config";
 import { toast } from "react-toastify";
 import styles from "./UpdateUser.module.css";
 
@@ -21,7 +22,7 @@ const UpdateUser = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch(`https://drm-backend.vercel.app/api/user/${id}`)
+        const response = await fetch(`${API_URL}/user/${id}`)
         // (
         //   `http://localhost:4000/api/user/${id}`
         // );
@@ -47,7 +48,7 @@ const UpdateUser = () => {
 
     try {
       const response = await axios.put(
-        `https://drm-backend.vercel.app/api/user/${id}`,
+        `${API_URL}/user/${id}`,
         formData
       );
 

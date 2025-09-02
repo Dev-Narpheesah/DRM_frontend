@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { API_URL as API_BASE } from "../../config";
 import DownArrow from '../../assets/down-arrow.svg?react';
 import UpArrow from '../../assets/up-arrow.svg?react';
 import './CommentSection.css';
 
-const API_URL = 'https://drm-backend.vercel.app/api' || 'http://localhost:4000/api';
+const API_URL = API_BASE;
 const authToken = JSON.parse(localStorage.getItem('user') || '{}')?.token;
 
 const CommentSection = ({ reportId, composerAtBottom = false }) => {

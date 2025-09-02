@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { API_URL } from "../../config";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./DisasterReport.module.css";
 import Map from "../Map/MapLeaf";
@@ -32,9 +33,7 @@ const DisasterReport = () => {
 
       try {
         const response = await fetch(
-          // `https://drm-backend.vercel.app/api/user/${id}`,
-
-          `https://drm-backend.vercel.app/api/reports/${id}`,
+          `${API_URL}/reports/${id}`,
 
           {
             method: "GET",

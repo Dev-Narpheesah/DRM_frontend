@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API_URL } from "../../config";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PasswordInput from "../passwordInput/passwordInput";
@@ -49,7 +50,7 @@ const Register = () => {
 
     try {
       const response = await fetch(
-        "https://drm-backend.vercel.app/api/user/register",
+        `${API_URL}/user/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

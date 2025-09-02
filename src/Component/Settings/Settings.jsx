@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from "../../config";
 import { toast } from 'react-toastify';
 import styles from './Settings.module.css';
 
@@ -19,7 +20,7 @@ const Settings = () => {
       try {
         const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
         if (!token) throw new Error('Please sign in');
-        const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
+        const response = await fetch(`${API_URL}/auth/me`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         });
@@ -63,7 +64,7 @@ const Settings = () => {
     try {
       const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
       if (!token) throw new Error('Please sign in');
-      const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({
@@ -95,7 +96,7 @@ const Settings = () => {
       formData.append('profilePic', file);
       const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
       if (!token) throw new Error('Please sign in');
-      const response = await fetch('https://drm-backend.vercel.app/api/auth/profile-pic', {
+      const response = await fetch(`${API_URL}/auth/profile-pic`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
@@ -121,7 +122,7 @@ const Settings = () => {
     try {
       const token = JSON.parse(localStorage.getItem('user') || '{}')?.token;
       if (!token) throw new Error('Please sign in');
-      const response = await fetch('https://drm-backend.vercel.app/api/auth/me', {
+      const response = await fetch(`${API_URL}/auth/me`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       });

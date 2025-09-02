@@ -17,8 +17,7 @@ import {
   FaHandshake,
   FaExclamationTriangle,
 } from "react-icons/fa";
-
-const API_URL = "https://drm-backend.vercel.app/api";
+import { API_URL } from "../../config";
 
 
 
