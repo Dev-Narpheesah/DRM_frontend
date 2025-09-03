@@ -64,7 +64,7 @@ const AdminLog = () => {
   );
 
   return (
-    <div className={styles.container_signin}>
+    <div className={styles.container_reg}>
       <form className={styles.container} onSubmit={handleSubmit}>
         <p className={styles.formTitle}>Admin Sign In</p>
 

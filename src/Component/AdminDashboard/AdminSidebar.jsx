@@ -39,7 +39,7 @@ const AdminSidebar = ({ isOpen = true, onToggle, stats = {} }) => {
     { 
       name: "Donations", 
       icon: HeartHandshake, 
-      path: "/donations",
+      path: "/donation",
       description: "Manage & view donations"
     },
     { 

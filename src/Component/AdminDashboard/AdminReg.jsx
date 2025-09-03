@@ -67,7 +67,7 @@ const AdminReg = () => {
 
         const data = await response.json();
         toast.success("Admin registered successfully");
-        navigate("/admin/signin", { state: { user: data.user } });
+        navigate("/adminLog", { state: { user: data.user } });
       } catch (error) {
         console.error("Admin registration error:", error);
         setFormValidMessage(error.message || "Network error. Please try again.");
