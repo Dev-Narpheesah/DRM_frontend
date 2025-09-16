@@ -95,7 +95,7 @@ const SignIn = () => {
         </button>
 
         <p>
-          Don't have an account? <Link to="/signup">Register</Link>
+          Don't have an account? <Link to="/signup" className={styles.coloredLink}>Register</Link>
         </p>
         {formValidMessage && <p className={styles.errorMessage}>{formValidMessage}</p>}
       </form>
