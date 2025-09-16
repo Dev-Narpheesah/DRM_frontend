@@ -33,14 +33,28 @@ const Contact = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-     
-      console.log("Form submitted:", formData);
-      setFormSuccess("Thank you for your message. We will get back to you soon.");
-      setFormData({ name: "", email: "", message: "" });
-      setFormErrors({});
+      try {
+        const res = await fetch("http://localhost:4000/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setFormSuccess("Thank you for your message. We will get back to you soon.");
+          setFormData({ name: "", email: "", message: "" });
+          setFormErrors({});
+        } else {
+          setFormSuccess("");
+          setFormErrors({ message: data.message || "Failed to send message." });
+        }
+      } catch (err) {
+        setFormSuccess("");
+        setFormErrors({ message: "Server error. Please try again later." });
+      }
     }
   };
 
