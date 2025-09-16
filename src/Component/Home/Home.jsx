@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+// ...existing imports...
 import { NavLink, useNavigate } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
 import styles from "./Home.module.css";
@@ -37,8 +38,99 @@ const Home = () => {
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState("");
+  // ...existing code...
+  // Most Current Disaster Reports
+  const [recentDisasters, setRecentDisasters] = useState([]);
+  useEffect(() => {
+    async function fetchRecentDisasters() {
+      try {
+        const res = await fetch(`${API_URL}/reports`);
+        if (!res.ok) throw new Error("Failed to fetch disasters");
+        const data = await res.json();
+        // Sort by createdAt if available, else use as is
+        const sorted = Array.isArray(data)
+          ? data.sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+          : [];
+  setRecentDisasters(sorted.slice(0, 3)); // Show most recent 3
+      } catch (err) {
+        setRecentDisasters([]);
+      }
+    }
+    fetchRecentDisasters();
+  }, []);
+
+
+
+  // Contact Form
+  const [contactName, setContactName] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMessage, setContactMessage] = useState("");
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: contactName, email: contactEmail, message: contactMessage }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast.success('Message sent!');
+      setContactName("");
+      setContactEmail("");
+      setContactMessage("");
+    } else {
+      toast.error(data.error || 'Message failed');
+    }
+  };
   const navRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  // Fetch total amount donated
+  // Fetch all donations for analytics card
+  const [totalDonated, setTotalDonated] = useState(0);
+  useEffect(() => {
+    async function fetchTotalDonated() {
+      try {
+        const res = await fetch(`${API_URL}/donations/total`);
+        if (!res.ok) throw new Error("Failed to fetch total donated");
+        const data = await res.json();
+        setTotalDonated(typeof data.total === 'number' ? data.total : 0);
+      } catch (err) {
+        setTotalDonated(null);
+      }
+    }
+    fetchTotalDonated();
+  }, []);
+
+  // Fetch total disasters reported
+  const [totalDisasters, setTotalDisasters] = useState(0);
+  useEffect(() => {
+    async function fetchTotalDisasters() {
+      try {
+        const res = await fetch(`${API_URL}/reports`);
+        if (!res.ok) throw new Error("Failed to fetch total disasters");
+        const data = await res.json();
+        setTotalDisasters(Array.isArray(data) ? data.length : 0);
+      } catch (err) {
+        setTotalDisasters(null);
+      }
+    }
+    fetchTotalDisasters();
+  }, []);
+
+  // Fetch necessities/resources
+  // useEffect(() => {
+  //   async function fetchNecessities() {
+  //     try {
+  //       const res = await fetch(`${API_URL}/necessities`);
+  //       if (!res.ok) throw new Error("Failed to fetch necessities");
+  //       const data = await res.json();
+  //       setNecessities(Array.isArray(data) ? data : []);
+  //     } catch (err) {
+  //       setNecessities([]);
+  //     }
+  //   }
+  //   fetchNecessities();
+  // }, []);
 
   const handleDashboardClick = () => {
     setIsMenuOpen(false);
@@ -108,138 +200,38 @@ const Home = () => {
                 isActive ? styles.active : ""
               }`
             }
-            onClick={item.onClick || (isDropdown ? toggleMenu : undefined)}
           >
             {item.label}
           </NavLink>
         )}
       </li>
     ));
-
-  const useMyLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation not supported", {
-        className: styles.errorToast,
-      });
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        setQuery((q) => ({
-          ...q,
-          location: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-        }));
-        toast.success("Location filled", { className: styles.successToast });
-      },
-      () =>
-        toast.error("Unable to get location", { className: styles.errorToast }),
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  };
-
-  const onSearch = async (e) => {
-    e.preventDefault();
-    setSearching(true);
-    setSearchError("");
-    try {
-      const res = await fetch(`${API_URL}/reports`);
-      if (!res.ok) throw new Error("Failed to fetch reports");
-      const data = await res.json();
-      const filtered = (Array.isArray(data) ? data : []).filter((r) => {
-        const matchesLocation = query.location
-          ? (r.location || "")
-              .toLowerCase()
-              .includes(query.location.toLowerCase())
-          : true;
-        const typeFilter = activeCategory || query.type;
-        const matchesType = typeFilter
-          ? (r.disasterType || "")
-              .toLowerCase()
-              .includes(typeFilter.toLowerCase())
-          : true;
-        const created = r.createdAt ? new Date(r.createdAt) : null;
-        const startOk = query.start
-          ? created
-            ? created >= new Date(query.start)
-            : false
-          : true;
-        const endOk = query.end
-          ? created
-            ? created <= new Date(query.end)
-            : false
-          : true;
-        return matchesLocation && matchesType && startOk && endOk;
-      });
-      setResults(filtered.slice(0, 12));
-      if (filtered.length === 0) {
-        toast.warn("No results found", { className: styles.warnToast });
-      }
-    } catch (err) {
-      setSearchError(err.message || "Search failed");
-      toast.error(err.message || "Search failed", {
-        className: styles.errorToast,
-      });
-    } finally {
-      setSearching(false);
-    }
-  };
-
+  // ...existing code...
   return (
     <div className={`${styles.container} ${isDarkMode ? styles.dark : ""}`}>
-      <header
-        className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}
-      >
+      <header className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}>
         <div className={styles.headerContent}>
           <div className={styles.headerLogo}>
             <h1 className={styles.logo}>Relief</h1>
             <span className={styles.tagline}>Disaster Response Management</span>
           </div>
-          <nav
-            className={styles.nav}
-            ref={navRef}
-            aria-label="Primary navigation"
-          >
+          <nav className={styles.nav} ref={navRef} aria-label="Primary navigation">
             <ul className={styles.navLinks}>{renderNavLinks(false)}</ul>
             <div className={styles.navActions}>
               <ThemeToggle />
-              <button
-                className={styles.menuButton}
-                onClick={toggleMenu}
-                aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={isMenuOpen}
-                aria-controls="dropdown-menu"
-              >
+              <button className={styles.menuButton} onClick={toggleMenu} aria-label={isMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMenuOpen} aria-controls="dropdown-menu">
                 {isMenuOpen ? (
-                  // X icon
-                  <svg
-                    className={styles.menuIcon}
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    aria-hidden="true"
-                  >
+                  <svg className={styles.menuIcon} viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
                     <path d="M6 6l12 12M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 ) : (
-                  // Menu (hamburger) icon
-                  <svg
-                    className={styles.menuIcon}
-                    viewBox="0 0 24 24"
-                    width="24"
-                    height="24"
-                    aria-hidden="true"
-                  >
+                  <svg className={styles.menuIcon} viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
                     <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 )}
               </button>
             </div>
-            <div
-              id="dropdown-menu"
-              className={`${styles.dropdown} ${isMenuOpen ? styles.open : ""}`}
-              role="menu"
-            >
+            <div id="dropdown-menu" className={`${styles.dropdown} ${isMenuOpen ? styles.open : ""}`} role="menu">
               <ul className={styles.dropdownLinks}>{renderNavLinks(true)}</ul>
             </div>
           </nav>
@@ -247,135 +239,46 @@ const Home = () => {
       </header>
 
       <main className={styles.main}>
+        {/* Restore original HeroSection with cycling images */}
         <HeroSection />
-        <section className={styles.features}>
-          <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Why Choose Relief?</h2>
-            <div className={styles.featuresGrid}>
-              <FeatureCard
-                icon={<FaBolt />}
-                title="Real-time Reporting"
-                description="Report disasters instantly with location tracking and photo evidence"
-              />
-              <FeatureCard
-                icon={<FaUsers />}
-                title="Community Support"
-                description="Connect with volunteers and organizations for immediate assistance"
-              />
-              <FeatureCard
-                icon={<FaChartLine />}
-                title="Data Analytics"
-                description="Track disaster patterns and optimize response strategies"
-              />
-              <FeatureCard
-                icon={<FaShieldAlt />}
-                title="Transparent Donations"
-                description="Direct donations to verified relief efforts with full transparency"
-              />
+
+        {/* Impact Stats (Card-Based, Live Data) */}
+        <section className={styles.statsSection}>
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <h3>Funds Raised</h3>
+              <p>{totalDonated !== null ? `₦${totalDonated.toLocaleString()}` : 'Loading...'}</p>
+            </div>
+            <div className={styles.statCard}>
+              <h3>Disasters Reported</h3>
+              <p>{totalDisasters !== null ? totalDisasters : 'Loading...'}</p>
             </div>
           </div>
         </section>
 
-        <About />
-
-        <section className={styles.CallToAction}>
-          <div className={styles.ctaContent}>
-            <h2>Join Us in Making a Difference</h2>
-            <p>
-              Become a part of our mission to provide effective disaster relief
-              and support to those in need. Every report, every donation, every
-              volunteer makes a real impact.
-            </p>
-            <div className={styles.ctaButtons}>
-              <NavLink
-                to="/disForm"
-                className={`${styles.CtaBtn} ${styles.primary}`}
-                aria-label="Report a disaster now"
-              >
-                Report Now
-              </NavLink>
-              <NavLink
-                to="/donate"
-                className={`${styles.CtaBtn} ${styles.action}`}
-                aria-label="Donate today"
-              >
-                Donate Today
-              </NavLink>
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.testimonials}>
-          <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>What People Are Saying</h2>
-            <div className={styles.testimonialItems}>
-              <Testimonial
-                quote="This platform has transformed how we manage resources during crises. The real-time reporting feature is a game-changer."
-                author="John Doe"
-                role="Relief Coordinator"
-                avatar={<FaShieldAlt />}
-              />
-              <Testimonial
-                quote="As a volunteer, I can quickly respond to disasters in my area. The community features make coordination seamless."
-                author="Jane Smith"
-                role="Volunteer"
-                avatar={<FaUsers />}
-              />
-              <Testimonial
-                quote="The transparency in donations gives me confidence that my contributions are making a real difference."
-                author="Mike Johnson"
-                role="Donor"
-                avatar={<FaHeart />}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.stats}>
-          <div className={styles.container}>
-            <h2 className={styles.sectionTitle}>Our Impact</h2>
-            <div className={styles.statsItems}>
-              <Stat number="1000+" text="Lives Impacted" icon={<FaHeart />} />
-              <Stat
-                number="500+"
-                text="Resources Managed"
-                icon={<FaBoxOpen />}
-              />
-              <Stat
-                number="200+"
-                text="Volunteers Engaged"
-                icon={<FaHandshake />}
-              />
-              <Stat
-                number="50+"
-                text="Disasters Responded"
-                icon={<FaExclamationTriangle />}
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* <section className={styles.emergency}>
-          <div className={styles.container}>
-            <div className={styles.emergencyContent}>
-              <h2>Emergency? Need Immediate Help?</h2>
-              <p>
-                Call emergency services immediately if you're in immediate
-                danger
-              </p>
-              <div className={styles.emergencyNumbers}>
-                <div className={styles.emergencyNumber}>
-                  <span className={styles.number}>911</span>
-                  <span className={styles.label}>Emergency</span>
+        {/* Most Current Disaster Reports (Card-Based) */}
+        <section className={styles.newsSection}>
+          <h2 className={styles.sectionTitle}>Most Recent Disaster Reports</h2>
+          <div className={styles.newsGrid}>
+            {recentDisasters.length === 0 ? (
+              <div className={styles.newsCard}>No disaster reports available.</div>
+            ) : (
+              recentDisasters.map((item) => (
+                <div className={styles.newsCard} key={item._id || item.location+item.date}>
+                  <h3>{item.disasterType} in {item.location}</h3>
+                  {item.image && item.image.url && (
+                    <img src={item.image.url} alt={item.disasterType} className={styles.newsImage} />
+                  )}
+                  <span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString() : (item.date ? new Date(item.date).toLocaleDateString() : '')}</span>
                 </div>
-                <div className={styles.emergencyNumber}>
-                  <span className={styles.number}>1-800-RED-CROSS</span>
-                  <span className={styles.label}>Red Cross</span>
-                </div>
-              </div>
-            </div>
+              ))
+            )}
           </div>
-        </section> */}
+        </section>
+
+
+        {/* No contact section on homepage; navigation to contact is via footer only. */}
+
       </main>
 
       <Footer />
